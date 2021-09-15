@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'dev.warrant'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+}
