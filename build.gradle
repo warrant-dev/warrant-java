@@ -1,11 +1,11 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
     id 'signing'
 }
 
-group = 'dev.warrant'
-version = '0.1.0'
+group = "dev.warrant"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -14,4 +14,62 @@ repositories {
 dependencies {
     implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'warrant-java'
+            from components.java
+            pom {
+                name = 'Warrant Java SDK'
+                description = 'Warrant SDK for Java.'
+                url = 'https://github.com/warrant-dev/warrant-java'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        // id =
+                        name = 'Aditya Kajla'
+                        email = 'hello@warrant.dev'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/warrant-dev/warrant-java.git'
+                    developerConnection = 'scm:git:https://github.com/warrant-dev/warrant-java.git'
+                    url = 'https://github.com/warrant-dev/warrant-java'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'ttps://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }
