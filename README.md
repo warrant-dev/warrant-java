@@ -2,6 +2,9 @@
 
 Use [Warrant](https://warrant.dev/) in server-side Java projects.
 
+[![Maven Central](https://img.shields.io/maven-central/v/dev.warrant/warrant-java)](https://mvnrepository.com/artifact/dev.warrant/warrant-java)
+[![Discord](https://img.shields.io/discord/865661082203193365?label=discord)](https://discord.gg/QNCMKWzqET)
+
 ## Installation
 
 ### Gradle
