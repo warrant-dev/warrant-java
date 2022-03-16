@@ -15,13 +15,13 @@ public class Session {
         return new Session("ssdash", userId, tenantId, redirectUrl);
     }
 
-    public Session(String type, String userId, String redirectUrl) {
+    private Session(String type, String userId, String redirectUrl) {
         this.type = type;
         this.userId = userId;
         this.redirectUrl = redirectUrl;
     }
 
-    public Session(String type, String userId, String tenantId, String redirectUrl) {
+    private Session(String type, String userId, String tenantId, String redirectUrl) {
         this.type = type;
         this.userId = userId;
         this.tenantId = tenantId;
