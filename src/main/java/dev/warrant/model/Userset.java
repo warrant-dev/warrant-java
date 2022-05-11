@@ -6,6 +6,10 @@ public class Userset {
     private String objectId;
     private String relation;
 
+    public Userset() {
+        // For json serialization
+    }
+
     public Userset(String objectType, String objectId, String relation) {
         this.objectType = objectType;
         this.objectId = objectId;
