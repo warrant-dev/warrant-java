@@ -2,6 +2,7 @@ package dev.warrant.model;
 
 public abstract class Warrant {
 
+    private Integer id;
     private String objectType;
     private String objectId;
     private String relation;
@@ -14,10 +15,18 @@ public abstract class Warrant {
         return new UsersetWarrant(objectType, objectId, relation, user);
     }
 
+    public Warrant() {
+        // For json serialization
+    }
+
     public Warrant(String objectType, String objectId, String relation) {
         this.objectType = objectType;
         this.objectId = objectId;
         this.relation = relation;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public String getObjectType() {

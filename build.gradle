@@ -14,6 +14,7 @@ repositories {
 dependencies {
     implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+    implementation group: 'org.glassfish.jersey.core', name: 'jersey-common', version: '2.22.2'
 }
 
 java {
