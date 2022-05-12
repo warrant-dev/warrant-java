@@ -17,10 +17,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
-import dev.warrant.model.Warrant;
+import dev.warrant.model.Permission;
+import dev.warrant.model.Role;
+import dev.warrant.model.Session;
+import dev.warrant.model.Tenant;
 import dev.warrant.model.User;
 import dev.warrant.model.UsersetWarrant;
-import dev.warrant.model.Tenant;
+import dev.warrant.model.Warrant;
 
 public class WarrantClient {
 
@@ -99,6 +102,65 @@ public class WarrantClient {
         return false;
     }
 
+    public Role createRole(String roleId) throws WarrantException {
+        Role role = new Role(roleId);
+        HttpResponse<String> resp = makePostRequest("/roles", role);
+        try {
+            Role newRole = mapper.readValue(resp.body(), Role.class);
+            return newRole;
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public void deleteRole(String roleId) throws WarrantException {
+        makeDeleteRequest("/roles/" + roleId);
+    }
+
+    public Role assignRoleToUser(String userId, String roleId) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/users/" + userId + "/roles/" + roleId, Collections.EMPTY_MAP);
+        try {
+            Role newRole = mapper.readValue(resp.body(), Role.class);
+            return newRole;
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public void removeRoleFromUser(String userId, String roleId) throws WarrantException {
+        makeDeleteRequest("/users/" + userId + "/roles/" + roleId);
+    }
+
+    public Permission createPermission(String permissionId) throws WarrantException {
+        Permission permission = new Permission(permissionId);
+        HttpResponse<String> resp = makePostRequest("/permissions", permission);
+        try {
+            Permission newPermission = mapper.readValue(resp.body(), Permission.class);
+            return newPermission;
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public void deletePermission(String permissionId) throws WarrantException {
+        makeDeleteRequest("/permissions/" + permissionId);
+    }
+
+    public Permission assignPermissionToUser(String userId, String permissionId) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/users/" + userId + "/permissions/" + permissionId,
+                Collections.EMPTY_MAP);
+        try {
+            Permission newPermission = mapper.readValue(resp.body(), Permission.class);
+            return newPermission;
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public void removePermissionFromUser(String userId, String permissionId) throws WarrantException {
+        makeDeleteRequest("/users/" + userId + "/permissions/" + permissionId);
+    }
+
     public void createWarrant(Warrant toCreate) throws WarrantException {
         HttpResponse<String> resp = makePostRequest("/warrants", toCreate);
         if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
@@ -127,23 +189,38 @@ public class WarrantClient {
         }
     }
 
+    public String createSelfServiceSession(Session session) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/sessions", session);
+        try {
+            JsonNode respBody = mapper.readTree(resp.body());
+            return respBody.get("url").asText();
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public boolean hasPermission(String permissionId, String userId) throws WarrantException {
+        return isAuthorized(Warrant.newUserWarrant("permission", permissionId, "member", userId));
+    }
+
     private HttpResponse<String> makePostRequest(String uri, Object reqPayload) throws WarrantException {
         try {
             String payload = mapper.writeValueAsString(reqPayload);
             HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(config.getUrl() + uri))
-                .POST(HttpRequest.BodyPublishers.ofString(payload))
-                .header("Authorization", "ApiKey " + config.getApiKey())
-                .build();
+                    .uri(URI.create(config.getUrl() + uri))
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .header("Authorization", "ApiKey " + config.getApiKey())
+                    .build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode() && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            if ((statusCode >= Response.Status.OK.getStatusCode()
+                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
+                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch(IOException|InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new WarrantException(e);
         }
     }
@@ -160,15 +237,36 @@ public class WarrantClient {
                 .GET()
                 .header("Authorization", "ApiKey " + config.getApiKey())
                 .build();
+                HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+                int statusCode = resp.statusCode();
+                if ((statusCode >= Response.Status.OK.getStatusCode() && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
+                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+                    return resp;
+                } else {
+                    throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
+                }
+            } catch(IOException|InterruptedException e) {
+                throw new WarrantException(e);
+            }
+        }
+
+    private HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(config.getUrl() + uri))
+                    .DELETE()
+                    .header("Authorization", "ApiKey" + config.getApiKey())
+                    .build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode() && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            if ((statusCode >= Response.Status.OK.getStatusCode()
+                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
+                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch(IOException|InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new WarrantException(e);
         }
     }
