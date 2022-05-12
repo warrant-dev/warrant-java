@@ -199,14 +199,6 @@ public class WarrantClient {
         }
     }
 
-    public boolean isAuthorized(Warrant toCheck) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/authorize", toCheck);
-        if (resp.statusCode() == Response.Status.OK.getStatusCode()) {
-            return true;
-        }
-        return false;
-    }
-
     public boolean hasPermission(String permissionId, String userId) throws WarrantException {
         return isAuthorized(Warrant.newUserWarrant("permission", permissionId, "member", userId));
     }
