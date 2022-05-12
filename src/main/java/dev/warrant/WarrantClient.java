@@ -28,10 +28,14 @@ public class WarrantClient {
     private final WarrantConfig config;
     private final ObjectMapper mapper;
 
-    public WarrantClient(WarrantConfig config) {
-        client = HttpClient.newHttpClient();
+    WarrantClient(WarrantConfig config, HttpClient client) {
         this.config = config;
+        this.client = client;
         this.mapper = new ObjectMapper();
+    }
+
+    public WarrantClient(WarrantConfig config) {
+        this(config, HttpClient.newHttpClient());
     }
 
     public User createUser() throws WarrantException {

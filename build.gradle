@@ -15,6 +15,17 @@ dependencies {
     implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
     implementation group: 'org.glassfish.jersey.core', name: 'jersey-common', version: '2.22.2'
+
+    testImplementation(platform('org.junit:junit-bom:5.8.2'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testImplementation('org.mockito:mockito-core:3.+')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+		events "passed", "skipped", "failed"
+	}
 }
 
 java {
@@ -58,8 +69,8 @@ publishing {
             def snapshotsRepoUrl = 'ttps://s01.oss.sonatype.org/content/repositories/snapshots/'
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
-                username = ossrhUsername
-                password = ossrhPassword
+                username = hasProperty('ossrhUsername')?ossrhUsername:''
+                password = hasProperty('ossrhPassword')?ossrhPassword:''
             }
         }
     }
