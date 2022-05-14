@@ -172,12 +172,12 @@ public class WarrantClient {
         HttpResponse<String> resp = makeGetRequest("/warrants", filters);
         try {
             UsersetWarrant[] warrants = mapper.readValue(resp.body(), UsersetWarrant[].class);
-            
+
             return warrants;
         } catch (IOException e) {
             throw new WarrantException(e);
         }
-    } 
+    }
 
     public String createSession(String userId) throws WarrantException {
         HttpResponse<String> resp = makePostRequest("/users/" + userId + "/sessions", Collections.EMPTY_MAP);
@@ -233,22 +233,23 @@ public class WarrantClient {
             }
 
             HttpRequest req = HttpRequest.newBuilder()
-                .uri(builder.build())
-                .GET()
-                .header("Authorization", "ApiKey " + config.getApiKey())
-                .build();
-                HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-                int statusCode = resp.statusCode();
-                if ((statusCode >= Response.Status.OK.getStatusCode() && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
+                    .uri(builder.build())
+                    .GET()
+                    .header("Authorization", "ApiKey " + config.getApiKey())
+                    .build();
+            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            int statusCode = resp.statusCode();
+            if ((statusCode >= Response.Status.OK.getStatusCode()
+                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
                     || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
-                    return resp;
-                } else {
-                    throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-                }
-            } catch(IOException|InterruptedException e) {
-                throw new WarrantException(e);
+                return resp;
+            } else {
+                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
+        } catch (IOException | InterruptedException e) {
+            throw new WarrantException(e);
         }
+    }
 
     private HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
         try {
