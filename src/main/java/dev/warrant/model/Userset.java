@@ -1,7 +1,7 @@
 package dev.warrant.model;
 
 public class Userset {
-    
+
     private String objectType;
     private String objectId;
     private String relation;
@@ -27,5 +27,5 @@ public class Userset {
     public String getRelation() {
         return relation;
     }
-    
+
 }

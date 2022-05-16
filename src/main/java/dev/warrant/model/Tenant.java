@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(value = { "name", "createdAt", "updatedAt" })
 public class Tenant {
     private String tenantId;
+    private String name;
 
     public Tenant() {
         // For json serialization
@@ -20,5 +21,13 @@ public class Tenant {
 
     public void setTenantId(String tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

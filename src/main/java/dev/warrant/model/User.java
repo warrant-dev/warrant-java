@@ -15,7 +15,7 @@ public class User {
         this.email = "";
         this.userId = userId;
     }
-    
+
     public User(String userId, String email) {
         this.userId = userId;
         this.email = email;
