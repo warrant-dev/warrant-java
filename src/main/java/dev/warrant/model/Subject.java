@@ -1,31 +1,31 @@
 package dev.warrant.model;
 
-public class Userset {
-
+public class Subject {
     private String objectType;
     private String objectId;
-    private String relation;
 
-    public Userset() {
+    public Subject() {
         // For json serialization
     }
 
-    public Userset(String objectType, String objectId, String relation) {
+    public Subject(String objectType, String objectId) {
         this.objectType = objectType;
         this.objectId = objectId;
-        this.relation = relation;
     }
 
     public String getObjectType() {
         return objectType;
     }
 
+    public void setObjectType(String objectType) {
+        this.objectType = objectType;
+    }
+
     public String getObjectId() {
         return objectId;
     }
 
-    public String getRelation() {
-        return relation;
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
     }
-
 }

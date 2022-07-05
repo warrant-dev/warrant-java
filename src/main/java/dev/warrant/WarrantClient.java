@@ -20,9 +20,9 @@ import dev.warrant.exception.WarrantException;
 import dev.warrant.model.Permission;
 import dev.warrant.model.Role;
 import dev.warrant.model.Session;
+import dev.warrant.model.Subject;
 import dev.warrant.model.Tenant;
 import dev.warrant.model.User;
-import dev.warrant.model.UsersetWarrant;
 import dev.warrant.model.Warrant;
 
 public class WarrantClient {
@@ -168,10 +168,10 @@ public class WarrantClient {
         }
     }
 
-    public UsersetWarrant[] listWarrants(Map<String, Object> filters) throws WarrantException {
+    public Warrant[] listWarrants(Map<String, Object> filters) throws WarrantException {
         HttpResponse<String> resp = makeGetRequest("/warrants", filters);
         try {
-            UsersetWarrant[] warrants = mapper.readValue(resp.body(), UsersetWarrant[].class);
+            Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
 
             return warrants;
         } catch (IOException e) {
@@ -200,7 +200,9 @@ public class WarrantClient {
     }
 
     public boolean hasPermission(String permissionId, String userId) throws WarrantException {
-        return isAuthorized(Warrant.newUserWarrant("permission", permissionId, "member", userId));
+        Subject userSubject = new Subject("user", userId);
+        Warrant permissionWarrant = new Warrant("permission", permissionId, "member", userSubject);
+        return isAuthorized(permissionWarrant);
     }
 
     private HttpResponse<String> makePostRequest(String uri, Object reqPayload) throws WarrantException {

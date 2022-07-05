@@ -1,28 +1,22 @@
 package dev.warrant.model;
 
-public abstract class Warrant {
+public class Warrant {
 
     private Integer id;
     private String objectType;
     private String objectId;
     private String relation;
-
-    public static Warrant newUserWarrant(String objectType, String objectId, String relation, String userId) {
-        return new UserWarrant(objectType, objectId, relation, userId);
-    }
-
-    public static Warrant newUsersetWarrant(String objectType, String objectId, String relation, Userset user) {
-        return new UsersetWarrant(objectType, objectId, relation, user);
-    }
+    private Subject subject;
 
     public Warrant() {
         // For json serialization
     }
 
-    public Warrant(String objectType, String objectId, String relation) {
+    public Warrant(String objectType, String objectId, String relation, Subject subject) {
         this.objectType = objectType;
         this.objectId = objectId;
         this.relation = relation;
+        this.subject = subject;
     }
 
     public Integer getId() {
@@ -39,5 +33,9 @@ public abstract class Warrant {
 
     public String getRelation() {
         return relation;
+    }
+
+    public Subject getSubject() {
+        return subject;
     }
 }

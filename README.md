@@ -40,7 +40,9 @@ public static void main(String[] args) throws WarrantException, IOException {
     System.out.println("Created user with provided id " + user2.getUserId());
 
     // Create and check warrants
-    client.createWarrant(Warrant.newUserWarrant("store", "store1", "owner", user1.getUserId()));
+    Subject warrantSubject = new Subject("user", user1.getUserId());
+    Warrant warrantToCreate = new Warrant("store", "store1", "owner", warrantSubject);
+    client.createWarrant(warrantToCreate);
     // Should be "true"
     System.out.println(user1.getUserId() + ": " + client.isAuthorized(Warrant.newUserWarrant("store", "store1", "owner", user1.getUserId())));
     // Should be "false"
