@@ -195,13 +195,6 @@ public class WarrantClient {
     }
 
     public WarrantCheckResult isAuthorized(WarrantCheck toCheck) throws WarrantException {
-        String op = toCheck.getOp();
-        if (op == null || op.isEmpty()) {
-            throw new WarrantException("Must include a valid op");
-        }
-        if (!"allOf".equals(op) && !"anyOf".equals(op)) {
-            throw new WarrantException("Invalid op " + op);
-        }
         HttpResponse<String> resp = makePostRequest("/v2/authorize", toCheck);
         if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
             throw new WarrantException("API error: " + resp.statusCode());
@@ -217,7 +210,7 @@ public class WarrantClient {
     public boolean hasPermission(String permissionId, String userId) throws WarrantException {
         Subject userSubject = new Subject("user", userId);
         Warrant permissionWarrant = new Warrant("permission", permissionId, "member", userSubject);
-        WarrantCheck permissionCheck = new WarrantCheck(Arrays.asList(permissionWarrant), "allOf");
+        WarrantCheck permissionCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
         WarrantCheckResult result = isAuthorized(permissionCheck);
         if (result.getCode() == 200) {
             return true;

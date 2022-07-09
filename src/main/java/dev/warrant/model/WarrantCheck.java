@@ -16,6 +16,10 @@ public class WarrantCheck {
         this.op = op;
     }
 
+    public WarrantCheck(List<Warrant> warrants) {
+        this.warrants = warrants;
+    }
+
     public List<Warrant> getWarrants() {
         return warrants;
     }
