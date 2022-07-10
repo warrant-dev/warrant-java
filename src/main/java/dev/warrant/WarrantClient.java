@@ -14,13 +14,11 @@ import javax.ws.rs.core.UriBuilder;
 
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.Permission;
 import dev.warrant.model.Role;
-import dev.warrant.model.Session;
 import dev.warrant.model.Subject;
 import dev.warrant.model.Tenant;
 import dev.warrant.model.User;
@@ -169,26 +167,6 @@ public class WarrantClient {
             Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
 
             return warrants;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
-    }
-
-    public String createSession(String userId) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/users/" + userId + "/sessions", Collections.EMPTY_MAP);
-        try {
-            JsonNode respBody = mapper.readTree(resp.body());
-            return respBody.get("token").asText();
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
-    }
-
-    public String createSelfServiceSession(Session session) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/sessions", session);
-        try {
-            JsonNode respBody = mapper.readTree(resp.body());
-            return respBody.get("url").asText();
         } catch (IOException e) {
             throw new WarrantException(e);
         }
