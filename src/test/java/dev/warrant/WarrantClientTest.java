@@ -47,7 +47,7 @@ public class WarrantClientTest {
                 .thenReturn("{\"userId\":\"sdf872935sdf\", \"createdAt\": \"2022-05-14T02:40:25Z\"}");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        User newUser = warrantClient.createUser("sdf872935sdf");
+        User newUser = warrantClient.createUser(new User("sdf872935sdf"));
         Assertions.assertEquals("sdf872935sdf", newUser.getUserId());
         Assertions.assertNull(newUser.getEmail());
     }
@@ -59,7 +59,7 @@ public class WarrantClientTest {
                 "{\"userId\":\"sdf872934sdf\", \"email\": \"test@test.com\", \"createdAt\": \"2022-05-14T02:40:25Z\"}");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        User newUser = warrantClient.createUser("sdf882934sdf", "test@test.com");
+        User newUser = warrantClient.createUser(new User("sdf882934sdf", "test@test.com"));
         Assertions.assertEquals("sdf872934sdf", newUser.getUserId());
         Assertions.assertEquals("test@test.com", newUser.getEmail());
     }
@@ -83,7 +83,7 @@ public class WarrantClientTest {
                 .thenReturn("{\"tenantId\": \"913241cf\", \"name\": null, \"createdAt\": \"2022-05-16T04:33:39Z\" }");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        Tenant newTenant = warrantClient.createTenant("913241cf");
+        Tenant newTenant = warrantClient.createTenant(new Tenant("913241cf"));
         Assertions.assertEquals("913241cf", newTenant.getTenantId());
         Assertions.assertNull(newTenant.getName());
     }

@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -24,6 +25,8 @@ import dev.warrant.model.Subject;
 import dev.warrant.model.Tenant;
 import dev.warrant.model.User;
 import dev.warrant.model.Warrant;
+import dev.warrant.model.WarrantCheck;
+import dev.warrant.model.WarrantCheckResult;
 
 public class WarrantClient {
 
@@ -42,7 +45,7 @@ public class WarrantClient {
     }
 
     public User createUser() throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/users", Collections.EMPTY_MAP);
+        HttpResponse<String> resp = makePostRequest("/v1/users", Collections.EMPTY_MAP);
         try {
             User newUser = mapper.readValue(resp.body(), User.class);
             return newUser;
@@ -51,20 +54,8 @@ public class WarrantClient {
         }
     }
 
-    public User createUser(String userId) throws WarrantException {
-        User user = new User(userId);
-        HttpResponse<String> resp = makePostRequest("/users", user);
-        try {
-            User newUser = mapper.readValue(resp.body(), User.class);
-            return newUser;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
-    }
-
-    public User createUser(String userId, String email) throws WarrantException {
-        User user = new User(userId, email);
-        HttpResponse<String> resp = makePostRequest("/users", user);
+    public User createUser(User user) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/v1/users", user);
         try {
             User newUser = mapper.readValue(resp.body(), User.class);
             return newUser;
@@ -74,7 +65,7 @@ public class WarrantClient {
     }
 
     public Tenant createTenant() throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/tenants", Collections.EMPTY_MAP);
+        HttpResponse<String> resp = makePostRequest("/v1/tenants", Collections.EMPTY_MAP);
         try {
             Tenant newTenant = mapper.readValue(resp.body(), Tenant.class);
             return newTenant;
@@ -83,9 +74,8 @@ public class WarrantClient {
         }
     }
 
-    public Tenant createTenant(String tenantId) throws WarrantException {
-        Tenant tenant = new Tenant(tenantId);
-        HttpResponse<String> resp = makePostRequest("/tenants", tenant);
+    public Tenant createTenant(Tenant tenant) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/v1/tenants", tenant);
         try {
             Tenant newTenant = mapper.readValue(resp.body(), Tenant.class);
             return newTenant;
@@ -94,17 +84,8 @@ public class WarrantClient {
         }
     }
 
-    public boolean isAuthorized(Warrant toCheck) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/authorize", toCheck);
-        if (resp.statusCode() == Response.Status.OK.getStatusCode()) {
-            return true;
-        }
-        return false;
-    }
-
-    public Role createRole(String roleId) throws WarrantException {
-        Role role = new Role(roleId);
-        HttpResponse<String> resp = makePostRequest("/roles", role);
+    public Role createRole(Role role) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/v1/roles", role);
         try {
             Role newRole = mapper.readValue(resp.body(), Role.class);
             return newRole;
@@ -114,11 +95,11 @@ public class WarrantClient {
     }
 
     public void deleteRole(String roleId) throws WarrantException {
-        makeDeleteRequest("/roles/" + roleId);
+        makeDeleteRequest("/v1/roles/" + roleId);
     }
 
     public Role assignRoleToUser(String userId, String roleId) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/users/" + userId + "/roles/" + roleId, Collections.EMPTY_MAP);
+        HttpResponse<String> resp = makePostRequest("/v1/users/" + userId + "/roles/" + roleId, Collections.EMPTY_MAP);
         try {
             Role newRole = mapper.readValue(resp.body(), Role.class);
             return newRole;
@@ -128,12 +109,11 @@ public class WarrantClient {
     }
 
     public void removeRoleFromUser(String userId, String roleId) throws WarrantException {
-        makeDeleteRequest("/users/" + userId + "/roles/" + roleId);
+        makeDeleteRequest("/v1/users/" + userId + "/roles/" + roleId);
     }
 
-    public Permission createPermission(String permissionId) throws WarrantException {
-        Permission permission = new Permission(permissionId);
-        HttpResponse<String> resp = makePostRequest("/permissions", permission);
+    public Permission createPermission(Permission permission) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/v1/permissions", permission);
         try {
             Permission newPermission = mapper.readValue(resp.body(), Permission.class);
             return newPermission;
@@ -143,11 +123,11 @@ public class WarrantClient {
     }
 
     public void deletePermission(String permissionId) throws WarrantException {
-        makeDeleteRequest("/permissions/" + permissionId);
+        makeDeleteRequest("/v1/permissions/" + permissionId);
     }
 
     public Permission assignPermissionToUser(String userId, String permissionId) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/users/" + userId + "/permissions/" + permissionId,
+        HttpResponse<String> resp = makePostRequest("/v1/users/" + userId + "/permissions/" + permissionId,
                 Collections.EMPTY_MAP);
         try {
             Permission newPermission = mapper.readValue(resp.body(), Permission.class);
@@ -158,18 +138,33 @@ public class WarrantClient {
     }
 
     public void removePermissionFromUser(String userId, String permissionId) throws WarrantException {
-        makeDeleteRequest("/users/" + userId + "/permissions/" + permissionId);
+        makeDeleteRequest("/v1/users/" + userId + "/permissions/" + permissionId);
+    }
+
+    public Permission assignPermissionToRole(String roleId, String permissionId) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/v1/roles/" + roleId + "/permissions/" + permissionId,
+                Collections.EMPTY_MAP);
+        try {
+            Permission newPermission = mapper.readValue(resp.body(), Permission.class);
+            return newPermission;
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public void removePermissionFromRole(String roleId, String permissionId) throws WarrantException {
+        makeDeleteRequest("/v1/roles/" + roleId + "/permissions/" + permissionId);
     }
 
     public void createWarrant(Warrant toCreate) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/warrants", toCreate);
+        HttpResponse<String> resp = makePostRequest("/v1/warrants", toCreate);
         if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
             throw new WarrantException("Warrant request failed: HTTP " + resp.statusCode() + " " + resp.body());
         }
     }
 
     public Warrant[] listWarrants(Map<String, Object> filters) throws WarrantException {
-        HttpResponse<String> resp = makeGetRequest("/warrants", filters);
+        HttpResponse<String> resp = makeGetRequest("/v1/warrants", filters);
         try {
             Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
 
@@ -180,7 +175,8 @@ public class WarrantClient {
     }
 
     public String createSession(String userId) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/users/" + userId + "/sessions", Collections.EMPTY_MAP);
+        Session session = Session.newAuthorizationSession(userId);
+        HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
         try {
             JsonNode respBody = mapper.readTree(resp.body());
             return respBody.get("token").asText();
@@ -189,11 +185,14 @@ public class WarrantClient {
         }
     }
 
-    public String createSelfServiceSession(Session session) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/sessions", session);
+    public WarrantCheckResult isAuthorized(WarrantCheck toCheck) throws WarrantException {
+        HttpResponse<String> resp = makePostRequest("/v2/authorize", toCheck);
+        if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
+            throw new WarrantException("API error: " + resp.statusCode());
+        }
         try {
-            JsonNode respBody = mapper.readTree(resp.body());
-            return respBody.get("url").asText();
+            WarrantCheckResult result = mapper.readValue(resp.body(), WarrantCheckResult.class);
+            return result;
         } catch (IOException e) {
             throw new WarrantException(e);
         }
@@ -202,14 +201,19 @@ public class WarrantClient {
     public boolean hasPermission(String permissionId, String userId) throws WarrantException {
         Subject userSubject = new Subject("user", userId);
         Warrant permissionWarrant = new Warrant("permission", permissionId, "member", userSubject);
-        return isAuthorized(permissionWarrant);
+        WarrantCheck permissionCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
+        WarrantCheckResult result = isAuthorized(permissionCheck);
+        if (result.getCode() == 200) {
+            return true;
+        }
+        return false;
     }
 
     private HttpResponse<String> makePostRequest(String uri, Object reqPayload) throws WarrantException {
         try {
             String payload = mapper.writeValueAsString(reqPayload);
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getUrl() + uri))
+                    .uri(URI.create(config.getBaseUrl() + uri))
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .header("Authorization", "ApiKey " + config.getApiKey())
                     .build();
@@ -229,7 +233,7 @@ public class WarrantClient {
 
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> params) throws WarrantException {
         try {
-            UriBuilder builder = UriBuilder.fromPath(config.getUrl() + uri);
+            UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 builder.queryParam(entry.getKey(), entry.getValue());
             }
@@ -256,7 +260,7 @@ public class WarrantClient {
     private HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
         try {
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getUrl() + uri))
+                    .uri(URI.create(config.getBaseUrl() + uri))
                     .DELETE()
                     .header("Authorization", "ApiKey" + config.getApiKey())
                     .build();

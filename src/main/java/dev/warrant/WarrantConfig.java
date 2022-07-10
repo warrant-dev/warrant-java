@@ -2,7 +2,6 @@ package dev.warrant;
 
 public class WarrantConfig {
     private static final String API_URL_BASE = "https://api.warrant.dev";
-    private static final String API_VERSION = "/v1";
 
     private final String apiKey;
 
@@ -18,7 +17,7 @@ public class WarrantConfig {
         return apiKey;
     }
 
-    public String getUrl() {
-        return API_URL_BASE + API_VERSION;
+    public String getBaseUrl() {
+        return API_URL_BASE;
     }
 }
