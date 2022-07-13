@@ -98,7 +98,7 @@ public class WarrantClient {
         makeDeleteRequest("/v1/roles/" + roleId);
     }
 
-    public Role assignRoleToUser(String userId, String roleId) throws WarrantException {
+    public Role assignRoleToUser(String roleId, String userId) throws WarrantException {
         HttpResponse<String> resp = makePostRequest("/v1/users/" + userId + "/roles/" + roleId, Collections.EMPTY_MAP);
         try {
             Role newRole = mapper.readValue(resp.body(), Role.class);
@@ -108,7 +108,7 @@ public class WarrantClient {
         }
     }
 
-    public void removeRoleFromUser(String userId, String roleId) throws WarrantException {
+    public void removeRoleFromUser(String roleId, String userId) throws WarrantException {
         makeDeleteRequest("/v1/users/" + userId + "/roles/" + roleId);
     }
 
@@ -126,7 +126,7 @@ public class WarrantClient {
         makeDeleteRequest("/v1/permissions/" + permissionId);
     }
 
-    public Permission assignPermissionToUser(String userId, String permissionId) throws WarrantException {
+    public Permission assignPermissionToUser(String permissionId, String userId) throws WarrantException {
         HttpResponse<String> resp = makePostRequest("/v1/users/" + userId + "/permissions/" + permissionId,
                 Collections.EMPTY_MAP);
         try {
@@ -137,11 +137,11 @@ public class WarrantClient {
         }
     }
 
-    public void removePermissionFromUser(String userId, String permissionId) throws WarrantException {
+    public void removePermissionFromUser(String permissionId, String userId) throws WarrantException {
         makeDeleteRequest("/v1/users/" + userId + "/permissions/" + permissionId);
     }
 
-    public Permission assignPermissionToRole(String roleId, String permissionId) throws WarrantException {
+    public Permission assignPermissionToRole(String permissionId, String roleId) throws WarrantException {
         HttpResponse<String> resp = makePostRequest("/v1/roles/" + roleId + "/permissions/" + permissionId,
                 Collections.EMPTY_MAP);
         try {
@@ -152,7 +152,7 @@ public class WarrantClient {
         }
     }
 
-    public void removePermissionFromRole(String roleId, String permissionId) throws WarrantException {
+    public void removePermissionFromRole(String permissionId, String roleId) throws WarrantException {
         makeDeleteRequest("/v1/roles/" + roleId + "/permissions/" + permissionId);
     }
 
