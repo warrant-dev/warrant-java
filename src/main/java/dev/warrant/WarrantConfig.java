@@ -2,6 +2,7 @@ package dev.warrant;
 
 public class WarrantConfig {
     private static final String API_URL_BASE = "https://api.warrant.dev";
+    private static final String SELF_SERVICE_DASHBOARD_URL_BASE = "https://self-serve.warrant.dev";
 
     private final String apiKey;
 
@@ -19,5 +20,9 @@ public class WarrantConfig {
 
     public String getBaseUrl() {
         return API_URL_BASE;
+    }
+
+    public String getSelfServiceDashboardBaseUrl() {
+        return SELF_SERVICE_DASHBOARD_URL_BASE;
     }
 }

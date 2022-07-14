@@ -185,12 +185,13 @@ public class WarrantClient {
         }
     }
 
-    public String createSelfServiceSession(Session session) throws WarrantException {
+    public String createSelfServiceSession(Session session, String redirectUrl) throws WarrantException {
         session.SetType("ssdash");
         HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
         try {
             JsonNode respBody = mapper.readTree(resp.body());
-            return respBody.get("token").asText();
+            String sessionToken = respBody.get("token").asText();
+            return config.getSelfServiceDashboardBaseUrl() + "/" + sessionToken + "?redirectUrl=" + redirectUrl;
         } catch (IOException e) {
             throw new WarrantException(e);
         }
