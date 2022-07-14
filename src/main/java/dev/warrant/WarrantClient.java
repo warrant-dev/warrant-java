@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.Permission;
+import dev.warrant.model.PermissionCheck;
 import dev.warrant.model.Role;
 import dev.warrant.model.Session;
 import dev.warrant.model.Subject;
@@ -198,15 +199,12 @@ public class WarrantClient {
         }
     }
 
-    public boolean hasPermission(String permissionId, String userId) throws WarrantException {
-        Subject userSubject = new Subject("user", userId);
-        Warrant permissionWarrant = new Warrant("permission", permissionId, "member", userSubject);
-        WarrantCheck permissionCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
-        WarrantCheckResult result = isAuthorized(permissionCheck);
-        if (result.getCode() == 200) {
-            return true;
-        }
-        return false;
+    public boolean hasPermission(PermissionCheck permissionCheck) throws WarrantException {
+        Subject userSubject = new Subject("user", permissionCheck.getUserId());
+        Warrant permissionWarrant = new Warrant("permission", permissionCheck.getPermissionId(), "member", userSubject);
+        WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
+        WarrantCheckResult result = isAuthorized(warrantCheck);
+        return result.getCode() == 200;
     }
 
     private HttpResponse<String> makePostRequest(String uri, Object reqPayload) throws WarrantException {
