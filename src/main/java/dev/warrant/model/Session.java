@@ -29,6 +29,10 @@ public class Session {
         return type;
     }
 
+    public void SetType(String type) {
+        this.type = type;
+    }
+
     public String getUserId() {
         return userId;
     }

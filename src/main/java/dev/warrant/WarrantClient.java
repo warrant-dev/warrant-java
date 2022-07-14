@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.Permission;
+import dev.warrant.model.PermissionCheck;
 import dev.warrant.model.Role;
 import dev.warrant.model.Session;
 import dev.warrant.model.Subject;
@@ -167,19 +168,30 @@ public class WarrantClient {
         HttpResponse<String> resp = makeGetRequest("/v1/warrants", filters);
         try {
             Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
-
             return warrants;
         } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
 
-    public String createSession(String userId) throws WarrantException {
-        Session session = Session.newAuthorizationSession(userId);
+    public String createAuthorizationSession(Session session) throws WarrantException {
+        session.SetType("sess");
         HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
         try {
             JsonNode respBody = mapper.readTree(resp.body());
             return respBody.get("token").asText();
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public String createSelfServiceSession(Session session, String redirectUrl) throws WarrantException {
+        session.SetType("ssdash");
+        HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
+        try {
+            JsonNode respBody = mapper.readTree(resp.body());
+            String sessionToken = respBody.get("token").asText();
+            return config.getSelfServiceDashboardBaseUrl() + "/" + sessionToken + "?redirectUrl=" + redirectUrl;
         } catch (IOException e) {
             throw new WarrantException(e);
         }
@@ -198,15 +210,12 @@ public class WarrantClient {
         }
     }
 
-    public boolean hasPermission(String permissionId, String userId) throws WarrantException {
-        Subject userSubject = new Subject("user", userId);
-        Warrant permissionWarrant = new Warrant("permission", permissionId, "member", userSubject);
-        WarrantCheck permissionCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
-        WarrantCheckResult result = isAuthorized(permissionCheck);
-        if (result.getCode() == 200) {
-            return true;
-        }
-        return false;
+    public boolean hasPermission(PermissionCheck permissionCheck) throws WarrantException {
+        Subject userSubject = new Subject("user", permissionCheck.getUserId());
+        Warrant permissionWarrant = new Warrant("permission", permissionCheck.getPermissionId(), "member", userSubject);
+        WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
+        WarrantCheckResult result = isAuthorized(warrantCheck);
+        return result.getCode() == 200;
     }
 
     private HttpResponse<String> makePostRequest(String uri, Object reqPayload) throws WarrantException {
