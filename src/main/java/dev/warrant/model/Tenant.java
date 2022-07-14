@@ -15,6 +15,11 @@ public class Tenant {
         this.tenantId = tenantId;
     }
 
+    public Tenant(String tenantId, String name) {
+        this.tenantId = tenantId;
+        this.name = name;
+    }
+
     public String getTenantId() {
         return tenantId;
     }
