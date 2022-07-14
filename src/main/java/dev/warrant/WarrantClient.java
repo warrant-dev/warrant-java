@@ -168,15 +168,25 @@ public class WarrantClient {
         HttpResponse<String> resp = makeGetRequest("/v1/warrants", filters);
         try {
             Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
-
             return warrants;
         } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
 
-    public String createSession(String userId) throws WarrantException {
-        Session session = Session.newAuthorizationSession(userId);
+    public String createAuthorizationSession(Session session) throws WarrantException {
+        session.SetType("sess");
+        HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
+        try {
+            JsonNode respBody = mapper.readTree(resp.body());
+            return respBody.get("token").asText();
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public String createSelfServiceSession(Session session) throws WarrantException {
+        session.SetType("ssdash");
         HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
         try {
             JsonNode respBody = mapper.readTree(resp.body());
