@@ -164,7 +164,14 @@ public class WarrantClient {
         }
     }
 
+    public Warrant[] listWarrants() throws WarrantException {
+        return listWarrants(Collections.emptyMap());
+    }
+
     public Warrant[] listWarrants(Map<String, Object> filters) throws WarrantException {
+        if (filters == null) {
+            throw new WarrantException("Must pass map of filters");
+        }
         HttpResponse<String> resp = makeGetRequest("/v1/warrants", filters);
         try {
             Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
@@ -271,7 +278,7 @@ public class WarrantClient {
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + uri))
                     .DELETE()
-                    .header("Authorization", "ApiKey" + config.getApiKey())
+                    .header("Authorization", "ApiKey " + config.getApiKey())
                     .build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
