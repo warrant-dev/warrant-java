@@ -1,8 +1,10 @@
 package dev.warrant.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
 public class Warrant {
 
-    private Integer id;
     private String objectType;
     private String objectId;
     private String relation;
@@ -17,10 +19,6 @@ public class Warrant {
         this.objectId = objectId;
         this.relation = relation;
         this.subject = subject;
-    }
-
-    public Integer getId() {
-        return id;
     }
 
     public String getObjectType() {

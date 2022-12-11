@@ -2,7 +2,7 @@ package dev.warrant.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(value = { "name", "createdAt", "updatedAt" })
+@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
 public class Tenant {
     private String tenantId;
     private String name;
