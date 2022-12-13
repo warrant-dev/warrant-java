@@ -182,6 +182,9 @@ public class WarrantClient {
     }
 
     public Warrant[] queryWarrants(Map<String, Object> filters) throws WarrantException {
+        if (filters == null) {
+            throw new WarrantException("Must pass map of filters");
+        }
         HttpResponse<String> resp = makeGetRequest("/v1/query", filters);
         try {
             Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
