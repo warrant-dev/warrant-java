@@ -99,7 +99,7 @@ public class WarrantClientTest {
                 .thenReturn("[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": true\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": false\n  }\n]");
 
         Map<String, Object> queryFilters = new HashMap<String, Object>();
-        queryFilters.put("subject", "user:6");
+        queryFilters.put("subject", new Subject("user", "6"));
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
         Warrant[] warrants = warrantClient.queryWarrants(queryFilters);
         Warrant[] expectedWarrants = {

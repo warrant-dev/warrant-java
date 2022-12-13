@@ -43,4 +43,9 @@ public class Subject {
     public void setRelation(String relation) {
         this.relation = relation;
     }
+
+    @Override
+    public String toString() {
+        return this.objectType + ":" + this.objectId;
+    }
 }
