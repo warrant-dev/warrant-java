@@ -93,35 +93,6 @@ public class WarrantClientTest {
     }
 
     @Test
-    public void testListWarrants() throws WarrantException {
-        Mockito.when(httpResponse.statusCode()).thenReturn(200);
-        Mockito.when(httpResponse.body())
-                .thenReturn("[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    }\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    }\n  }\n]");
-
-        Map<String, Object> listFilters = new HashMap<String, Object>();
-        WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        Warrant[] warrants = warrantClient.listWarrants(listFilters);
-        Warrant[] expectedWarrants = {
-            new Warrant("role", "admin", "member", new Subject("user", "6")),
-            new Warrant("role", "manager", "member", new Subject("user", "6"))
-        };
-
-        Assertions.assertEquals(expectedWarrants[0].getObjectType(), warrants[0].getObjectType());
-        Assertions.assertEquals(expectedWarrants[0].getObjectId(), warrants[0].getObjectId());
-        Assertions.assertEquals(expectedWarrants[0].getRelation(), warrants[0].getRelation());
-        Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectType(), warrants[0].getSubject().getObjectType());
-        Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectId(), warrants[0].getSubject().getObjectId());
-        Assertions.assertEquals(expectedWarrants[0].getIsDirectMatch(), warrants[0].getIsDirectMatch());
-
-        Assertions.assertEquals(expectedWarrants[1].getObjectType(), warrants[1].getObjectType());
-        Assertions.assertEquals(expectedWarrants[1].getObjectId(), warrants[1].getObjectId());
-        Assertions.assertEquals(expectedWarrants[1].getRelation(), warrants[1].getRelation());
-        Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectType(), warrants[1].getSubject().getObjectType());
-        Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectId(), warrants[1].getSubject().getObjectId());
-        Assertions.assertEquals(expectedWarrants[1].getIsDirectMatch(), warrants[1].getIsDirectMatch());
-    }
-
-    @Test
     public void testQueryWarrants() throws WarrantException {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body())

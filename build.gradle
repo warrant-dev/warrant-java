@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.warrant"
-version = "0.2.0"
+version = "0.3.0"
 
 repositories {
     mavenCentral()
@@ -26,6 +26,8 @@ test {
     testLogging {
 		events "passed", "skipped", "failed"
 		showStandardStreams = true
+        showStackTraces = true
+        exceptionFormat = "full"
 	}
 }
 

@@ -1,8 +1,5 @@
 package dev.warrant.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
 public class Warrant {
 
     private String objectType;
