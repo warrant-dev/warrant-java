@@ -15,9 +15,9 @@ import org.mockito.Mockito;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.Subject;
-import dev.warrant.model.Tenant;
-import dev.warrant.model.User;
 import dev.warrant.model.Warrant;
+import dev.warrant.model.object.Tenant;
+import dev.warrant.model.object.User;
 
 public class WarrantClientTest {
 
@@ -98,8 +98,8 @@ public class WarrantClientTest {
         Mockito.when(httpResponse.body())
                 .thenReturn("[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": true\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": false\n  }\n]");
 
-        Map<String, Object> queryFilters = new HashMap<String, Object>();
-        queryFilters.put("subject", new Subject("user", "6"));
+        Map<String, Object> queryFilters = new HashMap<>();
+        queryFilters.put("subject", "user:6");
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
         Warrant[] warrants = warrantClient.queryWarrants(queryFilters);
         Warrant[] expectedWarrants = {

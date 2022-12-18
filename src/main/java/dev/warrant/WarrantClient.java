@@ -3,20 +3,22 @@ package dev.warrant;
 import java.net.http.HttpClient;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import dev.warrant.exception.WarrantException;
-import dev.warrant.model.Feature;
-import dev.warrant.model.Permission;
 import dev.warrant.model.PermissionCheck;
-import dev.warrant.model.PricingTier;
-import dev.warrant.model.Role;
 import dev.warrant.model.Subject;
-import dev.warrant.model.Tenant;
-import dev.warrant.model.User;
 import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.WarrantCheckResult;
-import dev.warrant.model.WarrantObject;
+import dev.warrant.model.object.Feature;
+import dev.warrant.model.object.Permission;
+import dev.warrant.model.object.PricingTier;
+import dev.warrant.model.object.Role;
+import dev.warrant.model.object.Tenant;
+import dev.warrant.model.object.User;
+import dev.warrant.model.object.WarrantObject;
 
 public class WarrantClient extends WarrantBaseClient {
 
@@ -53,13 +55,12 @@ public class WarrantClient extends WarrantBaseClient {
         return makeGetRequest("/v1/users/" + userId, User.class);
     }
 
-    // TODO: implement pagination
     public User[] listUsers(int limit, int page) throws WarrantException {
-        return makeGetRequest("/v1/users", User[].class);
+        return makeGetRequest("/v1/users", getPaginationParams(limit, page), User[].class);
     }
 
-    public User[] listUsersForTenant(String tenantId) throws WarrantException {
-        return makeGetRequest("/v1/tenants/"+tenantId+"/users", User[].class);
+    public User[] listUsersForTenant(String tenantId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/tenants/" + tenantId + "/users", getPaginationParams(limit, page), User[].class);
     }
 
     // Tenants
@@ -89,11 +90,11 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Tenant[] listTenants(int limit, int page) throws WarrantException {
-        return makeGetRequest("/v1/tenants", Tenant[].class);
+        return makeGetRequest("/v1/tenants", getPaginationParams(limit, page), Tenant[].class);
     }
 
-    public Tenant[] listTenantsForUser(String userId) throws WarrantException {
-        return makeGetRequest("/v1/users/"+userId+"/tenants", Tenant[].class);
+    public Tenant[] listTenantsForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/tenants", getPaginationParams(limit, page), Tenant[].class);
     }
 
     // Roles
@@ -114,11 +115,11 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Role[] listRoles(int limit, int page) throws WarrantException {
-        return makeGetRequest("/v1/roles", Role[].class);
+        return makeGetRequest("/v1/roles", getPaginationParams(limit, page), Role[].class);
     }
 
-    public Role[] listRolesForUser(String userId) throws WarrantException {
-        return makeGetRequest("/v1/users/"+userId+"/roles", Role[].class);
+    public Role[] listRolesForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/roles", getPaginationParams(limit, page), Role[].class);
     }
 
     // Permissions
@@ -139,15 +140,17 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Permission[] listPermissions(int limit, int page) throws WarrantException {
-        return makeGetRequest("/v1/permissions", Permission[].class);
+        return makeGetRequest("/v1/permissions", getPaginationParams(limit, page), Permission[].class);
     }
 
-    public Permission[] listPermissionsForUser(String userId) throws WarrantException {
-        return makeGetRequest("/v1/users/"+userId+"/permissions", Permission[].class);
+    public Permission[] listPermissionsForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/permissions", getPaginationParams(limit, page),
+                Permission[].class);
     }
 
-    public Permission[] listPermissionsForRole(String roleId) throws WarrantException {
-        return makeGetRequest("/v1/roles/"+roleId+"/permissions", Permission[].class);
+    public Permission[] listPermissionsForRole(String roleId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/roles/" + roleId + "/permissions", getPaginationParams(limit, page),
+                Permission[].class);
     }
 
     // Features
@@ -164,19 +167,21 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Feature[] listFeatures(int limit, int page) throws WarrantException {
-        return makeGetRequest("/v1/features", Feature[].class);
+        return makeGetRequest("/v1/features", getPaginationParams(limit, page), Feature[].class);
     }
 
-    public Feature[] listFeaturesForUser(String userId) throws WarrantException {
-        return makeGetRequest("/v1/users/"+userId+"/features", Feature[].class);
+    public Feature[] listFeaturesForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/features", getPaginationParams(limit, page), Feature[].class);
     }
 
-    public Feature[] listFeaturesForTenant(String tenantId) throws WarrantException {
-        return makeGetRequest("/v1/tenants/"+tenantId+"/features", Feature[].class);
+    public Feature[] listFeaturesForTenant(String tenantId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/tenants/" + tenantId + "/features", getPaginationParams(limit, page),
+                Feature[].class);
     }
 
-    public Feature[] listFeaturesForPricingTier(String pricingTierId) throws WarrantException {
-        return makeGetRequest("/v1/pricing-tiers/"+pricingTierId+"/features", Feature[].class);
+    public Feature[] listFeaturesForPricingTier(String pricingTierId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/pricing-tiers/" + pricingTierId + "/features", getPaginationParams(limit, page),
+                Feature[].class);
     }
 
     // Pricing Tiers
@@ -193,15 +198,17 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public PricingTier[] listPricingTiers(int limit, int page) throws WarrantException {
-        return makeGetRequest("/v1/pricing-tiers", PricingTier[].class);
+        return makeGetRequest("/v1/pricing-tiers", getPaginationParams(limit, page), PricingTier[].class);
     }
 
-    public PricingTier[] listPricingTiersForTenant(String tenantId) throws WarrantException {
-        return makeGetRequest("/v1/tenants/"+tenantId+"/pricing-tiers", PricingTier[].class);
+    public PricingTier[] listPricingTiersForTenant(String tenantId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/tenants/" + tenantId + "/pricing-tiers", getPaginationParams(limit, page),
+                PricingTier[].class);
     }
 
-    public PricingTier[] listPricingTiersForUser(String userId) throws WarrantException {
-        return makeGetRequest("/v1/users/"+userId+"/pricing-tiers", PricingTier[].class);
+    public PricingTier[] listPricingTiersForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/pricing-tiers", getPaginationParams(limit, page),
+                PricingTier[].class);
     }
 
     // Assign
@@ -234,7 +241,8 @@ public class WarrantClient extends WarrantBaseClient {
                 throw new WarrantException("");
             }
         } else if (objToAssign instanceof Feature && assignTo instanceof PricingTier) {
-            makePostRequest("/v1/pricing-tiers/" + assignTo.id() + "/features/" + objToAssign.id(), Collections.EMPTY_MAP);
+            makePostRequest("/v1/pricing-tiers/" + assignTo.id() + "/features/" + objToAssign.id(),
+                    Collections.EMPTY_MAP);
         } else if (objToAssign instanceof Permission && assignTo instanceof Role) {
             makePostRequest("/v1/roles/" + assignTo.id() + "/permissions/" + objToAssign.id(), Collections.EMPTY_MAP);
         } else {
@@ -289,20 +297,12 @@ public class WarrantClient extends WarrantBaseClient {
         return result.getCode() == 200;
     }
 
-    public boolean hasPermission(PermissionCheck permissionCheck) throws WarrantException {
-        Subject userSubject = new Subject("user", permissionCheck.getUserId());
-        Warrant permissionWarrant = new Warrant("permission", permissionCheck.getPermissionId(), "member", userSubject);
-        WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
-        WarrantCheckResult result = check(warrantCheck);
-        return result.getCode() == 200;
-    }
-
     public boolean hasFeature(Tenant tenant, String featureId) throws WarrantException {
         Subject tenantSubject = new Subject("tenant", tenant.getTenantId());
         Warrant featureWarrant = new Warrant("feature", featureId, "member", tenantSubject);
         WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(featureWarrant));
         WarrantCheckResult result = check(warrantCheck);
-        return result.getCode() == 200;        
+        return result.getCode() == 200;
     }
 
     public boolean hasFeature(String userId, String featureId) throws WarrantException {
@@ -311,5 +311,12 @@ public class WarrantClient extends WarrantBaseClient {
         WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(featureWarrant));
         WarrantCheckResult result = check(warrantCheck);
         return result.getCode() == 200;
+    }
+
+    private static final Map<String, Object> getPaginationParams(int limit, int page) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("limit", limit);
+        params.put("page", page);
+        return params;
     }
 }

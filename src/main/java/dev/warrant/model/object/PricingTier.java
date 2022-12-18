@@ -1,4 +1,4 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
 public class PricingTier implements WarrantObject {
     private String pricingTierId;

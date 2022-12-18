@@ -1,26 +1,26 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
-public class Role implements WarrantObject {
-    private String roleId;
+public class Permission implements WarrantObject {
+    private String permissionId;
     private String name;
     private String description;
 
-    public Role() {
+    public Permission() {
         // For json serialization
     }
 
-    public Role(String roleId, String name, String description) {
-        this.roleId = roleId;
+    public Permission(String permissionId, String name, String description) {
+        this.permissionId = permissionId;
         this.name = name;
         this.description = description;
     }
 
-    public String getRoleId() {
-        return roleId;
+    public String getPermissionId() {
+        return permissionId;
     }
 
-    public void setRoleId(String roleId) {
-        this.roleId = roleId;
+    public void setPermissionId(String permissionId) {
+        this.permissionId = permissionId;
     }
 
     public String getName() {
@@ -41,6 +41,6 @@ public class Role implements WarrantObject {
 
     @Override
     public String id() {
-        return roleId;
+        return permissionId;
     }
 }

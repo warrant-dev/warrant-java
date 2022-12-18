@@ -1,4 +1,4 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
 public class Feature implements WarrantObject {
     private String featureId;

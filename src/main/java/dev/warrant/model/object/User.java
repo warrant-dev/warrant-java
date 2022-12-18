@@ -1,4 +1,4 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
 public class User implements WarrantObject {
     private String email;

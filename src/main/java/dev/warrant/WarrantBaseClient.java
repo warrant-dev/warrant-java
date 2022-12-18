@@ -82,6 +82,7 @@ public class WarrantBaseClient {
         }
     }
 
+    // TODO: check multiple?
     public WarrantCheckResult check(WarrantCheck toCheck) throws WarrantException {
         HttpResponse<String> resp = makePostRequest("/v2/authorize", toCheck);
         if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
@@ -93,6 +94,19 @@ public class WarrantBaseClient {
         } catch (IOException e) {
             throw new WarrantException(e);
         }
+    }
+
+    public String createUserAuthzSession(String userId) throws WarrantException {
+        UserSession sess = makePostRequest("/v1/sessions", UserSessionSpec.newAuthorizationSession(userId),
+                UserSession.class);
+        return sess.getToken();
+    }
+
+    public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String redirectUrl)
+            throws WarrantException {
+        UserSession ssdash = makePostRequest("/v1/sessions", UserSessionSpec.newSelfServiceSession(userId, tenantId),
+                UserSession.class);
+        return config.getSelfServiceDashboardBaseUrl() + "/" + ssdash.getToken() + "?redirectUrl=" + redirectUrl;
     }
 
     <T> T makePostRequest(String uri, Object reqPayload, Class<T> type) throws WarrantException {
@@ -190,6 +204,15 @@ public class WarrantBaseClient {
         }
     }
 
+    <T> T makeGetRequest(String uri, Map<String, Object> queryParams, Class<T> type) throws WarrantException {
+        try {
+            HttpResponse<String> resp = makeGetRequest(uri, queryParams);
+            return mapper.readValue(resp.body(), type);
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> params) throws WarrantException {
         try {
             UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
@@ -215,15 +238,5 @@ public class WarrantBaseClient {
         } catch (IOException | InterruptedException e) {
             throw new WarrantException(e);
         }
-    }
-
-    public String createUserAuthzSession(String userId) throws WarrantException {
-        UserSession sess = makePostRequest("/v1/sessions", UserSessionSpec.newAuthorizationSession(userId), UserSession.class);
-        return sess.getToken();
-    }
-
-    public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String redirectUrl) throws WarrantException {
-        UserSession ssdash = makePostRequest("/v1/sessions", UserSessionSpec.newSelfServiceSession(userId, tenantId), UserSession.class);
-        return config.getSelfServiceDashboardBaseUrl() + "/" + ssdash.getToken() + "?redirectUrl=" + redirectUrl;
     }
 }
