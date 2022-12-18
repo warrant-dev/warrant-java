@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.warrant.exception.WarrantException;
+import dev.warrant.model.Subject;
+import dev.warrant.model.Warrant;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;
@@ -386,8 +388,25 @@ public class LiveTest {
         client.deleteTenant(tenant.getTenantId());
     }
 
-    // @Test
-    // public void baseClientTest() {
-    // baseClient.
-    // }
+    @Test
+    public void warrants() throws WarrantException {
+        User newUser = client.createUser();
+        Permission newPermission = client.createPermission(new Permission("perm1", "Permission 1", "Permission with id 1"));
+
+        Assertions.assertFalse(baseClient.check(newPermission, "member", new Subject(newUser.type(), newUser.id())));
+        baseClient.createWarrant(newPermission, "member", new Subject(newUser.type(), newUser.id()));
+        Assertions.assertTrue(baseClient.check(newPermission, "member", new Subject(newUser.type(), newUser.id())));
+        QueryWarrantsFilters filters = new QueryWarrantsFilters();
+        filters.setSubject(new Subject(newUser.type(), newUser.id()));
+        Warrant[] warrants = baseClient.queryWarrants(filters, 100, 1);
+        Assertions.assertEquals(1, warrants.length);
+        Assertions.assertEquals("permission", warrants[0].getObjectType());
+        Assertions.assertEquals("perm1", warrants[0].getObjectId());
+        Assertions.assertEquals("member", warrants[0].getRelation());
+        baseClient.deleteWarrant(newPermission, "member", new Subject(newUser.type(), newUser.id()));
+        Assertions.assertFalse(baseClient.check(newPermission, "member", new Subject(newUser.type(), newUser.id())));
+
+        client.deleteUser(newUser.getUserId());
+        client.deletePermission(newPermission.getPermissionId());
+    }
 }

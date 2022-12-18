@@ -38,5 +38,8 @@ public class Tenant implements WarrantObject {
         return tenantId;
     }
 
-    
+    @Override
+    public String type() {
+        return "tenant";
+    }
 }

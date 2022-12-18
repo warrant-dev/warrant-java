@@ -38,4 +38,9 @@ public class User implements WarrantObject {
     public String id() {
         return userId;
     }
+
+    @Override
+    public String type() {
+        return "user";
+    }
 }

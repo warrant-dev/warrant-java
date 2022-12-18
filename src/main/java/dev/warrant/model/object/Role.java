@@ -43,4 +43,9 @@ public class Role implements WarrantObject {
     public String id() {
         return roleId;
     }
+
+    @Override
+    public String type() {
+        return "role";
+    }
 }

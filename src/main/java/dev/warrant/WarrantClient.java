@@ -1,17 +1,10 @@
 package dev.warrant;
 
 import java.net.http.HttpClient;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import dev.warrant.exception.WarrantException;
-import dev.warrant.model.PermissionCheck;
 import dev.warrant.model.Subject;
-import dev.warrant.model.Warrant;
-import dev.warrant.model.WarrantCheck;
-import dev.warrant.model.WarrantCheckResult;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;
@@ -290,33 +283,23 @@ public class WarrantClient extends WarrantBaseClient {
 
     // Checks
     public boolean hasPermission(String userId, String permissionId) throws WarrantException {
-        Subject userSubject = new Subject("user", userId);
-        Warrant permissionWarrant = new Warrant("permission", permissionId, "member", userSubject);
-        WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
-        WarrantCheckResult result = check(warrantCheck);
-        return result.getCode() == 200;
+        Permission perm = new Permission();
+        perm.setPermissionId(permissionId);
+        Subject subject = new Subject("user", userId);
+        return check(perm, "member", subject);
     }
 
     public boolean hasFeature(Tenant tenant, String featureId) throws WarrantException {
-        Subject tenantSubject = new Subject("tenant", tenant.getTenantId());
-        Warrant featureWarrant = new Warrant("feature", featureId, "member", tenantSubject);
-        WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(featureWarrant));
-        WarrantCheckResult result = check(warrantCheck);
-        return result.getCode() == 200;
+        Feature feature = new Feature();
+        feature.setFeatureId(featureId);
+        Subject subject = new Subject("tenant", tenant.getTenantId());
+        return check(feature, "member", subject);
     }
 
     public boolean hasFeature(String userId, String featureId) throws WarrantException {
-        Subject userSubject = new Subject("user", userId);
-        Warrant featureWarrant = new Warrant("feature", featureId, "member", userSubject);
-        WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(featureWarrant));
-        WarrantCheckResult result = check(warrantCheck);
-        return result.getCode() == 200;
-    }
-
-    private static final Map<String, Object> getPaginationParams(int limit, int page) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("limit", limit);
-        params.put("page", page);
-        return params;
+        Feature feature = new Feature();
+        feature.setFeatureId(featureId);
+        Subject subject = new Subject("user", userId);
+        return check(feature, "member", subject);
     }
 }

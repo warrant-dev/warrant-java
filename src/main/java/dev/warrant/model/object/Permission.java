@@ -43,4 +43,9 @@ public class Permission implements WarrantObject {
     public String id() {
         return permissionId;
     }
+
+    @Override
+    public String type() {
+        return "permission";
+    }
 }

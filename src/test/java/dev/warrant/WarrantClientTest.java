@@ -98,10 +98,10 @@ public class WarrantClientTest {
         Mockito.when(httpResponse.body())
                 .thenReturn("[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": true\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": false\n  }\n]");
 
-        Map<String, Object> queryFilters = new HashMap<>();
-        queryFilters.put("subject", "user:6");
+        QueryWarrantsFilters queryFilters = new QueryWarrantsFilters();
+        queryFilters.setSubject(new Subject("user", "6"));
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        Warrant[] warrants = warrantClient.queryWarrants(queryFilters);
+        Warrant[] warrants = warrantClient.queryWarrants(queryFilters, 100, 1);
         Warrant[] expectedWarrants = {
             new Warrant("role", "admin", "member", new Subject("user", "6"), true),
             new Warrant("role", "manager", "member", new Subject("user", "6"), false)

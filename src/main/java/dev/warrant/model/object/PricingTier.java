@@ -23,4 +23,9 @@ public class PricingTier implements WarrantObject {
     public String id() {
         return pricingTierId;
     }
+
+    @Override
+    public String type() {
+        return "pricing-tier";
+    }
 }

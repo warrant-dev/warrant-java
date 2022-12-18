@@ -23,4 +23,9 @@ public class Feature implements WarrantObject {
     public String id() {
         return featureId;
     }
+
+    @Override
+    public String type() {
+        return "feature";
+    }
 }

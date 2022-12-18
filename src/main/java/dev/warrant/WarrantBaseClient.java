@@ -6,7 +6,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -16,11 +18,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
+import dev.warrant.model.Subject;
 import dev.warrant.model.UserSession;
 import dev.warrant.model.UserSessionSpec;
 import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.WarrantCheckResult;
+import dev.warrant.model.object.WarrantObject;
 
 public class WarrantBaseClient {
     public static final String SDK_VERSION = "0.3.0";
@@ -42,19 +46,18 @@ public class WarrantBaseClient {
         this(config, HttpClient.newHttpClient());
     }
 
-    public Warrant createWarrant(Warrant toCreate) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/warrants", toCreate);
-        if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
-            throw new WarrantException("Warrant request failed: HTTP " + resp.statusCode() + " " + resp.body());
-        }
-        return null;
+    public Warrant createWarrant(WarrantObject object, String relation, Subject subject) throws WarrantException {
+        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject);
+        return makePostRequest("/v1/warrants", toCreate, Warrant.class);
     }
 
-    public void deleteWarrant(Warrant toDelete) throws WarrantException {
+    public void deleteWarrant(WarrantObject object, String relation, Subject subject) throws WarrantException {
         try {
+            Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
+            String payload = mapper.writeValueAsString(toDelete);
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
-                    .DELETE()
+                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
                     .header("Authorization", "ApiKey " + config.getApiKey())
                     .header("User-Agent", USER_AGENT)
                     .build();
@@ -68,12 +71,12 @@ public class WarrantBaseClient {
         }
     }
 
-    // TODO: support pagination?
-    public Warrant[] queryWarrants(Map<String, Object> filters) throws WarrantException {
-        if (filters == null) {
-            throw new WarrantException("Must pass map of filters");
-        }
-        HttpResponse<String> resp = makeGetRequest("/v1/query", filters);
+    // TODO: check pagination?
+    public Warrant[] queryWarrants(QueryWarrantsFilters filters, int limit, int page) throws WarrantException {
+        Map<String, Object> queryParams = filters.asMap();
+        queryParams.put("limit", limit);
+        queryParams.put("page", page);
+        HttpResponse<String> resp = makeGetRequest("/v1/query", queryParams);
         try {
             Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
             return warrants;
@@ -83,17 +86,13 @@ public class WarrantBaseClient {
     }
 
     // TODO: check multiple?
-    public WarrantCheckResult check(WarrantCheck toCheck) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v2/authorize", toCheck);
-        if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
-            throw new WarrantException("API error: " + resp.statusCode());
+    public boolean check(WarrantObject object, String relation, Subject subject) throws WarrantException {
+        WarrantCheck toCheck = new WarrantCheck(Arrays.asList(new Warrant(object.type(), object.id(), relation, subject)));
+        WarrantCheckResult result = makePostRequest("/v2/authorize", toCheck, WarrantCheckResult.class);
+        if ("Authorized".equals(result.getResult())) {
+            return true;
         }
-        try {
-            WarrantCheckResult result = mapper.readValue(resp.body(), WarrantCheckResult.class);
-            return result;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return false;
     }
 
     public String createUserAuthzSession(String userId) throws WarrantException {
@@ -211,6 +210,13 @@ public class WarrantBaseClient {
         } catch (IOException e) {
             throw new WarrantException(e);
         }
+    }
+
+    static final Map<String, Object> getPaginationParams(int limit, int page) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("limit", limit);
+        params.put("page", page);
+        return params;
     }
 
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> params) throws WarrantException {
