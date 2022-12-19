@@ -1,9 +1,6 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
-public class Permission {
+public class Permission implements WarrantObject {
     private String permissionId;
     private String name;
     private String description;
@@ -12,8 +9,10 @@ public class Permission {
         // For json serialization
     }
 
-    public Permission(String permissionId) {
+    public Permission(String permissionId, String name, String description) {
         this.permissionId = permissionId;
+        this.name = name;
+        this.description = description;
     }
 
     public String getPermissionId() {
@@ -38,5 +37,15 @@ public class Permission {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String id() {
+        return permissionId;
+    }
+
+    @Override
+    public String type() {
+        return "permission";
     }
 }

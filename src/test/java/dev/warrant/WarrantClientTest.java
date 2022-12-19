@@ -5,8 +5,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import dev.warrant.exception.WarrantException;
-import dev.warrant.model.Subject;
-import dev.warrant.model.Tenant;
-import dev.warrant.model.User;
+import dev.warrant.model.WarrantSubject;
 import dev.warrant.model.Warrant;
+import dev.warrant.model.object.Tenant;
+import dev.warrant.model.object.User;
 
 public class WarrantClientTest {
 
@@ -93,60 +91,34 @@ public class WarrantClientTest {
     }
 
     @Test
-    public void testListWarrants() throws WarrantException {
-        Mockito.when(httpResponse.statusCode()).thenReturn(200);
-        Mockito.when(httpResponse.body())
-                .thenReturn("[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    }\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    }\n  }\n]");
-
-        Map<String, Object> listFilters = new HashMap<String, Object>();
-        WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        Warrant[] warrants = warrantClient.listWarrants(listFilters);
-        Warrant[] expectedWarrants = {
-            new Warrant("role", "admin", "member", new Subject("user", "6")),
-            new Warrant("role", "manager", "member", new Subject("user", "6"))
-        };
-
-        Assertions.assertEquals(expectedWarrants[0].getObjectType(), warrants[0].getObjectType());
-        Assertions.assertEquals(expectedWarrants[0].getObjectId(), warrants[0].getObjectId());
-        Assertions.assertEquals(expectedWarrants[0].getRelation(), warrants[0].getRelation());
-        Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectType(), warrants[0].getSubject().getObjectType());
-        Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectId(), warrants[0].getSubject().getObjectId());
-        Assertions.assertEquals(expectedWarrants[0].getIsDirectMatch(), warrants[0].getIsDirectMatch());
-
-        Assertions.assertEquals(expectedWarrants[1].getObjectType(), warrants[1].getObjectType());
-        Assertions.assertEquals(expectedWarrants[1].getObjectId(), warrants[1].getObjectId());
-        Assertions.assertEquals(expectedWarrants[1].getRelation(), warrants[1].getRelation());
-        Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectType(), warrants[1].getSubject().getObjectType());
-        Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectId(), warrants[1].getSubject().getObjectId());
-        Assertions.assertEquals(expectedWarrants[1].getIsDirectMatch(), warrants[1].getIsDirectMatch());
-    }
-
-    @Test
     public void testQueryWarrants() throws WarrantException {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body())
-                .thenReturn("[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": true\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": false\n  }\n]");
+                .thenReturn(
+                        "[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": true\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": false\n  }\n]");
 
-        Map<String, Object> queryFilters = new HashMap<String, Object>();
-        queryFilters.put("subject", new Subject("user", "6"));
+        QueryWarrantsFilters queryFilters = new QueryWarrantsFilters();
+        queryFilters.setSubject(new WarrantSubject("user", "6"));
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        Warrant[] warrants = warrantClient.queryWarrants(queryFilters);
+        Warrant[] warrants = warrantClient.queryWarrants(queryFilters, 100, 1);
         Warrant[] expectedWarrants = {
-            new Warrant("role", "admin", "member", new Subject("user", "6"), true),
-            new Warrant("role", "manager", "member", new Subject("user", "6"), false)
+                new Warrant("role", "admin", "member", new WarrantSubject("user", "6"), true),
+                new Warrant("role", "manager", "member", new WarrantSubject("user", "6"), false)
         };
 
         Assertions.assertEquals(expectedWarrants[0].getObjectType(), warrants[0].getObjectType());
         Assertions.assertEquals(expectedWarrants[0].getObjectId(), warrants[0].getObjectId());
         Assertions.assertEquals(expectedWarrants[0].getRelation(), warrants[0].getRelation());
-        Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectType(), warrants[0].getSubject().getObjectType());
+        Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectType(),
+                warrants[0].getSubject().getObjectType());
         Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectId(), warrants[0].getSubject().getObjectId());
         Assertions.assertEquals(expectedWarrants[0].getIsDirectMatch(), warrants[0].getIsDirectMatch());
 
         Assertions.assertEquals(expectedWarrants[1].getObjectType(), warrants[1].getObjectType());
         Assertions.assertEquals(expectedWarrants[1].getObjectId(), warrants[1].getObjectId());
         Assertions.assertEquals(expectedWarrants[1].getRelation(), warrants[1].getRelation());
-        Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectType(), warrants[1].getSubject().getObjectType());
+        Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectType(),
+                warrants[1].getSubject().getObjectType());
         Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectId(), warrants[1].getSubject().getObjectId());
         Assertions.assertEquals(expectedWarrants[1].getIsDirectMatch(), warrants[1].getIsDirectMatch());
     }

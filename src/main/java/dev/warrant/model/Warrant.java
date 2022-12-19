@@ -1,28 +1,25 @@
 package dev.warrant.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
 public class Warrant {
 
     private String objectType;
     private String objectId;
     private String relation;
-    private Subject subject;
+    private WarrantSubject subject;
     private boolean isDirectMatch;
 
     public Warrant() {
         // For json serialization
     }
 
-    public Warrant(String objectType, String objectId, String relation, Subject subject) {
+    public Warrant(String objectType, String objectId, String relation, WarrantSubject subject) {
         this.objectType = objectType;
         this.objectId = objectId;
         this.relation = relation;
         this.subject = subject;
     }
 
-    public Warrant(String objectType, String objectId, String relation, Subject subject, boolean isDirectMatch) {
+    public Warrant(String objectType, String objectId, String relation, WarrantSubject subject, boolean isDirectMatch) {
         this.objectType = objectType;
         this.objectId = objectId;
         this.relation = relation;
@@ -42,7 +39,7 @@ public class Warrant {
         return relation;
     }
 
-    public Subject getSubject() {
+    public WarrantSubject getSubject() {
         return subject;
     }
 

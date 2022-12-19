@@ -1,309 +1,448 @@
 package dev.warrant;
 
-import java.io.IOException;
-import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
-
-import javax.ws.rs.core.UriBuilder;
-
-import javax.ws.rs.core.Response;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
-import dev.warrant.model.Permission;
-import dev.warrant.model.PermissionCheck;
-import dev.warrant.model.Role;
-import dev.warrant.model.Session;
-import dev.warrant.model.Subject;
-import dev.warrant.model.Tenant;
-import dev.warrant.model.User;
-import dev.warrant.model.Warrant;
-import dev.warrant.model.WarrantCheck;
-import dev.warrant.model.WarrantCheckResult;
+import dev.warrant.model.WarrantSubject;
+import dev.warrant.model.object.Feature;
+import dev.warrant.model.object.Permission;
+import dev.warrant.model.object.PricingTier;
+import dev.warrant.model.object.Role;
+import dev.warrant.model.object.Tenant;
+import dev.warrant.model.object.User;
 
-public class WarrantClient {
-
-    private final HttpClient client;
-    private final WarrantConfig config;
-    private final ObjectMapper mapper;
+public class WarrantClient extends WarrantBaseClient {
 
     WarrantClient(WarrantConfig config, HttpClient client) {
-        this.config = config;
-        this.client = client;
-        this.mapper = new ObjectMapper();
+        super(config, client);
     }
 
     public WarrantClient(WarrantConfig config) {
-        this(config, HttpClient.newHttpClient());
+        super(config);
     }
 
+    // Users
     public User createUser() throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/users", Collections.EMPTY_MAP);
-        try {
-            User newUser = mapper.readValue(resp.body(), User.class);
-            return newUser;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return makePostRequest("/v1/users", Collections.EMPTY_MAP, User.class);
     }
 
     public User createUser(User user) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/users", user);
-        try {
-            User newUser = mapper.readValue(resp.body(), User.class);
-            return newUser;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return makePostRequest("/v1/users", user, User.class);
     }
 
+    public User[] createUsers(User[] users) throws WarrantException {
+        return makePostRequest("/v1/users", users, User[].class);
+    }
+
+    public User updateUser(String userId, User toUpdate) throws WarrantException {
+        return makePutRequest("/v1/users/" + userId, toUpdate, User.class);
+    }
+
+    public void deleteUser(User user) throws WarrantException {
+        deleteUser(user.getUserId());
+    }
+
+    public void deleteUser(String userId) throws WarrantException {
+        makeDeleteRequest("/v1/users/" + userId);
+    }
+
+    public User getUser(String userId) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId, User.class);
+    }
+
+    public User[] listUsers(int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users", getPaginationParams(limit, page), User[].class);
+    }
+
+    public User[] listUsersForTenant(Tenant tenant, int limit, int page) throws WarrantException {
+        return listUsersForTenant(tenant.getTenantId(), limit, page);
+    }
+
+    public User[] listUsersForTenant(String tenantId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/tenants/" + tenantId + "/users", getPaginationParams(limit, page), User[].class);
+    }
+
+    // Tenants
     public Tenant createTenant() throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/tenants", Collections.EMPTY_MAP);
-        try {
-            Tenant newTenant = mapper.readValue(resp.body(), Tenant.class);
-            return newTenant;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return makePostRequest("/v1/tenants", Collections.EMPTY_MAP, Tenant.class);
     }
 
     public Tenant createTenant(Tenant tenant) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/tenants", tenant);
-        try {
-            Tenant newTenant = mapper.readValue(resp.body(), Tenant.class);
-            return newTenant;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return makePostRequest("/v1/tenants", tenant, Tenant.class);
     }
 
+    public Tenant[] createTenants(Tenant[] tenants) throws WarrantException {
+        return makePostRequest("/v1/tenants", tenants, Tenant[].class);
+    }
+
+    public Tenant updateTenant(String tenantId, Tenant toUpdate) throws WarrantException {
+        return makePutRequest("/v1/tenants/" + tenantId, toUpdate, Tenant.class);
+    }
+
+    public void deleteTenant(Tenant tenant) throws WarrantException {
+        deleteTenant(tenant.getTenantId());
+    }
+
+    public void deleteTenant(String tenantId) throws WarrantException {
+        makeDeleteRequest("/v1/tenants/" + tenantId);
+    }
+
+    public Tenant getTenant(String tenantId) throws WarrantException {
+        return makeGetRequest("/v1/tenants/" + tenantId, Tenant.class);
+    }
+
+    public Tenant[] listTenants(int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/tenants", getPaginationParams(limit, page), Tenant[].class);
+    }
+
+    public Tenant[] listTenantsForUser(User user, int limit, int page) throws WarrantException {
+        return listTenantsForUser(user.getUserId(), limit, page);
+    }
+
+    public Tenant[] listTenantsForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/tenants", getPaginationParams(limit, page), Tenant[].class);
+    }
+
+    // Roles
     public Role createRole(Role role) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/roles", role);
-        try {
-            Role newRole = mapper.readValue(resp.body(), Role.class);
-            return newRole;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return makePostRequest("/v1/roles", role, Role.class);
+    }
+
+    public Role updateRole(String roleId, Role toUpdate) throws WarrantException {
+        return makePutRequest("/v1/roles/" + roleId, toUpdate, Role.class);
+    }
+
+    public void deleteRole(Role role) throws WarrantException {
+        deleteRole(role.getRoleId());
     }
 
     public void deleteRole(String roleId) throws WarrantException {
         makeDeleteRequest("/v1/roles/" + roleId);
     }
 
-    public Role assignRoleToUser(String userId, String roleId) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/users/" + userId + "/roles/" + roleId, Collections.EMPTY_MAP);
-        try {
-            Role newRole = mapper.readValue(resp.body(), Role.class);
-            return newRole;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+    public Role getRole(String roleId) throws WarrantException {
+        return makeGetRequest("/v1/roles/" + roleId, Role.class);
     }
 
-    public void removeRoleFromUser(String userId, String roleId) throws WarrantException {
-        makeDeleteRequest("/v1/users/" + userId + "/roles/" + roleId);
+    public Role[] listRoles(int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/roles", getPaginationParams(limit, page), Role[].class);
     }
 
+    public Role[] listRolesForUser(User user, int limit, int page) throws WarrantException {
+        return listRolesForUser(user.getUserId(), limit, page);
+    }
+
+    public Role[] listRolesForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/roles", getPaginationParams(limit, page), Role[].class);
+    }
+
+    // Permissions
     public Permission createPermission(Permission permission) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/permissions", permission);
-        try {
-            Permission newPermission = mapper.readValue(resp.body(), Permission.class);
-            return newPermission;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return makePostRequest("/v1/permissions", permission, Permission.class);
+    }
+
+    public Permission updatePermission(String permissionId, Permission toUpdate) throws WarrantException {
+        return makePutRequest("/v1/permissions/" + permissionId, toUpdate, Permission.class);
+    }
+
+    public void deletePermission(Permission permission) throws WarrantException {
+        deletePermission(permission.getPermissionId());
     }
 
     public void deletePermission(String permissionId) throws WarrantException {
         makeDeleteRequest("/v1/permissions/" + permissionId);
     }
 
-    public Permission assignPermissionToUser(String userId, String permissionId) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/users/" + userId + "/permissions/" + permissionId,
-                Collections.EMPTY_MAP);
-        try {
-            Permission newPermission = mapper.readValue(resp.body(), Permission.class);
-            return newPermission;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+    public Permission getPermission(String permissionId) throws WarrantException {
+        return makeGetRequest("/v1/permissions/" + permissionId, Permission.class);
     }
 
-    public void removePermissionFromUser(String userId, String permissionId) throws WarrantException {
+    public Permission[] listPermissions(int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/permissions", getPaginationParams(limit, page), Permission[].class);
+    }
+
+    public Permission[] listPermissionsForUser(User user, int limit, int page) throws WarrantException {
+        return listPermissionsForUser(user.getUserId(), limit, page);
+    }
+
+    public Permission[] listPermissionsForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/permissions", getPaginationParams(limit, page),
+                Permission[].class);
+    }
+
+    public Permission[] listPermissionsForRole(Role role, int limit, int page) throws WarrantException {
+        return listPermissionsForRole(role.getRoleId(), limit, page);
+    }
+
+    public Permission[] listPermissionsForRole(String roleId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/roles/" + roleId + "/permissions", getPaginationParams(limit, page),
+                Permission[].class);
+    }
+
+    // Features
+    public Feature createFeature(Feature feature) throws WarrantException {
+        return makePostRequest("/v1/features", feature, Feature.class);
+    }
+
+    public void deleteFeature(Feature feature) throws WarrantException {
+        deleteFeature(feature.getFeatureId());
+    }
+
+    public void deleteFeature(String featureId) throws WarrantException {
+        makeDeleteRequest("/v1/features/" + featureId);
+    }
+
+    public Feature getFeature(String featureId) throws WarrantException {
+        return makeGetRequest("/v1/features/" + featureId, Feature.class);
+    }
+
+    public Feature[] listFeatures(int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/features", getPaginationParams(limit, page), Feature[].class);
+    }
+
+    public Feature[] listFeaturesForUser(User user, int limit, int page) throws WarrantException {
+        return listFeaturesForUser(user.getUserId(), limit, page);
+    }
+
+    public Feature[] listFeaturesForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/features", getPaginationParams(limit, page), Feature[].class);
+    }
+
+    public Feature[] listFeaturesForTenant(Tenant tenant, int limit, int page) throws WarrantException {
+        return listFeaturesForTenant(tenant.getTenantId(), limit, page);
+    }
+
+    public Feature[] listFeaturesForTenant(String tenantId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/tenants/" + tenantId + "/features", getPaginationParams(limit, page),
+                Feature[].class);
+    }
+
+    public Feature[] listFeaturesForPricingTier(PricingTier pricingTier, int limit, int page) throws WarrantException {
+        return listFeaturesForPricingTier(pricingTier.getPricingTierId(), limit, page);
+    }
+
+    public Feature[] listFeaturesForPricingTier(String pricingTierId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/pricing-tiers/" + pricingTierId + "/features", getPaginationParams(limit, page),
+                Feature[].class);
+    }
+
+    // Pricing Tiers
+    public PricingTier createPricingTier(PricingTier pricingTier) throws WarrantException {
+        return makePostRequest("/v1/pricing-tiers", pricingTier, PricingTier.class);
+    }
+
+    public void deletePricingTier(PricingTier pricingTier) throws WarrantException {
+        deletePricingTier(pricingTier.getPricingTierId());
+    }
+
+    public void deletePricingTier(String pricingTierId) throws WarrantException {
+        makeDeleteRequest("/v1/pricing-tiers/" + pricingTierId);
+    }
+
+    public PricingTier getPricingTier(String pricingTierId) throws WarrantException {
+        return makeGetRequest("/v1/pricing-tiers/" + pricingTierId, PricingTier.class);
+    }
+
+    public PricingTier[] listPricingTiers(int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/pricing-tiers", getPaginationParams(limit, page), PricingTier[].class);
+    }
+
+    public PricingTier[] listPricingTiersForTenant(Tenant tenant, int limit, int page) throws WarrantException {
+        return listPricingTiersForTenant(tenant.getTenantId(), limit, page);
+    }
+
+    public PricingTier[] listPricingTiersForTenant(String tenantId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/tenants/" + tenantId + "/pricing-tiers", getPaginationParams(limit, page),
+                PricingTier[].class);
+    }
+
+    public PricingTier[] listPricingTiersForUser(User user, int limit, int page) throws WarrantException {
+        return listPricingTiersForUser(user.getUserId(), limit, page);
+    }
+
+    public PricingTier[] listPricingTiersForUser(String userId, int limit, int page) throws WarrantException {
+        return makeGetRequest("/v1/users/" + userId + "/pricing-tiers", getPaginationParams(limit, page),
+                PricingTier[].class);
+    }
+
+    // Assign
+    public void assignRoleToUser(Role role, User user) throws WarrantException {
+        assignRoleToUser(role.getRoleId(), user.getUserId());
+    }
+
+    public void assignRoleToUser(String roleId, String userId) throws WarrantException {
+        makePostRequest("/v1/users/" + userId + "/roles/" + roleId, Collections.EMPTY_MAP);
+    }
+
+    public void assignPermissionToUser(Permission permission, User user) throws WarrantException {
+        assignPermissionToUser(permission.getPermissionId(), user.getUserId());
+    }
+
+    public void assignPermissionToUser(String permissionId, String userId) throws WarrantException {
+        makePostRequest("/v1/users/" + userId + "/permissions/" + permissionId, Collections.EMPTY_MAP);
+    }
+
+    public void assignPricingTierToUser(PricingTier pricingTier, User user) throws WarrantException {
+        assignPricingTierToUser(pricingTier.getPricingTierId(), user.getUserId());
+    }
+
+    public void assignPricingTierToUser(String pricingTierId, String userId) throws WarrantException {
+        makePostRequest("/v1/users/" + userId + "/pricing-tiers/" + pricingTierId, Collections.EMPTY_MAP);
+    }
+
+    public void assignFeatureToUser(Feature feature, User user) throws WarrantException {
+        assignFeatureToUser(feature.getFeatureId(), user.getUserId());
+    }
+
+    public void assignFeatureToUser(String featureId, String userId) throws WarrantException {
+        makePostRequest("/v1/users/" + userId + "/features/" + featureId, Collections.EMPTY_MAP);
+    }
+
+    public void assignUserToTenant(User user, Tenant tenant) throws WarrantException {
+        assignUserToTenant(user.getUserId(), tenant.getTenantId());
+    }
+
+    public void assignUserToTenant(String userId, String tenantId) throws WarrantException {
+        makePostRequest("/v1/tenants/" + tenantId + "/users/" + userId, Collections.EMPTY_MAP);
+    }
+
+    public void assignPricingTierToTenant(PricingTier pricingTier, Tenant tenant) throws WarrantException {
+        assignPricingTierToTenant(pricingTier.getPricingTierId(), tenant.getTenantId());
+    }
+
+    public void assignPricingTierToTenant(String pricingTierId, String tenantId) throws WarrantException {
+        makePostRequest("/v1/tenants/" + tenantId + "/pricing-tiers/" + pricingTierId, Collections.EMPTY_MAP);
+    }
+
+    public void assignFeatureToTenant(Feature feature, Tenant tenant) throws WarrantException {
+        assignFeatureToTenant(feature.getFeatureId(), tenant.getTenantId());
+    }
+
+    public void assignFeatureToTenant(String featureId, String tenantId) throws WarrantException {
+        makePostRequest("/v1/tenants/" + tenantId + "/features/" + featureId, Collections.EMPTY_MAP);
+    }
+
+    public void assignFeatureToPricingTier(Feature feature, PricingTier pricingTier) throws WarrantException {
+        assignFeatureToPricingTier(feature.getFeatureId(), pricingTier.getPricingTierId());
+    }
+
+    public void assignFeatureToPricingTier(String featureId, String pricingTierId) throws WarrantException {
+        makePostRequest("/v1/pricing-tiers/" + pricingTierId + "/features/" + featureId, Collections.EMPTY_MAP);
+    }
+
+    public void assignPermissionToRole(Permission permission, Role role) throws WarrantException {
+        assignPermissionToRole(permission.getPermissionId(), role.getRoleId());
+    }
+
+    public void assignPermissionToRole(String permissionId, String roleId) throws WarrantException {
+        makePostRequest("/v1/roles/" + roleId + "/permissions/" + permissionId, Collections.EMPTY_MAP);
+    }
+
+    // Remove associations
+    public void removeRoleFromUser(Role role, User user) throws WarrantException {
+        removeRoleFromUser(role.getRoleId(), user.getUserId());
+    }
+
+    public void removeRoleFromUser(String roleId, String userId) throws WarrantException {
+        makeDeleteRequest("/v1/users/" + userId + "/roles/" + roleId);
+    }
+
+    public void removePermissionFromUser(Permission permission, User user) throws WarrantException {
+        removePermissionFromUser(permission.getPermissionId(), user.getUserId());
+    }
+
+    public void removePermissionFromUser(String permissionId, String userId) throws WarrantException {
         makeDeleteRequest("/v1/users/" + userId + "/permissions/" + permissionId);
     }
 
-    public Permission assignPermissionToRole(String roleId, String permissionId) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/roles/" + roleId + "/permissions/" + permissionId,
-                Collections.EMPTY_MAP);
-        try {
-            Permission newPermission = mapper.readValue(resp.body(), Permission.class);
-            return newPermission;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+    public void removePricingTierFromUser(PricingTier pricingTier, User user) throws WarrantException {
+        removePricingTierFromUser(pricingTier.getPricingTierId(), user.getUserId());
     }
 
-    public void removePermissionFromRole(String roleId, String permissionId) throws WarrantException {
+    public void removePricingTierFromUser(String pricingTierId, String userId) throws WarrantException {
+        makeDeleteRequest("/v1/users/" + userId + "/pricing-tiers/" + pricingTierId);
+    }
+
+    public void removeFeatureFromUser(Feature feature, User user) throws WarrantException {
+        removeFeatureFromUser(feature.getFeatureId(), user.getUserId());
+    }
+
+    public void removeFeatureFromUser(String featureId, String userId) throws WarrantException {
+        makeDeleteRequest("/v1/users/" + userId + "/features/" + featureId);
+    }
+
+    public void removeUserFromTenant(User user, Tenant tenant) throws WarrantException {
+        removeUserFromTenant(user.getUserId(), tenant.getTenantId());
+    }
+
+    public void removeUserFromTenant(String userId, String tenantId) throws WarrantException {
+        makeDeleteRequest("/v1/tenants/" + tenantId + "/users/" + userId);
+    }
+
+    public void removePricingTierFromTenant(PricingTier pricingTier, Tenant tenant) throws WarrantException {
+        removePricingTierFromTenant(pricingTier.getPricingTierId(), tenant.getTenantId());
+    }
+
+    public void removePricingTierFromTenant(String pricingTierId, String tenantId) throws WarrantException {
+        makeDeleteRequest("/v1/tenants/" + tenantId + "/pricing-tiers/" + pricingTierId);
+    }
+
+    public void removeFeatureFromTenant(Feature feature, Tenant tenant) throws WarrantException {
+        removeFeatureFromTenant(feature.getFeatureId(), tenant.getTenantId());
+    }
+
+    public void removeFeatureFromTenant(String featureId, String tenantId) throws WarrantException {
+        makeDeleteRequest("/v1/tenants/" + tenantId + "/features/" + featureId);
+    }
+
+    public void removeFeatureFromPricingTier(Feature feature, PricingTier pricingTier) throws WarrantException {
+        removeFeatureFromPricingTier(feature.getFeatureId(), pricingTier.getPricingTierId());
+    }
+
+    public void removeFeatureFromPricingTier(String featureId, String pricingTierId) throws WarrantException {
+        makeDeleteRequest("/v1/pricing-tiers/" + pricingTierId + "/features/" + featureId);
+    }
+
+    public void removePermissionFromRole(Permission permission, Role role) throws WarrantException {
+        removePermissionFromRole(permission.getPermissionId(), role.getRoleId());
+    }
+
+    public void removePermissionFromRole(String permissionId, String roleId) throws WarrantException {
         makeDeleteRequest("/v1/roles/" + roleId + "/permissions/" + permissionId);
     }
 
-    public void createWarrant(Warrant toCreate) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v1/warrants", toCreate);
-        if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
-            throw new WarrantException("Warrant request failed: HTTP " + resp.statusCode() + " " + resp.body());
-        }
+    // Checks
+    public boolean checkUserHasPermission(User user, String permissionId) throws WarrantException {
+        return checkUserHasPermission(user.getUserId(), permissionId);
     }
 
-    public Warrant[] listWarrants() throws WarrantException {
-        return listWarrants(Collections.emptyMap());
+    public boolean checkUserHasPermission(String userId, String permissionId) throws WarrantException {
+        Permission perm = new Permission();
+        perm.setPermissionId(permissionId);
+        WarrantSubject subject = new WarrantSubject("user", userId);
+        return check(perm, "member", subject);
     }
 
-    public Warrant[] listWarrants(Map<String, Object> filters) throws WarrantException {
-        if (filters == null) {
-            throw new WarrantException("Must pass map of filters");
-        }
-        HttpResponse<String> resp = makeGetRequest("/v1/warrants", filters);
-        try {
-            Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
-            return warrants;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+    public boolean checkTenantHasFeature(Tenant tenant, String featureId) throws WarrantException {
+        return checkTenantHasFeature(tenant.getTenantId(), featureId);
     }
 
-    public Warrant[] queryWarrants(Map<String, Object> filters) throws WarrantException {
-        if (filters == null) {
-            throw new WarrantException("Must pass map of filters");
-        }
-        HttpResponse<String> resp = makeGetRequest("/v1/query", filters);
-        try {
-            Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
-            return warrants;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+    public boolean checkTenantHasFeature(String tenantId, String featureId) throws WarrantException {
+        Feature feature = new Feature();
+        feature.setFeatureId(featureId);
+        WarrantSubject subject = new WarrantSubject("tenant", tenantId);
+        return check(feature, "member", subject);
     }
 
-    public String createAuthorizationSession(Session session) throws WarrantException {
-        session.SetType("sess");
-        HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
-        try {
-            JsonNode respBody = mapper.readTree(resp.body());
-            return respBody.get("token").asText();
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+    public boolean checkUserHasFeature(User user, String featureId) throws WarrantException {
+        return checkUserHasFeature(user.getUserId(), featureId);
     }
 
-    public String createSelfServiceSession(Session session, String redirectUrl) throws WarrantException {
-        session.SetType("ssdash");
-        HttpResponse<String> resp = makePostRequest("/v1/sessions/", session);
-        try {
-            JsonNode respBody = mapper.readTree(resp.body());
-            String sessionToken = respBody.get("token").asText();
-            return config.getSelfServiceDashboardBaseUrl() + "/" + sessionToken + "?redirectUrl=" + redirectUrl;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
-    }
-
-    public WarrantCheckResult isAuthorized(WarrantCheck toCheck) throws WarrantException {
-        HttpResponse<String> resp = makePostRequest("/v2/authorize", toCheck);
-        if (resp.statusCode() != Response.Status.OK.getStatusCode()) {
-            throw new WarrantException("API error: " + resp.statusCode());
-        }
-        try {
-            WarrantCheckResult result = mapper.readValue(resp.body(), WarrantCheckResult.class);
-            return result;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
-    }
-
-    public boolean hasPermission(PermissionCheck permissionCheck) throws WarrantException {
-        Subject userSubject = new Subject("user", permissionCheck.getUserId());
-        Warrant permissionWarrant = new Warrant("permission", permissionCheck.getPermissionId(), "member", userSubject);
-        WarrantCheck warrantCheck = new WarrantCheck(Arrays.asList(permissionWarrant));
-        WarrantCheckResult result = isAuthorized(warrantCheck);
-        return result.getCode() == 200;
-    }
-
-    private HttpResponse<String> makePostRequest(String uri, Object reqPayload) throws WarrantException {
-        try {
-            String payload = mapper.writeValueAsString(reqPayload);
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + uri))
-                    .POST(HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode()
-                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
-        }
-    }
-
-    private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> params) throws WarrantException {
-        try {
-            UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                builder.queryParam(entry.getKey(), entry.getValue());
-            }
-
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(builder.build())
-                    .GET()
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode()
-                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
-        }
-    }
-
-    private HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
-        try {
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + uri))
-                    .DELETE()
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode()
-                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
-        }
+    public boolean checkUserHasFeature(String userId, String featureId) throws WarrantException {
+        Feature feature = new Feature();
+        feature.setFeatureId(featureId);
+        WarrantSubject subject = new WarrantSubject("user", userId);
+        return check(feature, "member", subject);
     }
 }

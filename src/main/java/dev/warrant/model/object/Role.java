@@ -1,9 +1,6 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
-public class Role {
+public class Role implements WarrantObject {
     private String roleId;
     private String name;
     private String description;
@@ -40,5 +37,15 @@ public class Role {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String id() {
+        return roleId;
+    }
+
+    @Override
+    public String type() {
+        return "role";
     }
 }

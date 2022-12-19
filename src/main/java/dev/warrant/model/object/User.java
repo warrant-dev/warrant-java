@@ -1,18 +1,14 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(value = { "createdAt", "updatedAt" })
-public class User {
-    private String email;
+public class User implements WarrantObject {
     private String userId;
+    private String email;
 
     public User() {
         // For json serialization
     }
 
     public User(String userId) {
-        this.email = "";
         this.userId = userId;
     }
 
@@ -35,5 +31,15 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String id() {
+        return userId;
+    }
+
+    @Override
+    public String type() {
+        return "user";
     }
 }
