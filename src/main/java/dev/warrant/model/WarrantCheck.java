@@ -1,38 +1,32 @@
 package dev.warrant.model;
 
-import java.util.List;
-
 public class WarrantCheck {
     
-    private List<Warrant> warrants;
-    private String op;
+    private Integer code;
+    private String result;
 
     public WarrantCheck() {
         // For json serialization
     }
 
-    public WarrantCheck(List<Warrant> warrants, String op) {
-        this.warrants = warrants;
-        this.op = op;
+    public WarrantCheck(Integer code, String result) {
+        this.code = code;
+        this.result = result;
     }
 
-    public WarrantCheck(List<Warrant> warrants) {
-        this.warrants = warrants;
+    public Integer getCode() {
+        return code;
     }
 
-    public List<Warrant> getWarrants() {
-        return warrants;
+    public void setCode(Integer code) {
+        this.code = code;
     }
 
-    public void setWarrants(List<Warrant> warrants) {
-        this.warrants = warrants;
+    public String getResult() {
+        return result;
     }
 
-    public String getOp() {
-        return op;
-    }
-
-    public void setOp(String op) {
-        this.op = op;
+    public void setResult(String result) {
+        this.result = result;
     }
 }

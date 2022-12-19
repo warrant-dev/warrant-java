@@ -6,11 +6,11 @@ public class UserSessionSpec {
     private String userId;
     private String tenantId;
 
-    public static UserSessionSpec newAuthorizationSession(String userId) {
+    public static UserSessionSpec newAuthorizationSessionSpec(String userId) {
         return new UserSessionSpec("sess", userId);
     }
 
-    public static UserSessionSpec newSelfServiceSession(String userId, String tenantId) {
+    public static UserSessionSpec newSelfServiceDashboardSessionSpec(String userId, String tenantId) {
         return new UserSessionSpec("ssdash", userId, tenantId);
     }
 
@@ -27,10 +27,6 @@ public class UserSessionSpec {
 
     public String getType() {
         return type;
-    }
-
-    public void SetType(String type) {
-        this.type = type;
     }
 
     public String getUserId() {

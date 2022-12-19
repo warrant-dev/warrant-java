@@ -1,15 +1,14 @@
 package dev.warrant.model.object;
 
 public class User implements WarrantObject {
-    private String email;
     private String userId;
+    private String email;
 
     public User() {
         // For json serialization
     }
 
     public User(String userId) {
-        this.email = "";
         this.userId = userId;
     }
 

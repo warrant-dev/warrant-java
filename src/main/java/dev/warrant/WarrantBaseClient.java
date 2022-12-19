@@ -18,16 +18,16 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
-import dev.warrant.model.Subject;
+import dev.warrant.model.WarrantSubject;
 import dev.warrant.model.UserSession;
 import dev.warrant.model.UserSessionSpec;
 import dev.warrant.model.Warrant;
+import dev.warrant.model.WarrantCheckSpec;
 import dev.warrant.model.WarrantCheck;
-import dev.warrant.model.WarrantCheckResult;
 import dev.warrant.model.object.WarrantObject;
 
 public class WarrantBaseClient {
-    public static final String SDK_VERSION = "0.3.0";
+    public static final String SDK_VERSION = "1.0.0";
     public static final String USER_AGENT = "warrant-java/" + SDK_VERSION;
 
     final HttpClient client;
@@ -46,12 +46,13 @@ public class WarrantBaseClient {
         this(config, HttpClient.newHttpClient());
     }
 
-    public Warrant createWarrant(WarrantObject object, String relation, Subject subject) throws WarrantException {
+    public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject)
+            throws WarrantException {
         Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject);
         return makePostRequest("/v1/warrants", toCreate, Warrant.class);
     }
 
-    public void deleteWarrant(WarrantObject object, String relation, Subject subject) throws WarrantException {
+    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
         try {
             Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
             String payload = mapper.writeValueAsString(toDelete);
@@ -64,46 +65,40 @@ public class WarrantBaseClient {
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode != Response.Status.OK.getStatusCode()) {
-                throw new WarrantException("Failed to DELETE warrant: HTTP " + statusCode + " " + resp.body());
+                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
         } catch (IOException | InterruptedException e) {
             throw new WarrantException(e);
         }
     }
 
-    // TODO: check pagination?
     public Warrant[] queryWarrants(QueryWarrantsFilters filters, int limit, int page) throws WarrantException {
         Map<String, Object> queryParams = filters.asMap();
         queryParams.put("limit", limit);
         queryParams.put("page", page);
-        HttpResponse<String> resp = makeGetRequest("/v1/query", queryParams);
-        try {
-            Warrant[] warrants = mapper.readValue(resp.body(), Warrant[].class);
-            return warrants;
-        } catch (IOException e) {
-            throw new WarrantException(e);
-        }
+        return makeGetRequest("/v1/query", queryParams, Warrant[].class);
     }
 
-    // TODO: check multiple?
-    public boolean check(WarrantObject object, String relation, Subject subject) throws WarrantException {
-        WarrantCheck toCheck = new WarrantCheck(Arrays.asList(new Warrant(object.type(), object.id(), relation, subject)));
-        WarrantCheckResult result = makePostRequest("/v2/authorize", toCheck, WarrantCheckResult.class);
-        if ("Authorized".equals(result.getResult())) {
+    public boolean check(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
+        WarrantCheckSpec toCheck = new WarrantCheckSpec(
+                Arrays.asList(new Warrant(object.type(), object.id(), relation, subject)));
+        WarrantCheck result = makePostRequest("/v2/authorize", toCheck, WarrantCheck.class);
+        if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
             return true;
         }
         return false;
     }
 
     public String createUserAuthzSession(String userId) throws WarrantException {
-        UserSession sess = makePostRequest("/v1/sessions", UserSessionSpec.newAuthorizationSession(userId),
+        UserSession sess = makePostRequest("/v1/sessions", UserSessionSpec.newAuthorizationSessionSpec(userId),
                 UserSession.class);
         return sess.getToken();
     }
 
     public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String redirectUrl)
             throws WarrantException {
-        UserSession ssdash = makePostRequest("/v1/sessions", UserSessionSpec.newSelfServiceSession(userId, tenantId),
+        UserSession ssdash = makePostRequest("/v1/sessions",
+                UserSessionSpec.newSelfServiceDashboardSessionSpec(userId, tenantId),
                 UserSession.class);
         return config.getSelfServiceDashboardBaseUrl() + "/" + ssdash.getToken() + "?redirectUrl=" + redirectUrl;
     }
@@ -128,9 +123,7 @@ public class WarrantBaseClient {
                     .build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode()
-                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
@@ -149,7 +142,7 @@ public class WarrantBaseClient {
         }
     }
 
-    HttpResponse<String> makePutRequest(String uri, Object reqPayload) throws WarrantException {
+    private HttpResponse<String> makePutRequest(String uri, Object reqPayload) throws WarrantException {
         try {
             String payload = mapper.writeValueAsString(reqPayload);
             HttpRequest req = HttpRequest.newBuilder()
@@ -160,9 +153,7 @@ public class WarrantBaseClient {
                     .build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode()
-                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
@@ -182,9 +173,7 @@ public class WarrantBaseClient {
                     .build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode()
-                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
@@ -212,17 +201,10 @@ public class WarrantBaseClient {
         }
     }
 
-    static final Map<String, Object> getPaginationParams(int limit, int page) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("limit", limit);
-        params.put("page", page);
-        return params;
-    }
-
-    private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> params) throws WarrantException {
+    private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> queryParams) throws WarrantException {
         try {
             UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
+            for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
                 builder.queryParam(entry.getKey(), entry.getValue());
             }
 
@@ -234,9 +216,7 @@ public class WarrantBaseClient {
                     .build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
-            if ((statusCode >= Response.Status.OK.getStatusCode()
-                    && statusCode < Response.Status.BAD_REQUEST.getStatusCode())
-                    || statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
@@ -244,5 +224,12 @@ public class WarrantBaseClient {
         } catch (IOException | InterruptedException e) {
             throw new WarrantException(e);
         }
+    }
+
+    static final Map<String, Object> getPaginationParams(int limit, int page) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("limit", limit);
+        params.put("page", page);
+        return params;
     }
 }

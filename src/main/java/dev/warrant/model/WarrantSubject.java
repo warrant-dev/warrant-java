@@ -1,21 +1,21 @@
 package dev.warrant.model;
 
-public class Subject {
+public class WarrantSubject {
     private String objectType;
     private String objectId;
     private String relation;
 
-    public Subject() {
+    public WarrantSubject() {
         // For json serialization
     }
 
-    public Subject(String objectType, String objectId, String relation) {
+    public WarrantSubject(String objectType, String objectId, String relation) {
         this.objectType = objectType;
         this.objectId = objectId;
         this.relation = relation;
     }
 
-    public Subject(String objectType, String objectId) {
+    public WarrantSubject(String objectType, String objectId) {
         this.objectType = objectType;
         this.objectId = objectId;
     }
@@ -46,6 +46,11 @@ public class Subject {
 
     @Override
     public String toString() {
-        return this.objectType + ":" + this.objectId;
+        StringBuilder s = new StringBuilder();
+        s.append(objectType).append(':').append(objectId);
+        if (relation != null) {
+            s.append('#').append(relation);
+        }
+        return s.toString();
     }
 }

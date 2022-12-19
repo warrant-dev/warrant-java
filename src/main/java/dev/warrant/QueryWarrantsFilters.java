@@ -3,13 +3,13 @@ package dev.warrant;
 import java.util.HashMap;
 import java.util.Map;
 
-import dev.warrant.model.Subject;
+import dev.warrant.model.WarrantSubject;
 
 public class QueryWarrantsFilters {
 
     private String objectType;
     private String relation;
-    private Subject subject;
+    private WarrantSubject subject;
 
     public void setObjectType(String objectType) {
         this.objectType = objectType;
@@ -19,7 +19,7 @@ public class QueryWarrantsFilters {
         this.relation = relation;
     }
 
-    public void setSubject(Subject subject) {
+    public void setSubject(WarrantSubject subject) {
         this.subject = subject;
     }
 
@@ -32,7 +32,7 @@ public class QueryWarrantsFilters {
             filters.put("relation", relation);
         }
         if (subject != null) {
-            filters.put("subject", subject.getObjectType() + ":" + subject.getObjectId());
+            filters.put("subject", subject.toString());
         }
         return filters;
     }
