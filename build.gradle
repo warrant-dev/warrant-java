@@ -24,8 +24,8 @@ dependencies {
 test {
     useJUnitPlatform()
     testLogging {
-		events "passed", "skipped", "failed"
-		showStandardStreams = true
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
         showStackTraces = true
         exceptionFormat = "full"
 	}
@@ -72,14 +72,17 @@ publishing {
             def snapshotsRepoUrl = 'ttps://s01.oss.sonatype.org/content/repositories/snapshots/'
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
-                username = hasProperty('ossrhUsername')?ossrhUsername:''
-                password = hasProperty('ossrhPassword')?ossrhPassword:''
+                username = System.getenv("OSSRH_USERNAME")
+                password = System.getenv("OSSRH_PASSWORD")
             }
         }
     }
 }
 
 signing {
+    def signingKey = System.getenv("PGP_SECRET")
+    def signingPassword = System.getenv("PGP_PASSWORD")
+    useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
 }
 
