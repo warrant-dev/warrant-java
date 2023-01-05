@@ -27,7 +27,7 @@ import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.object.WarrantObject;
 
 public class WarrantBaseClient {
-    public static final String SDK_VERSION = "1.0.0";
+    public static final String SDK_VERSION = "1.1.0";
     public static final String USER_AGENT = "warrant-java/" + SDK_VERSION;
 
     final HttpClient client;
