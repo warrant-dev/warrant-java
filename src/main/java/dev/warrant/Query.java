@@ -42,7 +42,7 @@ public class Query {
         if (forClauses.size() > 0) {
             StringBuilder b = new StringBuilder();
             for (String f : forClauses) {
-                b.append(f).append(" ");
+                b.append(f).append(",");
             }
             b.delete(b.length() - 1, b.length());
             params.put("for", b.toString());
@@ -51,7 +51,7 @@ public class Query {
         if (whereClauses.size() > 0) {
             StringBuilder b = new StringBuilder();
             for (String f : whereClauses) {
-                b.append(f).append(" ");
+                b.append(f).append(",");
             }
             b.delete(b.length() - 1, b.length());
             params.put("where", b.toString());
