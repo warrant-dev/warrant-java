@@ -415,9 +415,11 @@ public class LiveTest {
         Assertions.assertFalse(client.check(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id())));
         client.createWarrant(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id()));
         Assertions.assertTrue(client.check(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id())));
-        QueryWarrantsFilters filters = new QueryWarrantsFilters();
-        filters.setSubject(new WarrantSubject(newUser.type(), newUser.id()));
-        Warrant[] warrants = client.queryWarrants(filters, 100, 1);
+        QueryWarrantsParams params = new QueryWarrantsParams();
+        params.setSelectClause("warrants");
+        params.setForClause("subject=" + newUser.type() + ":" + newUser.id());
+        params.setWhereClause("subject=" + newUser.type() + ":" + newUser.id());
+        Warrant[] warrants = client.queryWarrants(params, 100, 1);
         Assertions.assertEquals(1, warrants.length);
         Assertions.assertEquals("permission", warrants[0].getObjectType());
         Assertions.assertEquals("perm1", warrants[0].getObjectId());
