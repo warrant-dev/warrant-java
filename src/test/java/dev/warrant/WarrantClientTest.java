@@ -97,12 +97,11 @@ public class WarrantClientTest {
                 .thenReturn(
                         "[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isImplicit\": false\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isImplicit\": true\n  }\n]");
 
-        QueryWarrantsParams queryParams = new QueryWarrantsParams();
-        queryParams.setSelectClause("warrants");
-        queryParams.setForClause("subject=user:6");
-        queryParams.setWhereClause("subject=user:6");
+        Query q = Query.selectWarrants()
+            .forClause("subject=user:6")
+            .where("suject=user:6");
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        Warrant[] warrants = warrantClient.queryWarrants(queryParams, 100, 1);
+        Warrant[] warrants = warrantClient.queryWarrants(q, 100, 1);
         Warrant[] expectedWarrants = {
                 new Warrant("role", "admin", "member", new WarrantSubject("user", "6"), false),
                 new Warrant("role", "manager", "member", new WarrantSubject("user", "6"), true)

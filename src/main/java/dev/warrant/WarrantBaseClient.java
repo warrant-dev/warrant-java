@@ -72,8 +72,8 @@ public class WarrantBaseClient {
         }
     }
 
-    public Warrant[] queryWarrants(QueryWarrantsParams params, int limit, int page) throws WarrantException {
-        Map<String, Object> queryParams = params.asMap();
+    public Warrant[] queryWarrants(Query query, int limit, int page) throws WarrantException {
+        Map<String, Object> queryParams = query.asMap();
         queryParams.put("limit", limit);
         queryParams.put("page", page);
         return makeGetRequest("/v1/query", queryParams, Warrant[].class);
