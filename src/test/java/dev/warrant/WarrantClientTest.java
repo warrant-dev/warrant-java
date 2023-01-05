@@ -95,15 +95,16 @@ public class WarrantClientTest {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body())
                 .thenReturn(
-                        "[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": true\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isDirectMatch\": false\n  }\n]");
+                        "[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isImplicit\": false\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isImplicit\": true\n  }\n]");
 
-        QueryWarrantsFilters queryFilters = new QueryWarrantsFilters();
-        queryFilters.setSubject(new WarrantSubject("user", "6"));
+        Query q = Query.selectWarrants()
+            .forClause("subject=user:6")
+            .where("suject=user:6");
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-        Warrant[] warrants = warrantClient.queryWarrants(queryFilters, 100, 1);
+        Warrant[] warrants = warrantClient.queryWarrants(q, 100, 1);
         Warrant[] expectedWarrants = {
-                new Warrant("role", "admin", "member", new WarrantSubject("user", "6"), true),
-                new Warrant("role", "manager", "member", new WarrantSubject("user", "6"), false)
+                new Warrant("role", "admin", "member", new WarrantSubject("user", "6"), false),
+                new Warrant("role", "manager", "member", new WarrantSubject("user", "6"), true)
         };
 
         Assertions.assertEquals(expectedWarrants[0].getObjectType(), warrants[0].getObjectType());
@@ -112,7 +113,7 @@ public class WarrantClientTest {
         Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectType(),
                 warrants[0].getSubject().getObjectType());
         Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectId(), warrants[0].getSubject().getObjectId());
-        Assertions.assertEquals(expectedWarrants[0].getIsDirectMatch(), warrants[0].getIsDirectMatch());
+        Assertions.assertEquals(expectedWarrants[0].getIsImplicit(), warrants[0].getIsImplicit());
 
         Assertions.assertEquals(expectedWarrants[1].getObjectType(), warrants[1].getObjectType());
         Assertions.assertEquals(expectedWarrants[1].getObjectId(), warrants[1].getObjectId());
@@ -120,6 +121,6 @@ public class WarrantClientTest {
         Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectType(),
                 warrants[1].getSubject().getObjectType());
         Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectId(), warrants[1].getSubject().getObjectId());
-        Assertions.assertEquals(expectedWarrants[1].getIsDirectMatch(), warrants[1].getIsDirectMatch());
+        Assertions.assertEquals(expectedWarrants[1].getIsImplicit(), warrants[1].getIsImplicit());
     }
 }

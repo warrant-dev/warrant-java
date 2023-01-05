@@ -6,7 +6,7 @@ public class Warrant {
     private String objectId;
     private String relation;
     private WarrantSubject subject;
-    private boolean isDirectMatch;
+    private boolean isImplicit;
 
     public Warrant() {
         // For json serialization
@@ -19,12 +19,12 @@ public class Warrant {
         this.subject = subject;
     }
 
-    public Warrant(String objectType, String objectId, String relation, WarrantSubject subject, boolean isDirectMatch) {
+    public Warrant(String objectType, String objectId, String relation, WarrantSubject subject, boolean isImplicit) {
         this.objectType = objectType;
         this.objectId = objectId;
         this.relation = relation;
         this.subject = subject;
-        this.isDirectMatch = isDirectMatch;
+        this.isImplicit = isImplicit;
     }
 
     public String getObjectType() {
@@ -43,7 +43,7 @@ public class Warrant {
         return subject;
     }
 
-    public boolean getIsDirectMatch() {
-        return isDirectMatch;
+    public boolean getIsImplicit() {
+        return isImplicit;
     }
 }
