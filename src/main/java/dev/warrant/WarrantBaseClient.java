@@ -95,10 +95,10 @@ public class WarrantBaseClient {
         return sess.getToken();
     }
 
-    public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String redirectUrl)
+    public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String selfServiceStrategy, String redirectUrl)
             throws WarrantException {
         UserSession ssdash = makePostRequest("/v1/sessions",
-                UserSessionSpec.newSelfServiceDashboardSessionSpec(userId, tenantId),
+                UserSessionSpec.newSelfServiceDashboardSessionSpec(userId, tenantId, selfServiceStrategy),
                 UserSession.class);
         return config.getSelfServiceDashboardBaseUrl() + "/" + ssdash.getToken() + "?redirectUrl=" + redirectUrl;
     }
