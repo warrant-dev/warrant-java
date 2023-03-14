@@ -126,12 +126,12 @@ public class LiveTest {
         Assertions.assertEquals("Updated desc", refetchedPermission.getDescription());
 
         Permission[] permissions = client.listPermissions(10, 1);
-        Assertions.assertEquals(3, permissions.length); // includes default 'view-self-service-dashboard' permission
+        Assertions.assertEquals(2, permissions.length); // includes default 'view-self-service-dashboard' permission
 
         client.deletePermission(permission1);
         client.deletePermission(permission2);
         permissions = client.listPermissions(10, 1);
-        Assertions.assertEquals(1, permissions.length);
+        Assertions.assertEquals(0, permissions.length);
     }
 
     @Test
@@ -395,11 +395,10 @@ public class LiveTest {
     public void sessions() throws WarrantException {
         User user = client.createUser();
         Tenant tenant = client.createTenant();
-        client.assignUserToTenant(user, tenant);
-        client.assignPermissionToUser(new Permission("view-self-service-dashboard", null, null), user);
+        client.createWarrant(tenant, "admin", new WarrantSubject(user.type(), user.id()));
 
         Assertions.assertNotNull(client.createUserAuthzSession(user.getUserId()));
-        Assertions.assertNotNull(client.createUserSelfServiceDashboardUrl(user.getUserId(), tenant.getTenantId(),
+        Assertions.assertNotNull(client.createUserSelfServiceDashboardUrl(user.getUserId(), tenant.getTenantId(), "rbac",
                 "http://localhost:8080"));
 
         client.deleteUser(user);
