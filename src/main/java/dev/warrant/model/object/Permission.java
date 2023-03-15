@@ -9,6 +9,10 @@ public class Permission implements WarrantObject {
         // For json serialization
     }
 
+    public Permission(String permissionId) {
+        this.permissionId = permissionId;
+    }
+
     public Permission(String permissionId, String name, String description) {
         this.permissionId = permissionId;
         this.name = name;

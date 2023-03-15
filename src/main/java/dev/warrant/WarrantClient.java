@@ -273,7 +273,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignRoleToUser(String roleId, String userId) throws WarrantException {
-        return createWarrant(new Role(roleId, "", ""), "member", new WarrantSubject("user", userId));
+        return createWarrant(new Role(roleId), "member", new WarrantSubject("user", userId));
     }
 
     public Warrant assignPermissionToUser(Permission permission, User user) throws WarrantException {
@@ -281,7 +281,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignPermissionToUser(String permissionId, String userId) throws WarrantException {
-        return createWarrant(new Permission(permissionId, "", ""), "member", new WarrantSubject("user", userId));
+        return createWarrant(new Permission(permissionId), "member", new WarrantSubject("user", userId));
     }
 
     public Warrant assignPricingTierToUser(PricingTier pricingTier, User user) throws WarrantException {
@@ -337,7 +337,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignPermissionToRole(String permissionId, String roleId) throws WarrantException {
-        return createWarrant(new Permission(permissionId, "", ""), "member", new WarrantSubject("role", roleId));
+        return createWarrant(new Permission(permissionId), "member", new WarrantSubject("role", roleId));
 
     }
 
@@ -347,7 +347,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeRoleFromUser(String roleId, String userId) throws WarrantException {
-        deleteWarrant(new Role(roleId, "", ""), "member", new WarrantSubject("user", userId));
+        deleteWarrant(new Role(roleId), "member", new WarrantSubject("user", userId));
     }
 
     public void removePermissionFromUser(Permission permission, User user) throws WarrantException {
@@ -355,7 +355,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePermissionFromUser(String permissionId, String userId) throws WarrantException {
-        deleteWarrant(new Permission(permissionId, "", ""), "member", new WarrantSubject("user", userId));
+        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject("user", userId));
     }
 
     public void removePricingTierFromUser(PricingTier pricingTier, User user) throws WarrantException {
@@ -411,7 +411,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePermissionFromRole(String permissionId, String roleId) throws WarrantException {
-        deleteWarrant(new Permission(permissionId, "", ""), "member", new WarrantSubject("role", roleId));
+        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject("role", roleId));
     }
 
     // Checks

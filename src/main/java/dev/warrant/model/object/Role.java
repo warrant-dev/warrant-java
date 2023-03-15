@@ -9,6 +9,10 @@ public class Role implements WarrantObject {
         // For json serialization
     }
 
+    public Role(String roleId) {
+        this.roleId = roleId;
+    }
+
     public Role(String roleId, String name, String description) {
         this.roleId = roleId;
         this.name = name;
