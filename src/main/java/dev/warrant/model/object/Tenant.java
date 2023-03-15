@@ -1,6 +1,8 @@
 package dev.warrant.model.object;
 
 public class Tenant implements WarrantObject {
+    public static final String OBJECT_TYPE = "tenant";
+
     private String tenantId;
     private String name;
 

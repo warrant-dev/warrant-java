@@ -1,6 +1,8 @@
 package dev.warrant.model.object;
 
 public class Feature implements WarrantObject {
+    static final String OBJECT_TYPE = "feature";
+
     private String featureId;
 
     public Feature() {

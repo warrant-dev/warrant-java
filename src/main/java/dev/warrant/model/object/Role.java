@@ -1,6 +1,8 @@
 package dev.warrant.model.object;
 
 public class Role implements WarrantObject {
+    public static final String OBJECT_TYPE = "role";
+
     private String roleId;
     private String name;
     private String description;

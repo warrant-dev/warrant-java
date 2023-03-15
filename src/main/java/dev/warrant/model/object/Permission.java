@@ -1,6 +1,8 @@
 package dev.warrant.model.object;
 
 public class Permission implements WarrantObject {
+    public static final String OBJECT_TYPE = "permission";
+
     private String permissionId;
     private String name;
     private String description;

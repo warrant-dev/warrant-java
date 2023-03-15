@@ -1,6 +1,8 @@
 package dev.warrant.model.object;
 
 public class User implements WarrantObject {
+    public static final String OBJECT_TYPE = "user";
+
     private String userId;
     private String email;
 

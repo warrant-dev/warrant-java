@@ -126,7 +126,7 @@ public class LiveTest {
         Assertions.assertEquals("Updated desc", refetchedPermission.getDescription());
 
         Permission[] permissions = client.listPermissions(10, 1);
-        Assertions.assertEquals(2, permissions.length); // includes default 'view-self-service-dashboard' permission
+        Assertions.assertEquals(2, permissions.length);
 
         client.deletePermission(permission1);
         client.deletePermission(permission2);

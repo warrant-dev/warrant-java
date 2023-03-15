@@ -273,7 +273,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignRoleToUser(String roleId, String userId) throws WarrantException {
-        return createWarrant(new Role(roleId), "member", new WarrantSubject("user", userId));
+        return createWarrant(new Role(roleId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public Warrant assignPermissionToUser(Permission permission, User user) throws WarrantException {
@@ -281,7 +281,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignPermissionToUser(String permissionId, String userId) throws WarrantException {
-        return createWarrant(new Permission(permissionId), "member", new WarrantSubject("user", userId));
+        return createWarrant(new Permission(permissionId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public Warrant assignPricingTierToUser(PricingTier pricingTier, User user) throws WarrantException {
@@ -289,7 +289,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignPricingTierToUser(String pricingTierId, String userId) throws WarrantException {
-        return createWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject("user", userId));
+        return createWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public Warrant assignFeatureToUser(Feature feature, User user) throws WarrantException {
@@ -297,7 +297,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignFeatureToUser(String featureId, String userId) throws WarrantException {
-        return createWarrant(new Feature(featureId), "member", new WarrantSubject("user", userId));
+        return createWarrant(new Feature(featureId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public Warrant assignUserToTenant(User user, Tenant tenant) throws WarrantException {
@@ -305,7 +305,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignUserToTenant(String userId, String tenantId) throws WarrantException {
-        return createWarrant(new Tenant(tenantId), "member", new WarrantSubject("user", userId));
+        return createWarrant(new Tenant(tenantId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public Warrant assignPricingTierToTenant(PricingTier pricingTier, Tenant tenant) throws WarrantException {
@@ -313,7 +313,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignPricingTierToTenant(String pricingTierId, String tenantId) throws WarrantException {
-        return createWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject("tenant", tenantId));
+        return createWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId));
     }
 
     public Warrant assignFeatureToTenant(Feature feature, Tenant tenant) throws WarrantException {
@@ -321,7 +321,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignFeatureToTenant(String featureId, String tenantId) throws WarrantException {
-        return createWarrant(new Feature(featureId), "member", new WarrantSubject("tenant", tenantId));
+        return createWarrant(new Feature(featureId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId));
     }
 
     public Warrant assignFeatureToPricingTier(Feature feature, PricingTier pricingTier) throws WarrantException {
@@ -329,7 +329,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignFeatureToPricingTier(String featureId, String pricingTierId) throws WarrantException {
-        return createWarrant(new Feature(featureId), "member", new WarrantSubject("pricing-tier", pricingTierId));
+        return createWarrant(new Feature(featureId), "member", new WarrantSubject(PricingTier.OBJECT_TYPE, pricingTierId));
     }
 
     public Warrant assignPermissionToRole(Permission permission, Role role) throws WarrantException {
@@ -337,7 +337,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Warrant assignPermissionToRole(String permissionId, String roleId) throws WarrantException {
-        return createWarrant(new Permission(permissionId), "member", new WarrantSubject("role", roleId));
+        return createWarrant(new Permission(permissionId), "member", new WarrantSubject(Role.OBJECT_TYPE, roleId));
 
     }
 
@@ -347,7 +347,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeRoleFromUser(String roleId, String userId) throws WarrantException {
-        deleteWarrant(new Role(roleId), "member", new WarrantSubject("user", userId));
+        deleteWarrant(new Role(roleId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public void removePermissionFromUser(Permission permission, User user) throws WarrantException {
@@ -355,7 +355,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePermissionFromUser(String permissionId, String userId) throws WarrantException {
-        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject("user", userId));
+        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public void removePricingTierFromUser(PricingTier pricingTier, User user) throws WarrantException {
@@ -363,7 +363,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePricingTierFromUser(String pricingTierId, String userId) throws WarrantException {
-        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject("user", userId));
+        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public void removeFeatureFromUser(Feature feature, User user) throws WarrantException {
@@ -371,7 +371,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeFeatureFromUser(String featureId, String userId) throws WarrantException {
-        deleteWarrant(new Feature(featureId), "member", new WarrantSubject("user", userId));
+        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public void removeUserFromTenant(User user, Tenant tenant) throws WarrantException {
@@ -379,7 +379,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeUserFromTenant(String userId, String tenantId) throws WarrantException {
-        deleteWarrant(new Tenant(tenantId), "member", new WarrantSubject("user", userId));
+        deleteWarrant(new Tenant(tenantId), "member", new WarrantSubject(User.OBJECT_TYPE, userId));
     }
 
     public void removePricingTierFromTenant(PricingTier pricingTier, Tenant tenant) throws WarrantException {
@@ -387,7 +387,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePricingTierFromTenant(String pricingTierId, String tenantId) throws WarrantException {
-        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject("tenant", tenantId));
+        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId));
     }
 
     public void removeFeatureFromTenant(Feature feature, Tenant tenant) throws WarrantException {
@@ -395,7 +395,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeFeatureFromTenant(String featureId, String tenantId) throws WarrantException {
-        deleteWarrant(new Feature(featureId), "member", new WarrantSubject("tenant", tenantId));
+        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId));
     }
 
     public void removeFeatureFromPricingTier(Feature feature, PricingTier pricingTier) throws WarrantException {
@@ -403,7 +403,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeFeatureFromPricingTier(String featureId, String pricingTierId) throws WarrantException {
-        deleteWarrant(new Feature(featureId), "member", new WarrantSubject("pricing-tier", pricingTierId));
+        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(PricingTier.OBJECT_TYPE, pricingTierId));
     }
 
     public void removePermissionFromRole(Permission permission, Role role) throws WarrantException {
@@ -411,7 +411,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePermissionFromRole(String permissionId, String roleId) throws WarrantException {
-        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject("role", roleId));
+        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject(Role.OBJECT_TYPE, roleId));
     }
 
     // Checks
@@ -422,7 +422,7 @@ public class WarrantClient extends WarrantBaseClient {
     public boolean checkUserHasPermission(String userId, String permissionId) throws WarrantException {
         Permission perm = new Permission();
         perm.setPermissionId(permissionId);
-        WarrantSubject subject = new WarrantSubject("user", userId);
+        WarrantSubject subject = new WarrantSubject(User.OBJECT_TYPE, userId);
         return check(perm, "member", subject);
     }
 
@@ -433,7 +433,7 @@ public class WarrantClient extends WarrantBaseClient {
     public boolean checkTenantHasFeature(String tenantId, String featureId) throws WarrantException {
         Feature feature = new Feature();
         feature.setFeatureId(featureId);
-        WarrantSubject subject = new WarrantSubject("tenant", tenantId);
+        WarrantSubject subject = new WarrantSubject(Tenant.OBJECT_TYPE, tenantId);
         return check(feature, "member", subject);
     }
 
@@ -444,7 +444,7 @@ public class WarrantClient extends WarrantBaseClient {
     public boolean checkUserHasFeature(String userId, String featureId) throws WarrantException {
         Feature feature = new Feature();
         feature.setFeatureId(featureId);
-        WarrantSubject subject = new WarrantSubject("user", userId);
+        WarrantSubject subject = new WarrantSubject(User.OBJECT_TYPE, userId);
         return check(feature, "member", subject);
     }
 }
