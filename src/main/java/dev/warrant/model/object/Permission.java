@@ -1,12 +1,18 @@
 package dev.warrant.model.object;
 
 public class Permission implements WarrantObject {
+    public static final String OBJECT_TYPE = "permission";
+
     private String permissionId;
     private String name;
     private String description;
 
     public Permission() {
         // For json serialization
+    }
+
+    public Permission(String permissionId) {
+        this.permissionId = permissionId;
     }
 
     public Permission(String permissionId, String name, String description) {

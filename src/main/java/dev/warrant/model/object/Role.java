@@ -1,12 +1,18 @@
 package dev.warrant.model.object;
 
 public class Role implements WarrantObject {
+    public static final String OBJECT_TYPE = "role";
+
     private String roleId;
     private String name;
     private String description;
 
     public Role() {
         // For json serialization
+    }
+
+    public Role(String roleId) {
+        this.roleId = roleId;
     }
 
     public Role(String roleId, String name, String description) {
