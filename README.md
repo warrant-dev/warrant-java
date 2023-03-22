@@ -42,6 +42,18 @@ public static void main(String[] args) throws WarrantException, IOException {
 }
 ```
 
+## Configuring the API Endpoint
+---
+The API endpoint the SDK makes requests to is configurable when initializing the client:
+
+```java
+public static void main(String[] args) throws WarrantException, IOException {
+    String apiKey = "YOUR_KEY";
+    // Initialize api endpoint to http://localhost:8000
+    WarrantClient client = new WarrantClient(new WarrantConfig(apiKey, "http://localhost:8000"));
+}
+```
+
 We’ve used a random API key in these code examples. Replace it with your [actual API keys](https://app.warrant.dev) to test this code through your own Warrant account.
 
 For more information on how to use the Warrant API, please refer to the [Warrant API reference](https://docs.warrant.dev).

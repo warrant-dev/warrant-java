@@ -115,12 +115,15 @@ public class WarrantBaseClient {
     HttpResponse<String> makePostRequest(String uri, Object reqPayload) throws WarrantException {
         try {
             String payload = mapper.writeValueAsString(reqPayload);
-            HttpRequest req = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + uri))
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
+                    .header("User-Agent", USER_AGENT);
+
+            if (!config.getApiKey().isEmpty()) {
+                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+            }
+            HttpRequest req = requestBuilder.build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
@@ -145,12 +148,15 @@ public class WarrantBaseClient {
     private HttpResponse<String> makePutRequest(String uri, Object reqPayload) throws WarrantException {
         try {
             String payload = mapper.writeValueAsString(reqPayload);
-            HttpRequest req = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + uri))
                     .PUT(HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
+                    .header("User-Agent", USER_AGENT);
+
+            if (!config.getApiKey().isEmpty()) {
+                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+            }
+            HttpRequest req = requestBuilder.build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
@@ -165,12 +171,15 @@ public class WarrantBaseClient {
 
     HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
         try {
-            HttpRequest req = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + uri))
                     .DELETE()
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
+                    .header("User-Agent", USER_AGENT);
+
+            if (!config.getApiKey().isEmpty()) {
+                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+            }
+            HttpRequest req = requestBuilder.build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
@@ -208,12 +217,15 @@ public class WarrantBaseClient {
                 builder.queryParam(entry.getKey(), entry.getValue());
             }
 
-            HttpRequest req = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(builder.build())
                     .GET()
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
+                    .header("User-Agent", USER_AGENT);
+
+            if (!config.getApiKey().isEmpty()) {
+                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+            }
+            HttpRequest req = requestBuilder.build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
