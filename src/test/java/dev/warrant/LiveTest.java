@@ -18,12 +18,12 @@ import dev.warrant.model.object.User;
 @Disabled("Remove this annotation and add your API_KEY below to run these against the live server")
 public class LiveTest {
 
-    private static final String API_KEY = "YOUR_KEY";
+    private static final String API_KEY = "";
     private WarrantClient client;
 
     @BeforeEach
     public void setup() {
-        client = new WarrantClient(WarrantConfig.withApiKey(API_KEY));
+        client = new WarrantClient(new WarrantConfig(API_KEY, "https://api.warrant.dev"));
     }
 
     @Test
