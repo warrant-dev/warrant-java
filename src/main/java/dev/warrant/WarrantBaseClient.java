@@ -120,7 +120,7 @@ public class WarrantBaseClient {
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .header("User-Agent", USER_AGENT);
 
-            if (config.getApiKey().isEmpty()) {
+            if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
@@ -153,7 +153,7 @@ public class WarrantBaseClient {
                     .PUT(HttpRequest.BodyPublishers.ofString(payload))
                     .header("User-Agent", USER_AGENT);
 
-            if (config.getApiKey().isEmpty()) {
+            if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
@@ -176,7 +176,7 @@ public class WarrantBaseClient {
                     .DELETE()
                     .header("User-Agent", USER_AGENT);
 
-            if (config.getApiKey().isEmpty()) {
+            if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
@@ -222,7 +222,7 @@ public class WarrantBaseClient {
                     .GET()
                     .header("User-Agent", USER_AGENT);
 
-            if (config.getApiKey().isEmpty()) {
+            if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
