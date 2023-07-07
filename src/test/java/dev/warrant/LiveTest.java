@@ -42,7 +42,8 @@ public class LiveTest {
         Assertions.assertEquals("some_id", refetchedUser.getUserId());
         Assertions.assertEquals("updated@email.com", refetchedUser.getEmail());
 
-        User[] users = client.listUsers(10, 1);
+        ListParams listParams = new ListParams().withLimit(10).withPage(1);
+        User[] users = client.listUsers(listParams);
         Assertions.assertEquals(2, users.length);
 
         client.deleteUser(user1);
