@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.WarrantSubject;
-import dev.warrant.model.Warrant;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;

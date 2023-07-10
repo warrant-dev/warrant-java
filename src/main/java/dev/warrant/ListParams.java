@@ -1,4 +1,4 @@
-package dev.warrant.model;
+package dev.warrant;
 
 import java.util.HashMap;
 import java.util.Map;

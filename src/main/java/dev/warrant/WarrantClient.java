@@ -12,7 +12,6 @@ import dev.warrant.model.object.Role;
 import dev.warrant.model.object.Tenant;
 import dev.warrant.model.object.User;
 import dev.warrant.model.Warrant;
-import dev.warrant.model.ListParams;
 
 public class WarrantClient extends WarrantBaseClient {
 
