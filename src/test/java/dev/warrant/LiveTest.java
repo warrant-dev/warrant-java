@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.WarrantSubject;
-import dev.warrant.model.Warrant;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;
@@ -42,7 +41,8 @@ public class LiveTest {
         Assertions.assertEquals("some_id", refetchedUser.getUserId());
         Assertions.assertEquals("updated@email.com", refetchedUser.getEmail());
 
-        User[] users = client.listUsers(10, 1);
+        ListParams listParams = new ListParams().withLimit(10).withPage(1);
+        User[] users = client.listUsers(listParams);
         Assertions.assertEquals(2, users.length);
 
         client.deleteUser(user1);
