@@ -11,9 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,6 +22,8 @@ import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantCheckSpec;
 import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.object.WarrantObject;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 
 public class WarrantBaseClient {
     public static final String SDK_VERSION = "2.1.0";
