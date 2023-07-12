@@ -1,5 +1,8 @@
 package dev.warrant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -427,5 +430,27 @@ public class LiveTest {
 
         client.deleteUser(newUser);
         client.deletePermission(newPermission);
+    }
+
+    @Test
+    public void warrantsWithPolicy() throws WarrantException {
+        User testUser = client.createUser(new User("test-user"));
+        Permission testPermission = client
+                .createPermission(new Permission("test-permission"));
+
+        client.createWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), "geo == 'us' && isActivated == true");
+        Map<String, Object> warrantContext = new HashMap<>();
+        warrantContext.put("geo", "us");
+        warrantContext.put("isActivated", true);
+        Assertions.assertTrue(client.check(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), warrantContext));
+
+        warrantContext.clear();
+        warrantContext.put("geo", "eu");
+        warrantContext.put("isActivated", false);
+        Assertions.assertFalse(client.check(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), warrantContext));
+
+        client.deleteWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), "geo == 'us' && isActivated == true");
+        client.deleteUser(testUser);
+        client.deletePermission(testPermission);
     }
 }
