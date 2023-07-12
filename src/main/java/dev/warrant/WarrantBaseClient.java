@@ -20,6 +20,7 @@ import dev.warrant.model.UserSession;
 import dev.warrant.model.UserSessionSpec;
 import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantCheckSpec;
+import dev.warrant.model.WarrantSpec;
 import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.object.WarrantObject;
 import jakarta.ws.rs.core.Response;
@@ -51,9 +52,35 @@ public class WarrantBaseClient {
         return makePostRequest("/v1/warrants", toCreate, Warrant.class);
     }
 
+    public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy)
+            throws WarrantException {
+        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject, policy);
+        return makePostRequest("/v1/warrants", toCreate, Warrant.class);
+    }
+
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
         try {
             Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
+            String payload = mapper.writeValueAsString(toDelete);
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
+                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
+                    .header("Authorization", "ApiKey " + config.getApiKey())
+                    .header("User-Agent", USER_AGENT)
+                    .build();
+            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            int statusCode = resp.statusCode();
+            if (statusCode != Response.Status.OK.getStatusCode()) {
+                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy) throws WarrantException {
+        try {
+            Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject, policy);
             String payload = mapper.writeValueAsString(toDelete);
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
