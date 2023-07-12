@@ -107,7 +107,17 @@ public class WarrantBaseClient {
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
         WarrantCheckSpec toCheck = new WarrantCheckSpec(
-                Arrays.asList(new Warrant(object.type(), object.id(), relation, subject)));
+                Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject)));
+        WarrantCheck result = makePostRequest("/v2/authorize", toCheck, WarrantCheck.class);
+        if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean check(WarrantObject object, String relation, WarrantSubject subject, Map<String, Object> context) throws WarrantException {
+        WarrantCheckSpec toCheck = new WarrantCheckSpec(
+                Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject, context)));
         WarrantCheck result = makePostRequest("/v2/authorize", toCheck, WarrantCheck.class);
         if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
             return true;
