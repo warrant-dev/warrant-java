@@ -3,28 +3,28 @@ package dev.warrant.model;
 import java.util.List;
 
 public class WarrantCheckSpec {
-    
-    private List<Warrant> warrants;
+
+    private List<WarrantSpec> warrants;
     private String op;
 
     public WarrantCheckSpec() {
         // For json serialization
     }
 
-    public WarrantCheckSpec(List<Warrant> warrants, String op) {
+    public WarrantCheckSpec(List<WarrantSpec> warrants, String op) {
         this.warrants = warrants;
         this.op = op;
     }
 
-    public WarrantCheckSpec(List<Warrant> warrants) {
+    public WarrantCheckSpec(List<WarrantSpec> warrants) {
         this.warrants = warrants;
     }
 
-    public List<Warrant> getWarrants() {
+    public List<WarrantSpec> getWarrants() {
         return warrants;
     }
 
-    public void setWarrants(List<Warrant> warrants) {
+    public void setWarrants(List<WarrantSpec> warrants) {
         this.warrants = warrants;
     }
 

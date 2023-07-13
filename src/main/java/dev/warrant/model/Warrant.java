@@ -6,6 +6,7 @@ public class Warrant {
     private String objectId;
     private String relation;
     private WarrantSubject subject;
+    private String policy;
     private boolean isImplicit;
 
     public Warrant() {
@@ -17,6 +18,14 @@ public class Warrant {
         this.objectId = objectId;
         this.relation = relation;
         this.subject = subject;
+    }
+
+    public Warrant(String objectType, String objectId, String relation, WarrantSubject subject, String policy) {
+        this.objectType = objectType;
+        this.objectId = objectId;
+        this.relation = relation;
+        this.subject = subject;
+        this.policy = policy;
     }
 
     public Warrant(String objectType, String objectId, String relation, WarrantSubject subject, boolean isImplicit) {
@@ -41,6 +50,10 @@ public class Warrant {
 
     public WarrantSubject getSubject() {
         return subject;
+    }
+
+    public String getPolicy() {
+        return policy;
     }
 
     public boolean getIsImplicit() {
