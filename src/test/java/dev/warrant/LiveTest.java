@@ -25,7 +25,7 @@ public class LiveTest {
 
     @BeforeEach
     public void setup() {
-        client = new WarrantClient(new WarrantConfig(API_KEY, "https://api.warrant.dev"));
+        client = new WarrantClient(new WarrantConfig(API_KEY, "https://api.warrant.dev", "https://api.warrant.dev"));
     }
 
     @Test
