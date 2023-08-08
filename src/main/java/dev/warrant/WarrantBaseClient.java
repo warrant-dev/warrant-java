@@ -108,7 +108,7 @@ public class WarrantBaseClient {
     public boolean check(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
         WarrantCheckSpec toCheck = new WarrantCheckSpec(
                 Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject)));
-        WarrantCheck result = makePostRequest("/v2/authorize", toCheck, WarrantCheck.class);
+        WarrantCheck result = makeCheckRequest(toCheck);
         if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
             return true;
         }
@@ -118,7 +118,7 @@ public class WarrantBaseClient {
     public boolean check(WarrantObject object, String relation, WarrantSubject subject, Map<String, Object> context) throws WarrantException {
         WarrantCheckSpec toCheck = new WarrantCheckSpec(
                 Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject, context)));
-        WarrantCheck result = makePostRequest("/v2/authorize", toCheck, WarrantCheck.class);
+        WarrantCheck result = makeCheckRequest(toCheck);
         if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
             return true;
         }
@@ -137,6 +137,30 @@ public class WarrantBaseClient {
                 UserSessionSpec.newSelfServiceDashboardSessionSpec(userId, tenantId, selfServiceStrategy),
                 UserSession.class);
         return config.getSelfServiceDashboardBaseUrl() + "/" + ssdash.getToken() + "?redirectUrl=" + redirectUrl;
+    }
+
+    WarrantCheck makeCheckRequest(WarrantCheckSpec toCheck) throws WarrantException {
+        try {
+            String payload = mapper.writeValueAsString(toCheck);
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(config.getCheckUrl() + "/v2/authorize"))
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .header("User-Agent", USER_AGENT);
+
+            if (!config.getApiKey().isEmpty()) {
+                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+            }
+            HttpRequest req = requestBuilder.build();
+            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            int statusCode = resp.statusCode();
+            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
+                return mapper.readValue(resp.body(), WarrantCheck.class);
+            } else {
+                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new WarrantException(e);
+        }
     }
 
     <T> T makePostRequest(String uri, Object reqPayload, Class<T> type) throws WarrantException {

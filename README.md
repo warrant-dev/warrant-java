@@ -42,15 +42,15 @@ public static void main(String[] args) throws WarrantException, IOException {
 }
 ```
 
-## Configuring the API Endpoint
----
-The API endpoint the SDK makes requests to is configurable when initializing the client:
+## Configuring API Endpoints
+
+By default, the SDK makes requests to `api.warrant.dev`. You can override this endpoint, as well as a `check` endpoint (if using Warrant Edge) via a `WarrantConfig` object passed to the client:
 
 ```java
 public static void main(String[] args) throws WarrantException, IOException {
     String apiKey = "YOUR_KEY";
-    // Initialize api endpoint to http://localhost:8000
-    WarrantClient client = new WarrantClient(new WarrantConfig(apiKey, "http://localhost:8000"));
+    // Initialize api endpoint to https://api.warrant.dev and check endpoint to "http://localhost:3000" (local Edge instance)
+    WarrantClient client = new WarrantClient(new WarrantConfig(apiKey, "https://api.warrant.dev", "http://localhost:3000"));
 }
 ```
 
