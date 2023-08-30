@@ -190,7 +190,7 @@ public class WarrantBaseClient {
 
     WarrantCheck makeCheckRequest(WarrantCheckSpec toCheck) throws WarrantException {
         try {
-            return makeCheckRequest(toCheck, Collections.EMPTY_MAP);
+            return makeCheckRequest(toCheck, Collections.emptyMap());
         } catch (WarrantException e) {
             throw e;
         }
@@ -315,7 +315,7 @@ public class WarrantBaseClient {
 
     private HttpResponse<String> makePutRequest(String uri, Object reqPayload) throws WarrantException {
         try {
-            return makePutRequest(uri, reqPayload, Collections.EMPTY_MAP);
+            return makePutRequest(uri, reqPayload, Collections.emptyMap());
         } catch (WarrantException e) {
             throw e;
         }
@@ -351,7 +351,7 @@ public class WarrantBaseClient {
 
     HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
         try {
-            return makeDeleteRequest(uri, null, Collections.EMPTY_MAP);
+            return makeDeleteRequest(uri, null, Collections.emptyMap());
         } catch (WarrantException e) {
             throw e;
         }
@@ -359,7 +359,7 @@ public class WarrantBaseClient {
 
     HttpResponse<String> makeDeleteRequest(String uri, Object reqPayload) throws WarrantException {
         try {
-            return makeDeleteRequest(uri, reqPayload, Collections.EMPTY_MAP);
+            return makeDeleteRequest(uri, reqPayload, Collections.emptyMap());
         } catch (WarrantException e) {
             throw e;
         }
@@ -408,7 +408,7 @@ public class WarrantBaseClient {
 
     <T> T makeGetRequest(String uri, Class<T> type) throws WarrantException {
         try {
-            HttpResponse<String> resp = makeGetRequest(uri, Collections.EMPTY_MAP);
+            HttpResponse<String> resp = makeGetRequest(uri, Collections.emptyMap());
             return mapper.readValue(resp.body(), type);
         } catch (IOException e) {
             throw new WarrantException(e);
@@ -426,7 +426,7 @@ public class WarrantBaseClient {
 
     <T> T makeGetRequest(String uri, Class<T> type, Map<String, Object> requestOptions) throws WarrantException {
         try {
-            HttpResponse<String> resp = makeGetRequest(uri, Collections.EMPTY_MAP, requestOptions);
+            HttpResponse<String> resp = makeGetRequest(uri, Collections.emptyMap(), requestOptions);
             return mapper.readValue(resp.body(), type);
         } catch (IOException e) {
             throw new WarrantException(e);
@@ -444,7 +444,7 @@ public class WarrantBaseClient {
 
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> queryParams) throws WarrantException {
         try {
-            return makeGetRequest(uri, queryParams, Collections.EMPTY_MAP);
+            return makeGetRequest(uri, queryParams, Collections.emptyMap());
         } catch (WarrantException e) {
             throw e;
         }
