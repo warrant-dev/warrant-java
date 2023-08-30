@@ -73,90 +73,36 @@ public class WarrantBaseClient {
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
         try {
             Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
-            String payload = mapper.writeValueAsString(toDelete);
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
-                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode != Response.Status.OK.getStatusCode()) {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            makeDeleteRequest("/v1/warrants", toDelete);
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
-    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, Map<String, Object> requestOptions) throws WarrantException {
+    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions) throws WarrantException {
         try {
             Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
-            String payload = mapper.writeValueAsString(toDelete);
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
-                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT);
-
-            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
-                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
-            }
-
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode != Response.Status.OK.getStatusCode()) {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            makeDeleteRequest("/v1/warrants", toDelete, requestOptions.asMap());
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy) throws WarrantException {
         try {
             Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject, policy);
-            String payload = mapper.writeValueAsString(toDelete);
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
-                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode != Response.Status.OK.getStatusCode()) {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            makeDeleteRequest("/v1/warrants", toDelete);
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
-    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, Map<String, Object> requestOptions) throws WarrantException {
+    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, RequestOptions requestOptions) throws WarrantException {
         try {
             Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject, policy);
-            String payload = mapper.writeValueAsString(toDelete);
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
-                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT);
-
-            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
-                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
-            }
-
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode != Response.Status.OK.getStatusCode()) {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            makeDeleteRequest("/v1/warrants", toDelete, requestOptions.asMap());
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
@@ -244,25 +190,9 @@ public class WarrantBaseClient {
 
     WarrantCheck makeCheckRequest(WarrantCheckSpec toCheck) throws WarrantException {
         try {
-            String payload = mapper.writeValueAsString(toCheck);
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getCheckUrl() + "/v2/authorize"))
-                    .POST(HttpRequest.BodyPublishers.ofString(payload))
-                    .header("User-Agent", USER_AGENT);
-
-            if (!config.getApiKey().isEmpty()) {
-                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
-            }
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
-                return mapper.readValue(resp.body(), WarrantCheck.class);
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            return makeCheckRequest(toCheck, Collections.EMPTY_MAP);
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
@@ -385,25 +315,9 @@ public class WarrantBaseClient {
 
     private HttpResponse<String> makePutRequest(String uri, Object reqPayload) throws WarrantException {
         try {
-            String payload = mapper.writeValueAsString(reqPayload);
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + uri))
-                    .PUT(HttpRequest.BodyPublishers.ofString(payload))
-                    .header("User-Agent", USER_AGENT);
-
-            if (!config.getApiKey().isEmpty()) {
-                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
-            }
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            return makePutRequest(uri, reqPayload, Collections.EMPTY_MAP);
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
@@ -437,33 +351,40 @@ public class WarrantBaseClient {
 
     HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
         try {
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + uri))
-                    .DELETE()
-                    .header("User-Agent", USER_AGENT);
+            return makeDeleteRequest(uri, null, Collections.EMPTY_MAP);
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
 
-            if (!config.getApiKey().isEmpty()) {
-                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
-            }
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+    HttpResponse<String> makeDeleteRequest(String uri, Object reqPayload) throws WarrantException {
+        try {
+            return makeDeleteRequest(uri, reqPayload, Collections.EMPTY_MAP);
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
     HttpResponse<String> makeDeleteRequest(String uri, Map<String, Object> requestOptions) throws WarrantException {
         try {
+            return makeDeleteRequest(uri, null, requestOptions);
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
+
+    HttpResponse<String> makeDeleteRequest(String uri, Object reqPayload, Map<String, Object> requestOptions) throws WarrantException {
+        try {
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + uri))
-                    .DELETE()
                     .header("User-Agent", USER_AGENT);
+
+            if (reqPayload != null) {
+                String payload = mapper.writeValueAsString(reqPayload);
+                requestBuilder.method("DELETE", HttpRequest.BodyPublishers.ofString(payload));
+            } else {
+                requestBuilder.DELETE();
+            }
 
             for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
                 requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
@@ -523,29 +444,9 @@ public class WarrantBaseClient {
 
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> queryParams) throws WarrantException {
         try {
-            UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
-            for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
-                builder.queryParam(entry.getKey(), entry.getValue());
-            }
-
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(builder.build())
-                    .GET()
-                    .header("User-Agent", USER_AGENT);
-
-            if (!config.getApiKey().isEmpty()) {
-                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
-            }
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            return makeGetRequest(uri, queryParams, Collections.EMPTY_MAP);
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 

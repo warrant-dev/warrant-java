@@ -740,7 +740,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeRoleFromUser(String roleId, String userId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new Role(roleId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions.asMap());
+        deleteWarrant(new Role(roleId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions);
     }
 
     public void removePermissionFromUser(Permission permission, User user) throws WarrantException {
@@ -756,7 +756,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePermissionFromUser(String permissionId, String userId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions.asMap());
+        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions);
     }
 
     public void removePricingTierFromUser(PricingTier pricingTier, User user) throws WarrantException {
@@ -772,7 +772,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePricingTierFromUser(String pricingTierId, String userId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions.asMap());
+        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions);
     }
 
     public void removeFeatureFromUser(Feature feature, User user) throws WarrantException {
@@ -788,7 +788,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeFeatureFromUser(String featureId, String userId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions.asMap());
+        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions);
     }
 
     public void removeUserFromTenant(User user, Tenant tenant) throws WarrantException {
@@ -804,7 +804,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeUserFromTenant(String userId, String tenantId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new Tenant(tenantId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions.asMap());
+        deleteWarrant(new Tenant(tenantId), "member", new WarrantSubject(User.OBJECT_TYPE, userId), requestOptions);
     }
 
     public void removePricingTierFromTenant(PricingTier pricingTier, Tenant tenant) throws WarrantException {
@@ -820,7 +820,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePricingTierFromTenant(String pricingTierId, String tenantId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId), requestOptions.asMap());
+        deleteWarrant(new PricingTier(pricingTierId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId), requestOptions);
     }
 
     public void removeFeatureFromTenant(Feature feature, Tenant tenant) throws WarrantException {
@@ -836,7 +836,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeFeatureFromTenant(String featureId, String tenantId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId), requestOptions.asMap());
+        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(Tenant.OBJECT_TYPE, tenantId), requestOptions);
     }
 
     public void removeFeatureFromPricingTier(Feature feature, PricingTier pricingTier) throws WarrantException {
@@ -852,7 +852,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removeFeatureFromPricingTier(String featureId, String pricingTierId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(PricingTier.OBJECT_TYPE, pricingTierId), requestOptions.asMap());
+        deleteWarrant(new Feature(featureId), "member", new WarrantSubject(PricingTier.OBJECT_TYPE, pricingTierId), requestOptions);
     }
 
     public void removePermissionFromRole(Permission permission, Role role) throws WarrantException {
@@ -868,7 +868,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public void removePermissionFromRole(String permissionId, String roleId, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject(Role.OBJECT_TYPE, roleId), requestOptions.asMap());
+        deleteWarrant(new Permission(permissionId), "member", new WarrantSubject(Role.OBJECT_TYPE, roleId), requestOptions);
     }
 
     // Checks
