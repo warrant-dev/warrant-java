@@ -137,7 +137,7 @@ public class WarrantBaseClient {
 
     public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String selfServiceStrategy, String redirectUrl)
             throws WarrantException {
-        return createUserAuthzSession(userId, new RequestOptions());
+        return createUserSelfServiceDashboardUrl(userId, tenantId, selfServiceStrategy, redirectUrl, new RequestOptions());
     }
 
     public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String selfServiceStrategy, String redirectUrl, RequestOptions requestOptions)
