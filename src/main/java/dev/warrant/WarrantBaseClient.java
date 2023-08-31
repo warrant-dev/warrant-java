@@ -48,53 +48,39 @@ public class WarrantBaseClient {
 
     public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject)
             throws WarrantException {
-        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject);
-        return makePostRequest("/v1/warrants", toCreate, Warrant.class);
+        return createWarrant(object, relation, subject, "", new RequestOptions());
     }
 
     public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions)
             throws WarrantException {
-        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject);
-        return makePostRequest("/v1/warrants", toCreate, Warrant.class, requestOptions.asMap());
+        return createWarrant(object, relation, subject, "", requestOptions);
     }
 
     public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy)
             throws WarrantException {
-        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject, policy);
-        return makePostRequest("/v1/warrants", toCreate, Warrant.class);
+        return createWarrant(object, relation, subject, policy, new RequestOptions());
     }
 
     public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, RequestOptions requestOptions)
             throws WarrantException {
-        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject, policy);
-        return makePostRequest("/v1/warrants", toCreate, Warrant.class, requestOptions.asMap());
+        try {
+            Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject, policy);
+            return makePostRequest("/v1/warrants", toCreate, Warrant.class, requestOptions.asMap());
+        } catch (WarrantException e) {
+            throw e;
+        }
     }
 
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
-        try {
-            Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
-            makeDeleteRequest("/v1/warrants", toDelete);
-        } catch (WarrantException e) {
-            throw e;
-        }
+        deleteWarrant(object, relation, subject, "", new RequestOptions());
     }
 
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions) throws WarrantException {
-        try {
-            Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
-            makeDeleteRequest("/v1/warrants", toDelete, requestOptions.asMap());
-        } catch (WarrantException e) {
-            throw e;
-        }
+        deleteWarrant(object, relation, subject, "", requestOptions);
     }
 
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy) throws WarrantException {
-        try {
-            Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject, policy);
-            makeDeleteRequest("/v1/warrants", toDelete);
-        } catch (WarrantException e) {
-            throw e;
-        }
+        deleteWarrant(object, relation, subject, policy, new RequestOptions());
     }
 
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, RequestOptions requestOptions) throws WarrantException {
@@ -107,10 +93,7 @@ public class WarrantBaseClient {
     }
 
     public Warrant[] queryWarrants(Query query, int limit, int page) throws WarrantException {
-        Map<String, Object> queryParams = query.asMap();
-        queryParams.put("limit", limit);
-        queryParams.put("page", page);
-        return makeGetRequest("/v1/query", queryParams, Warrant[].class);
+       return queryWarrants(query, limit, page, new RequestOptions());
     }
 
     public Warrant[] queryWarrants(Query query, int limit, int page, RequestOptions requestOptions) throws WarrantException {
@@ -121,33 +104,15 @@ public class WarrantBaseClient {
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
-        WarrantCheckSpec toCheck = new WarrantCheckSpec(
-                Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject)));
-        WarrantCheck result = makeCheckRequest(toCheck);
-        if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
-            return true;
-        }
-        return false;
+        return check(object, relation, subject, Collections.emptyMap(), new RequestOptions());
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions) throws WarrantException {
-        WarrantCheckSpec toCheck = new WarrantCheckSpec(
-                Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject)));
-        WarrantCheck result = makeCheckRequest(toCheck, requestOptions.asMap());
-        if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
-            return true;
-        }
-        return false;
+        return check(object, relation, subject, Collections.emptyMap(), requestOptions);
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject, Map<String, Object> context) throws WarrantException {
-        WarrantCheckSpec toCheck = new WarrantCheckSpec(
-                Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject, context)));
-        WarrantCheck result = makeCheckRequest(toCheck);
-        if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
-            return true;
-        }
-        return false;
+        return check(object, relation, subject, context, new RequestOptions());
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject, Map<String, Object> context, RequestOptions requestOptions) throws WarrantException {
@@ -161,9 +126,7 @@ public class WarrantBaseClient {
     }
 
     public String createUserAuthzSession(String userId) throws WarrantException {
-        UserSession sess = makePostRequest("/v1/sessions", UserSessionSpec.newAuthorizationSessionSpec(userId),
-                UserSession.class);
-        return sess.getToken();
+        return createUserAuthzSession(userId, new RequestOptions());
     }
 
     public String createUserAuthzSession(String userId, RequestOptions requestOptions) throws WarrantException {
@@ -174,10 +137,7 @@ public class WarrantBaseClient {
 
     public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String selfServiceStrategy, String redirectUrl)
             throws WarrantException {
-        UserSession ssdash = makePostRequest("/v1/sessions",
-                UserSessionSpec.newSelfServiceDashboardSessionSpec(userId, tenantId, selfServiceStrategy),
-                UserSession.class);
-        return config.getSelfServiceDashboardBaseUrl() + "/" + ssdash.getToken() + "?redirectUrl=" + redirectUrl;
+        return createUserAuthzSession(userId, new RequestOptions());
     }
 
     public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String selfServiceStrategy, String redirectUrl, RequestOptions requestOptions)
