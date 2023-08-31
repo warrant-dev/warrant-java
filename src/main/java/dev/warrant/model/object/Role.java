@@ -15,6 +15,11 @@ public class Role implements WarrantObject {
         this.roleId = roleId;
     }
 
+    public Role(String roleId, String name) {
+        this.roleId = roleId;
+        this.name = name;
+    }
+
     public Role(String roleId, String name, String description) {
         this.roleId = roleId;
         this.name = name;

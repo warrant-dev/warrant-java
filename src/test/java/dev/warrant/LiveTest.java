@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.warrant.exception.WarrantException;
+import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantSubject;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.Permission;
@@ -411,8 +412,9 @@ public class LiveTest {
         client.createWarrant(tenant, "admin", new WarrantSubject(user.type(), user.id()));
 
         Assertions.assertNotNull(client.createUserAuthzSession(user.getUserId()));
-        Assertions.assertNotNull(client.createUserSelfServiceDashboardUrl(user.getUserId(), tenant.getTenantId(), "rbac",
-                "http://localhost:8080"));
+        Assertions
+                .assertNotNull(client.createUserSelfServiceDashboardUrl(user.getUserId(), tenant.getTenantId(), "rbac",
+                        "http://localhost:8080"));
 
         client.deleteUser(user);
         client.deleteTenant(tenant);
@@ -420,27 +422,34 @@ public class LiveTest {
 
     @Test
     public void warrants() throws WarrantException {
-        User newUser = client.createUser();
-        Permission newPermission = client
-                .createPermission(new Permission("perm1", "Permission 1", "Permission with id 1"));
+        User user = client.createUser();
+        Permission permission1 = client.createPermission(new Permission("perm1"));
+        Permission permission2 = client.createPermission(new Permission("perm2"));
+        Role role1 = client.createRole(new Role("role1"));
+
+        WarrantSubject subject = new WarrantSubject(user.type(), user.id());
+        client.createWarrant(permission1, "member", subject);
+        client.createWarrant(permission2, "member", subject);
+        client.createWarrant(role1, "member", subject);
 
         RequestOptions requestOptions = new RequestOptions().withWarrantToken("latest");
-        Assertions.assertFalse(client.check(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id()), requestOptions));
-        client.createWarrant(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id()));
-        Assertions.assertTrue(client.check(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id()), requestOptions));
-        // Query q = Query.selectWarrants()
-        //     .forClause("subject=" + newUser.type() + ":" + newUser.id())
-        //     .where("subject=" + newUser.type() + ":" + newUser.id());
-        // WarrantQueryResult warrantQueryResult = client.queryWarrants(q, 100, 1);
-        // Assertions.assertEquals(1, warrants.length);
-        // Assertions.assertEquals("permission", warrants[0].getObjectType());
-        // Assertions.assertEquals("perm1", warrants[0].getObjectId());
-        // Assertions.assertEquals("member", warrants[0].getRelation());
-        client.deleteWarrant(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id()));
-        Assertions.assertFalse(client.check(newPermission, "member", new WarrantSubject(newUser.type(), newUser.id()), requestOptions));
+        WarrantFilters filters = new WarrantFilters().withObjectType("permission");
+        ListParams listParams = new ListParams();
+        Warrant[] warrants = client.listWarrants(filters, listParams, requestOptions);
+        Assertions.assertEquals(2, warrants.length);
 
-        client.deleteUser(newUser);
-        client.deletePermission(newPermission);
+        filters = filters.withObjectType("role");
+        warrants = client.listWarrants(filters, listParams,
+                requestOptions);
+        Assertions.assertEquals(1, warrants.length);
+
+        client.deleteWarrant(permission1, "member", subject);
+        client.deleteWarrant(permission2, "member", subject);
+        client.deleteWarrant(role1, "member", subject);
+        client.deletePermission(permission1);
+        client.deletePermission(permission2);
+        client.deleteRole(role1);
+        client.deleteUser(user);
     }
 
     @Test
@@ -449,19 +458,23 @@ public class LiveTest {
         Permission testPermission = client
                 .createPermission(new Permission("test-permission"));
 
-        client.createWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), "geo == 'us' && isActivated == true");
+        client.createWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()),
+                "geo == 'us' && isActivated == true");
         Map<String, Object> warrantContext = new HashMap<>();
         warrantContext.put("geo", "us");
         warrantContext.put("isActivated", true);
         RequestOptions requestOptions = new RequestOptions().withWarrantToken("latest");
-        Assertions.assertTrue(client.check(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), warrantContext, requestOptions));
+        Assertions.assertTrue(client.check(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()),
+                warrantContext, requestOptions));
 
         warrantContext.clear();
         warrantContext.put("geo", "eu");
         warrantContext.put("isActivated", false);
-        Assertions.assertFalse(client.check(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), warrantContext, requestOptions));
+        Assertions.assertFalse(client.check(testPermission, "member",
+                new WarrantSubject(testUser.type(), testUser.id()), warrantContext, requestOptions));
 
-        client.deleteWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()), "geo == 'us' && isActivated == true");
+        client.deleteWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()),
+                "geo == 'us' && isActivated == true");
         client.deleteUser(testUser);
         client.deletePermission(testPermission);
     }

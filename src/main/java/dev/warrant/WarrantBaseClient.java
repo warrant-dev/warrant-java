@@ -92,15 +92,15 @@ public class WarrantBaseClient {
         }
     }
 
-    public Warrant[] queryWarrants(Query query, int limit, int page) throws WarrantException {
-       return queryWarrants(query, limit, page, new RequestOptions());
+    public Warrant[] listWarrants(WarrantFilters filters, ListParams listParams) throws WarrantException {
+        return listWarrants(filters, listParams, new RequestOptions());
     }
 
-    public Warrant[] queryWarrants(Query query, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        Map<String, Object> queryParams = query.asMap();
-        queryParams.put("limit", limit);
-        queryParams.put("page", page);
-        return makeGetRequest("/v1/query", queryParams, Warrant[].class, requestOptions.asMap());
+    public Warrant[] listWarrants(WarrantFilters filters, ListParams listParams, RequestOptions requestOptions)
+            throws WarrantException {
+        Map<String, Object> queryParams = filters.asMap();
+        queryParams.putAll(listParams.asMap());
+        return makeGetRequest("/v1/warrants", queryParams, Warrant[].class, requestOptions.asMap());
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {

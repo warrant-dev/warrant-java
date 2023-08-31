@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ListParams {
-    private int page;
-    private int limit;
+    private int page = 0;
+    private int limit = 0;
     private String beforeId;
     private String beforeValue;
     private String afterId;
@@ -13,7 +13,8 @@ public class ListParams {
     private String sortBy;
     private String sortOrder;
 
-    public ListParams() {}
+    public ListParams() {
+    }
 
     public ListParams withPage(int page) {
         this.page = page;
