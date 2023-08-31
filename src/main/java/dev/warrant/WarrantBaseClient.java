@@ -48,77 +48,77 @@ public class WarrantBaseClient {
 
     public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject)
             throws WarrantException {
-        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject);
-        return makePostRequest("/v1/warrants", toCreate, Warrant.class);
+        return createWarrant(object, relation, subject, "", new RequestOptions());
+    }
+
+    public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions)
+            throws WarrantException {
+        return createWarrant(object, relation, subject, "", requestOptions);
     }
 
     public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy)
             throws WarrantException {
-        Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject, policy);
-        return makePostRequest("/v1/warrants", toCreate, Warrant.class);
+        return createWarrant(object, relation, subject, policy, new RequestOptions());
+    }
+
+    public Warrant createWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, RequestOptions requestOptions)
+            throws WarrantException {
+        try {
+            Warrant toCreate = new Warrant(object.type(), object.id(), relation, subject, policy);
+            return makePostRequest("/v1/warrants", toCreate, Warrant.class, requestOptions.asMap());
+        } catch (WarrantException e) {
+            throw e;
+        }
     }
 
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
-        try {
-            Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject);
-            String payload = mapper.writeValueAsString(toDelete);
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
-                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode != Response.Status.OK.getStatusCode()) {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
-        }
+        deleteWarrant(object, relation, subject, "", new RequestOptions());
+    }
+
+    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions) throws WarrantException {
+        deleteWarrant(object, relation, subject, "", requestOptions);
     }
 
     public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy) throws WarrantException {
+        deleteWarrant(object, relation, subject, policy, new RequestOptions());
+    }
+
+    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, RequestOptions requestOptions) throws WarrantException {
         try {
             Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject, policy);
-            String payload = mapper.writeValueAsString(toDelete);
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getBaseUrl() + "/v1/warrants"))
-                    .method("DELETE", HttpRequest.BodyPublishers.ofString(payload))
-                    .header("Authorization", "ApiKey " + config.getApiKey())
-                    .header("User-Agent", USER_AGENT)
-                    .build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode != Response.Status.OK.getStatusCode()) {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+            makeDeleteRequest("/v1/warrants", toDelete, requestOptions.asMap());
+        } catch (WarrantException e) {
+            throw e;
         }
     }
 
-    public Warrant[] queryWarrants(Query query, int limit, int page) throws WarrantException {
-        Map<String, Object> queryParams = query.asMap();
-        queryParams.put("limit", limit);
-        queryParams.put("page", page);
-        return makeGetRequest("/v1/query", queryParams, Warrant[].class);
+    public Warrant[] listWarrants(WarrantFilters filters, ListParams listParams) throws WarrantException {
+        return listWarrants(filters, listParams, new RequestOptions());
+    }
+
+    public Warrant[] listWarrants(WarrantFilters filters, ListParams listParams, RequestOptions requestOptions)
+            throws WarrantException {
+        Map<String, Object> queryParams = filters.asMap();
+        queryParams.putAll(listParams.asMap());
+        return makeGetRequest("/v1/warrants", queryParams, Warrant[].class, requestOptions.asMap());
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
-        WarrantCheckSpec toCheck = new WarrantCheckSpec(
-                Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject)));
-        WarrantCheck result = makeCheckRequest(toCheck);
-        if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
-            return true;
-        }
-        return false;
+        return check(object, relation, subject, Collections.emptyMap(), new RequestOptions());
+    }
+
+    public boolean check(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions) throws WarrantException {
+        return check(object, relation, subject, Collections.emptyMap(), requestOptions);
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject, Map<String, Object> context) throws WarrantException {
+        return check(object, relation, subject, context, new RequestOptions());
+    }
+
+    public boolean check(WarrantObject object, String relation, WarrantSubject subject, Map<String, Object> context, RequestOptions requestOptions) throws WarrantException {
         WarrantCheckSpec toCheck = new WarrantCheckSpec(
                 Arrays.asList(new WarrantSpec(object.type(), object.id(), relation, subject, context)));
-        WarrantCheck result = makeCheckRequest(toCheck);
+        WarrantCheck result = makeCheckRequest(toCheck, requestOptions.asMap());
         if (result.getCode().intValue() == 200 && "Authorized".equals(result.getResult())) {
             return true;
         }
@@ -126,20 +126,37 @@ public class WarrantBaseClient {
     }
 
     public String createUserAuthzSession(String userId) throws WarrantException {
+        return createUserAuthzSession(userId, new RequestOptions());
+    }
+
+    public String createUserAuthzSession(String userId, RequestOptions requestOptions) throws WarrantException {
         UserSession sess = makePostRequest("/v1/sessions", UserSessionSpec.newAuthorizationSessionSpec(userId),
-                UserSession.class);
+                UserSession.class, requestOptions.asMap());
         return sess.getToken();
     }
 
     public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String selfServiceStrategy, String redirectUrl)
             throws WarrantException {
+        return createUserSelfServiceDashboardUrl(userId, tenantId, selfServiceStrategy, redirectUrl, new RequestOptions());
+    }
+
+    public String createUserSelfServiceDashboardUrl(String userId, String tenantId, String selfServiceStrategy, String redirectUrl, RequestOptions requestOptions)
+            throws WarrantException {
         UserSession ssdash = makePostRequest("/v1/sessions",
                 UserSessionSpec.newSelfServiceDashboardSessionSpec(userId, tenantId, selfServiceStrategy),
-                UserSession.class);
+                UserSession.class, requestOptions.asMap());
         return config.getSelfServiceDashboardBaseUrl() + "/" + ssdash.getToken() + "?redirectUrl=" + redirectUrl;
     }
 
     WarrantCheck makeCheckRequest(WarrantCheckSpec toCheck) throws WarrantException {
+        try {
+            return makeCheckRequest(toCheck, Collections.emptyMap());
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
+
+    WarrantCheck makeCheckRequest(WarrantCheckSpec toCheck, Map<String, Object> requestOptions) throws WarrantException {
         try {
             String payload = mapper.writeValueAsString(toCheck);
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
@@ -150,6 +167,11 @@ public class WarrantBaseClient {
             if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
+
+            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
+                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+            }
+
             HttpRequest req = requestBuilder.build();
             HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
@@ -166,6 +188,15 @@ public class WarrantBaseClient {
     <T> T makePostRequest(String uri, Object reqPayload, Class<T> type) throws WarrantException {
         try {
             HttpResponse<String> resp = makePostRequest(uri, reqPayload);
+            return mapper.readValue(resp.body(), type);
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    <T> T makePostRequest(String uri, Object reqPayload, Class<T> type, Map<String, Object> requestOptions) throws WarrantException {
+        try {
+            HttpResponse<String> resp = makePostRequest(uri, reqPayload, requestOptions);
             return mapper.readValue(resp.body(), type);
         } catch (IOException e) {
             throw new WarrantException(e);
@@ -196,6 +227,34 @@ public class WarrantBaseClient {
         }
     }
 
+    HttpResponse<String> makePostRequest(String uri, Object reqPayload, Map<String, Object> requestOptions) throws WarrantException {
+        try {
+            String payload = mapper.writeValueAsString(reqPayload);
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(config.getBaseUrl() + uri))
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .header("User-Agent", USER_AGENT);
+
+            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
+                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+            }
+
+            if (!config.getApiKey().isEmpty()) {
+                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+            }
+            HttpRequest req = requestBuilder.build();
+            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            int statusCode = resp.statusCode();
+            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
+                return resp;
+            } else {
+                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new WarrantException(e);
+        }
+    }
+
     <T> T makePutRequest(String uri, Object reqPayload, Class<T> type) throws WarrantException {
         try {
             HttpResponse<String> resp = makePutRequest(uri, reqPayload);
@@ -205,13 +264,34 @@ public class WarrantBaseClient {
         }
     }
 
+    <T> T makePutRequest(String uri, Object reqPayload, Class<T> type, Map<String, Object> requestOptions) throws WarrantException {
+        try {
+            HttpResponse<String> resp = makePutRequest(uri, reqPayload, requestOptions);
+            return mapper.readValue(resp.body(), type);
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
     private HttpResponse<String> makePutRequest(String uri, Object reqPayload) throws WarrantException {
+        try {
+            return makePutRequest(uri, reqPayload, Collections.emptyMap());
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
+
+    private HttpResponse<String> makePutRequest(String uri, Object reqPayload, Map<String, Object> requestOptions) throws WarrantException {
         try {
             String payload = mapper.writeValueAsString(reqPayload);
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + uri))
                     .PUT(HttpRequest.BodyPublishers.ofString(payload))
                     .header("User-Agent", USER_AGENT);
+
+            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
+                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+            }
 
             if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
@@ -231,10 +311,44 @@ public class WarrantBaseClient {
 
     HttpResponse<String> makeDeleteRequest(String uri) throws WarrantException {
         try {
+            return makeDeleteRequest(uri, null, Collections.emptyMap());
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
+
+    HttpResponse<String> makeDeleteRequest(String uri, Object reqPayload) throws WarrantException {
+        try {
+            return makeDeleteRequest(uri, reqPayload, Collections.emptyMap());
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
+
+    HttpResponse<String> makeDeleteRequest(String uri, Map<String, Object> requestOptions) throws WarrantException {
+        try {
+            return makeDeleteRequest(uri, null, requestOptions);
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
+
+    HttpResponse<String> makeDeleteRequest(String uri, Object reqPayload, Map<String, Object> requestOptions) throws WarrantException {
+        try {
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(config.getBaseUrl() + uri))
-                    .DELETE()
                     .header("User-Agent", USER_AGENT);
+
+            if (reqPayload != null) {
+                String payload = mapper.writeValueAsString(reqPayload);
+                requestBuilder.method("DELETE", HttpRequest.BodyPublishers.ofString(payload));
+            } else {
+                requestBuilder.DELETE();
+            }
+
+            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
+                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+            }
 
             if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
@@ -254,7 +368,7 @@ public class WarrantBaseClient {
 
     <T> T makeGetRequest(String uri, Class<T> type) throws WarrantException {
         try {
-            HttpResponse<String> resp = makeGetRequest(uri, Collections.EMPTY_MAP);
+            HttpResponse<String> resp = makeGetRequest(uri, Collections.emptyMap());
             return mapper.readValue(resp.body(), type);
         } catch (IOException e) {
             throw new WarrantException(e);
@@ -270,7 +384,33 @@ public class WarrantBaseClient {
         }
     }
 
+    <T> T makeGetRequest(String uri, Class<T> type, Map<String, Object> requestOptions) throws WarrantException {
+        try {
+            HttpResponse<String> resp = makeGetRequest(uri, Collections.emptyMap(), requestOptions);
+            return mapper.readValue(resp.body(), type);
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    <T> T makeGetRequest(String uri, Map<String, Object> queryParams, Class<T> type, Map<String, Object> requestOptions) throws WarrantException {
+        try {
+            HttpResponse<String> resp = makeGetRequest(uri, queryParams, requestOptions);
+            return mapper.readValue(resp.body(), type);
+        } catch (IOException e) {
+            throw new WarrantException(e);
+        }
+    }
+
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> queryParams) throws WarrantException {
+        try {
+            return makeGetRequest(uri, queryParams, Collections.emptyMap());
+        } catch (WarrantException e) {
+            throw e;
+        }
+    }
+
+    private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> queryParams, Map<String, Object> requestOptions) throws WarrantException {
         try {
             UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
             for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
@@ -281,6 +421,10 @@ public class WarrantBaseClient {
                     .uri(builder.build())
                     .GET()
                     .header("User-Agent", USER_AGENT);
+
+            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
+                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+            }
 
             if (!config.getApiKey().isEmpty()) {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
