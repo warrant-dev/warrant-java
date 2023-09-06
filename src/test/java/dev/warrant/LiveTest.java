@@ -484,7 +484,7 @@ public class LiveTest {
     }
 
     @Test
-    public void batchCheck() throws WarrantException {
+    public void testAllOfAnyOfBatchCheck() throws WarrantException {
         User user = client.createUser();
         Permission permission1 = client.createPermission(new Permission("perm1b"));
         Permission permission2 = client.createPermission(new Permission("perm2b"));
@@ -508,6 +508,12 @@ public class LiveTest {
         Assertions.assertEquals(2, results.size());
         Assertions.assertEquals(200, results.get(0).getCode());
         Assertions.assertEquals(403, results.get(1).getCode());
+
+        WarrantCheck result = client.checkAnyOf(checks);
+        Assertions.assertEquals(200, result.getCode());
+
+        result = client.checkAllOf(checks);
+        Assertions.assertEquals(403, result.getCode());
 
         client.deleteWarrant(permission1, "member", userSubject);
         client.deleteWarrant(permission2, "member", userSubject);
