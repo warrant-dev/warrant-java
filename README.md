@@ -10,7 +10,7 @@ Use [Warrant](https://warrant.dev/) in server-side Java projects.
 ### Gradle
 
 ```groovy
-implementation group: 'dev.warrant', name: 'warrant-java', version: '3.2.0'
+implementation group: 'dev.warrant', name: 'warrant-java', version: '3.3.0'
 ```
 
 ### Maven
@@ -19,7 +19,7 @@ implementation group: 'dev.warrant', name: 'warrant-java', version: '3.2.0'
 <dependency>
   <groupId>dev.warrant</groupId>
   <artifactId>warrant-java</artifactId>
-  <version>3.2.0</version>
+  <version>3.3.0</version>
 </dependency>
 ```
 
