@@ -1,6 +1,8 @@
 package dev.warrant;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.Warrant;
+import dev.warrant.model.WarrantCheck;
+import dev.warrant.model.WarrantSpec;
 import dev.warrant.model.WarrantSubject;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.Permission;
@@ -477,5 +481,39 @@ public class LiveTest {
                 "geo == 'us' && isActivated == true");
         client.deleteUser(testUser);
         client.deletePermission(testPermission);
+    }
+
+    @Test
+    public void batchCheck() throws WarrantException {
+        User user = client.createUser();
+        Permission permission1 = client.createPermission(new Permission("perm1b"));
+        Permission permission2 = client.createPermission(new Permission("perm2b"));
+        Permission permission3 = client.createPermission(new Permission("perm3b"));
+        WarrantSubject userSubject = new WarrantSubject(user.type(), user.id());
+        client.createWarrant(permission1, "member", userSubject);
+        client.createWarrant(permission2, "member", userSubject);
+
+        List<WarrantSpec> checks = new ArrayList<>();
+        checks.add(new WarrantSpec("permission", permission1.id(), "member", userSubject));
+        checks.add(new WarrantSpec("permission", permission2.id(), "member", userSubject));
+        List<WarrantCheck> results = client.checkBatch(checks);
+        Assertions.assertEquals(2, results.size());
+        Assertions.assertEquals(200, results.get(0).getCode());
+        Assertions.assertEquals(200, results.get(1).getCode());
+
+        checks = new ArrayList<>();
+        checks.add(new WarrantSpec("permission", permission1.id(), "member", userSubject));
+        checks.add(new WarrantSpec("permission", permission3.id(), "member", userSubject));
+        results = client.checkBatch(checks);
+        Assertions.assertEquals(2, results.size());
+        Assertions.assertEquals(200, results.get(0).getCode());
+        Assertions.assertEquals(403, results.get(1).getCode());
+
+        client.deleteWarrant(permission1, "member", userSubject);
+        client.deleteWarrant(permission2, "member", userSubject);
+        client.deleteUser(user);
+        client.deletePermission(permission1);
+        client.deletePermission(permission2);
+        client.deletePermission(permission3);
     }
 }
