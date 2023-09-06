@@ -9,6 +9,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -125,6 +126,31 @@ public class WarrantBaseClient {
         return false;
     }
 
+    public List<WarrantCheck> checkBatch(List<WarrantSpec> warrants) throws WarrantException {
+        return checkBatch(warrants, new RequestOptions());
+    }
+
+    public List<WarrantCheck> checkBatch(List<WarrantSpec> warrants, RequestOptions requestOptions) throws WarrantException {
+        WarrantCheck[] results = checkWithOp(warrants, "batch", WarrantCheck[].class, requestOptions);
+        return Arrays.asList(results);
+    }
+
+    public WarrantCheck checkAnyOf(List<WarrantSpec> warrants) throws WarrantException {
+        return checkAnyOf(warrants, new RequestOptions());
+    }
+
+    public WarrantCheck checkAnyOf(List<WarrantSpec> warrants, RequestOptions requestOptions) throws WarrantException {
+        return checkWithOp(warrants, "anyOf", WarrantCheck.class, requestOptions);
+    }
+
+    public WarrantCheck checkAllOf(List<WarrantSpec> warrants) throws WarrantException {
+        return checkAllOf(warrants, new RequestOptions());
+    }
+
+    public WarrantCheck checkAllOf(List<WarrantSpec> warrants, RequestOptions requestOptions) throws WarrantException {
+        return checkWithOp(warrants, "allOf", WarrantCheck.class, new RequestOptions());
+    }
+
     public String createUserAuthzSession(String userId) throws WarrantException {
         return createUserAuthzSession(userId, new RequestOptions());
     }
@@ -177,6 +203,36 @@ public class WarrantBaseClient {
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return mapper.readValue(resp.body(), WarrantCheck.class);
+            } else {
+                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new WarrantException(e);
+        }
+    }
+
+    <T> T checkWithOp(List<WarrantSpec> warrants, String op, Class<T> type, RequestOptions requestOptions) throws WarrantException {
+        try {
+            WarrantCheckSpec toCheck = new WarrantCheckSpec(warrants, op);
+            String payload = mapper.writeValueAsString(toCheck);
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(config.getCheckUrl() + "/v2/authorize"))
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .header("User-Agent", USER_AGENT);
+
+            if (!config.getApiKey().isEmpty()) {
+                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+            }
+
+            for (Map.Entry<String, Object> requestOption : requestOptions.asMap().entrySet()) {
+                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+            }
+
+            HttpRequest req = requestBuilder.build();
+            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            int statusCode = resp.statusCode();
+            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
+                return mapper.readValue(resp.body(), type);
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
