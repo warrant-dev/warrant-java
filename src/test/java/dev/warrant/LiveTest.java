@@ -498,22 +498,22 @@ public class LiveTest {
         checks.add(new WarrantSpec("permission", permission2.id(), "member", userSubject));
         List<WarrantCheck> results = client.checkBatch(checks);
         Assertions.assertEquals(2, results.size());
-        Assertions.assertEquals(200, results.get(0).getCode());
-        Assertions.assertEquals(200, results.get(1).getCode());
+        Assertions.assertTrue(results.get(0).isAuthorized());
+        Assertions.assertTrue(results.get(1).isAuthorized());
 
         checks = new ArrayList<>();
         checks.add(new WarrantSpec("permission", permission1.id(), "member", userSubject));
         checks.add(new WarrantSpec("permission", permission3.id(), "member", userSubject));
         results = client.checkBatch(checks);
         Assertions.assertEquals(2, results.size());
-        Assertions.assertEquals(200, results.get(0).getCode());
-        Assertions.assertEquals(403, results.get(1).getCode());
+        Assertions.assertTrue(results.get(0).isAuthorized());
+        Assertions.assertFalse(results.get(1).isAuthorized());
 
         WarrantCheck result = client.checkAnyOf(checks);
-        Assertions.assertEquals(200, result.getCode());
+        Assertions.assertTrue(result.isAuthorized());
 
         result = client.checkAllOf(checks);
-        Assertions.assertEquals(403, result.getCode());
+        Assertions.assertFalse(result.isAuthorized());
 
         client.deleteWarrant(permission1, "member", userSubject);
         client.deleteWarrant(permission2, "member", userSubject);
