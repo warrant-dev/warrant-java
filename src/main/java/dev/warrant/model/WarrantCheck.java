@@ -29,4 +29,11 @@ public class WarrantCheck {
     public void setResult(String result) {
         this.result = result;
     }
+
+    public boolean isAuthorized() {
+        if (code != null) {
+            return code == 200;
+        }
+        return false;
+    }
 }
