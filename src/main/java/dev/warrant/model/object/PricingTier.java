@@ -30,4 +30,9 @@ public class PricingTier implements WarrantObject {
     public String type() {
         return "pricing-tier";
     }
+
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }

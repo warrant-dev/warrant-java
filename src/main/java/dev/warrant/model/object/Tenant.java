@@ -44,4 +44,9 @@ public class Tenant implements WarrantObject {
     public String type() {
         return "tenant";
     }
+
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }

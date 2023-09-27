@@ -30,4 +30,9 @@ public class Feature implements WarrantObject {
     public String type() {
         return "feature";
     }
+
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }

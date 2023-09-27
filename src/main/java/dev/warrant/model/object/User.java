@@ -44,4 +44,9 @@ public class User implements WarrantObject {
     public String type() {
         return "user";
     }
+
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }

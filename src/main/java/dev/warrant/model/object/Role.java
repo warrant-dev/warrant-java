@@ -59,4 +59,9 @@ public class Role implements WarrantObject {
     public String type() {
         return "role";
     }
+
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }
