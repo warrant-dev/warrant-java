@@ -15,6 +15,7 @@ import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.WarrantSpec;
 import dev.warrant.model.WarrantSubject;
+import dev.warrant.model.object.BaseWarrantObject;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;
@@ -182,6 +183,40 @@ public class LiveTest {
         client.deletePricingTier(tier2);
         tiers = client.listPricingTiers(10, 1, requestOptions);
         Assertions.assertEquals(0, tiers.length);
+    }
+
+    @Test
+    public void crudObjects() throws WarrantException {
+        BaseWarrantObject roleGeneratedId = client.createObject("role");
+        Assertions.assertEquals("role", roleGeneratedId.getObjectType());
+        Assertions.assertNotNull(roleGeneratedId.getObjectId());
+        Assertions.assertNull(roleGeneratedId.getMeta());
+
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("name", "admin role");
+        BaseWarrantObject roleWithMeta = client.createObject("role", "admin", meta);
+        Assertions.assertEquals("role", roleWithMeta.getObjectType());
+        Assertions.assertEquals("admin", roleWithMeta.getObjectId());
+        Assertions.assertNotNull(roleWithMeta.getMeta());
+        Assertions.assertEquals("admin role", roleWithMeta.getMeta().get("name"));
+
+        Map<String, Object> updatedMeta = new HashMap<>();
+        updatedMeta.put("name", "admin role");
+        updatedMeta.put("description", "role description");
+        BaseWarrantObject updatedRole = client.updateObject(roleWithMeta.getObjectType(), roleWithMeta.getObjectId(), updatedMeta);
+        Assertions.assertEquals(roleWithMeta.getObjectType(), updatedRole.getObjectType());
+        Assertions.assertEquals(roleWithMeta.getObjectId(), updatedRole.getObjectId());
+        Assertions.assertEquals(2, updatedRole.getMeta().size());
+        Assertions.assertEquals("admin role", updatedRole.getMeta().get("name"));
+        Assertions.assertEquals("role description", updatedRole.getMeta().get("description"));
+
+        BaseWarrantObject fetchedObj = client.getObject(roleGeneratedId.getObjectType(), roleGeneratedId.getObjectId());
+        Assertions.assertEquals(roleGeneratedId.getObjectType(), fetchedObj.getObjectType());
+        Assertions.assertEquals(roleGeneratedId.getObjectId(), fetchedObj.getObjectId());
+        Assertions.assertEquals(roleGeneratedId.getMeta(), fetchedObj.getMeta());
+
+        client.deleteObject(roleGeneratedId.getObjectType(), roleGeneratedId.getObjectId());
+        client.deleteObject(roleWithMeta);
     }
 
     @Test

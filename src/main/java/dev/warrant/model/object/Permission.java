@@ -1,5 +1,7 @@
 package dev.warrant.model.object;
 
+import java.util.Map;
+
 public class Permission implements WarrantObject {
     public static final String OBJECT_TYPE = "permission";
 
@@ -53,5 +55,10 @@ public class Permission implements WarrantObject {
     @Override
     public String type() {
         return "permission";
+    }
+
+    @Override
+    public Map<String, Object> meta() {
+        return null;
     }
 }

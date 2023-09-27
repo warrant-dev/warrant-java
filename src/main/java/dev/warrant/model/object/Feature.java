@@ -1,5 +1,7 @@
 package dev.warrant.model.object;
 
+import java.util.Map;
+
 public class Feature implements WarrantObject {
     static final String OBJECT_TYPE = "feature";
 
@@ -29,5 +31,10 @@ public class Feature implements WarrantObject {
     @Override
     public String type() {
         return "feature";
+    }
+
+    @Override
+    public Map<String, Object> meta() {
+        return null;
     }
 }

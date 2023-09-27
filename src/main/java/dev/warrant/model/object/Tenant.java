@@ -1,5 +1,7 @@
 package dev.warrant.model.object;
 
+import java.util.Map;
+
 public class Tenant implements WarrantObject {
     public static final String OBJECT_TYPE = "tenant";
 
@@ -43,5 +45,10 @@ public class Tenant implements WarrantObject {
     @Override
     public String type() {
         return "tenant";
+    }
+
+    @Override
+    public Map<String, Object> meta() {
+        return null;
     }
 }
