@@ -1,7 +1,5 @@
 package dev.warrant.model.object;
 
-import java.util.Map;
-
 public class User implements WarrantObject {
     public static final String OBJECT_TYPE = "user";
 
@@ -47,8 +45,8 @@ public class User implements WarrantObject {
         return "user";
     }
 
-    @Override
-    public Map<String, Object> meta() {
-        return null;
-    }
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }

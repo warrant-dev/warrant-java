@@ -23,7 +23,6 @@ import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantCheckSpec;
 import dev.warrant.model.WarrantSpec;
 import dev.warrant.model.WarrantCheck;
-import dev.warrant.model.object.BaseWarrantObject;
 import dev.warrant.model.object.WarrantObject;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
@@ -144,51 +143,59 @@ public class WarrantBaseClient {
         return checkWithOp(warrants, "allOf", WarrantCheck.class, new RequestOptions());
     }
 
-    public BaseWarrantObject createObject(String objectType) throws WarrantException {
-        return createObject(objectType, null, Collections.emptyMap(), BaseWarrantObject.class);
-    }
+    // public BaseWarrantObject createObject(String objectType) throws WarrantException {
+    //     return createObject(objectType, null, Collections.emptyMap(), BaseWarrantObject.class);
+    // }
 
-    public <T extends WarrantObject> T createObject(String objectType, Class<T> resultType) throws WarrantException {
-        return createObject(objectType, null, Collections.emptyMap(), resultType);
-    }
+    // public <T extends WarrantObject> T createObject(String objectType, Class<T> resultType) throws WarrantException {
+    //     return createObject(objectType, null, Collections.emptyMap(), resultType);
+    // }
 
-    public BaseWarrantObject createObject(String objectType, Map<String, Object> meta) throws WarrantException {
-        return createObject(objectType, null, meta, BaseWarrantObject.class);
-    }
+    // public <T extends WarrantObject> T createObject(String objectType, Class<T> resultType, RequestOptions requestOptions) throws WarrantException {
+    //     return createObject(objectType, null, Collections.emptyMap(), resultType);
+    // }
 
-    public <T extends WarrantObject> T createObject(String objectType, Map<String, Object> meta, Class<T> resultType) throws WarrantException {
-        return createObject(objectType, null, meta, resultType);
-    }
+    // public BaseWarrantObject createObject(String objectType, Map<String, Object> meta) throws WarrantException {
+    //     return createObject(objectType, null, meta, BaseWarrantObject.class);
+    // }
 
-    public BaseWarrantObject createObject(String objectType, String objectId) throws WarrantException {
-        return createObject(objectType, objectId, Collections.emptyMap(), BaseWarrantObject.class);
-    }
+    // public <T extends WarrantObject> T createObject(String objectType, Map<String, Object> meta, Class<T> resultType) throws WarrantException {
+    //     return createObject(objectType, null, meta, resultType);
+    // }
 
-    public <T extends WarrantObject> T createObject(String objectType, String objectId, Class<T> resultType) throws WarrantException {
-        return createObject(objectType, objectId, Collections.emptyMap(), resultType);
-    }
+    // public BaseWarrantObject createObject(String objectType, String objectId) throws WarrantException {
+    //     return createObject(objectType, objectId, Collections.emptyMap(), BaseWarrantObject.class);
+    // }
 
-    public BaseWarrantObject createObject(String objectType, String objectId, Map<String, Object> meta) throws WarrantException {
-        return createObject(objectType, objectId, meta, BaseWarrantObject.class);
-    }
+    // public <T extends WarrantObject> T createObject(String objectType, String objectId, Class<T> resultType) throws WarrantException {
+    //     return createObject(objectType, objectId, Collections.emptyMap(), resultType);
+    // }
 
-    public <T extends WarrantObject> T createObject(String objectType, String objectId, Map<String, Object> meta, Class<T> resultType) throws WarrantException {
-        BaseWarrantObject obj = new BaseWarrantObject(objectType, objectId, meta);
-        return makePostRequest("/v1/objects", obj, resultType);
-    }
+    // public BaseWarrantObject createObject(String objectType, String objectId, Map<String, Object> meta) throws WarrantException {
+    //     return createObject(objectType, objectId, meta, BaseWarrantObject.class);
+    // }
 
-    public BaseWarrantObject getObject(String objectType, String objectId) throws WarrantException {
-        return getObject(objectType, objectId, BaseWarrantObject.class);
-    }
+    // public <T extends WarrantObject> T createObject(String objectType, String objectId, Map<String, Object> meta, Class<T> resultType) throws WarrantException {
+    //     return createObject(objectType, objectId, meta, resultType, new RequestOptions());
+    // }
 
-    public <T extends WarrantObject> T getObject(String objectType, String objectId, Class<T> resultType) throws WarrantException {
-        return makeGetRequest("/v1/objects/" + objectType + "/" + objectId, resultType);
-    }
+    // public <T extends WarrantObject> T createObject(String objectType, String objectId, Map<String, Object> meta, Class<T> resultType, RequestOptions requestOptions) throws WarrantException {
+    //     BaseWarrantObject obj = new BaseWarrantObject(objectType, objectId, meta);
+    //     return makePostRequest("/v1/objects", obj, resultType, requestOptions.asMap());
+    // }
 
-    public BaseWarrantObject updateObject(String objectType, String objectId, Map<String, Object> meta) throws WarrantException {
-        BaseWarrantObject obj = new BaseWarrantObject(objectType, objectId, meta);
-        return makePutRequest("/v1/objects/" + objectType + "/" + objectId, obj, BaseWarrantObject.class);
-    }
+    // public BaseWarrantObject getObject(String objectType, String objectId) throws WarrantException {
+    //     return getObject(objectType, objectId, BaseWarrantObject.class);
+    // }
+
+    // public <T extends WarrantObject> T getObject(String objectType, String objectId, Class<T> resultType) throws WarrantException {
+    //     return makeGetRequest("/v1/objects/" + objectType + "/" + objectId, resultType);
+    // }
+
+    // public BaseWarrantObject updateObject(String objectType, String objectId, Map<String, Object> meta) throws WarrantException {
+    //     BaseWarrantObject obj = new BaseWarrantObject(objectType, objectId, meta);
+    //     return makePutRequest("/v1/objects/" + objectType + "/" + objectId, obj, BaseWarrantObject.class);
+    // }
 
     public void deleteObject(WarrantObject obj) throws WarrantException {
         deleteObject(obj.type(), obj.id());

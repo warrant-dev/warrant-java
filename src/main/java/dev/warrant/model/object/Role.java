@@ -1,7 +1,5 @@
 package dev.warrant.model.object;
 
-import java.util.Map;
-
 public class Role implements WarrantObject {
     public static final String OBJECT_TYPE = "role";
 
@@ -62,8 +60,8 @@ public class Role implements WarrantObject {
         return "role";
     }
 
-    @Override
-    public Map<String, Object> meta() {
-        return null;
-    }
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }

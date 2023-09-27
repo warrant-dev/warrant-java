@@ -1,7 +1,5 @@
 package dev.warrant.model.object;
 
-import java.util.Map;
-
 public class PricingTier implements WarrantObject {
     public static final String OBJECT_TYPE = "pricing-tier";
 
@@ -33,8 +31,8 @@ public class PricingTier implements WarrantObject {
         return "pricing-tier";
     }
 
-    @Override
-    public Map<String, Object> meta() {
-        return null;
-    }
+    // @Override
+    // public Map<String, Object> meta() {
+    //     return null;
+    // }
 }
