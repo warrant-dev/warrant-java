@@ -7,7 +7,6 @@ public class Warrant {
     private String relation;
     private WarrantSubject subject;
     private String policy;
-    private boolean isImplicit;
 
     public Warrant() {
         // For json serialization
@@ -28,35 +27,43 @@ public class Warrant {
         this.policy = policy;
     }
 
-    public Warrant(String objectType, String objectId, String relation, WarrantSubject subject, boolean isImplicit) {
-        this.objectType = objectType;
-        this.objectId = objectId;
-        this.relation = relation;
-        this.subject = subject;
-        this.isImplicit = isImplicit;
-    }
-
     public String getObjectType() {
         return objectType;
+    }
+
+    public void setObjectType(String objectType) {
+        this.objectType = objectType;
     }
 
     public String getObjectId() {
         return objectId;
     }
 
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
     public String getRelation() {
         return relation;
+    }
+
+    public void setRelation(String relation) {
+        this.relation = relation;
     }
 
     public WarrantSubject getSubject() {
         return subject;
     }
 
+    public void setSubject(WarrantSubject subject) {
+        this.subject = subject;
+    }
+
     public String getPolicy() {
         return policy;
     }
 
-    public boolean getIsImplicit() {
-        return isImplicit;
+    public void setPolicy(String policy) {
+        this.policy = policy;
     }
 }

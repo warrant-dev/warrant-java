@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.WarrantSubject;
+import dev.warrant.model.QueryResultSet;
 import dev.warrant.model.UserSession;
 import dev.warrant.model.UserSessionSpec;
 import dev.warrant.model.Warrant;
@@ -94,6 +95,17 @@ public class WarrantBaseClient {
         Map<String, Object> queryParams = filters.asMap();
         queryParams.putAll(listParams.asMap());
         return makeGetRequest("/v1/warrants", queryParams, Warrant[].class, requestOptions.asMap());
+    }
+
+    public QueryResultSet query(String query, ListParams listParams) throws WarrantException {
+        return query(query, listParams, new RequestOptions());
+    }
+
+    public QueryResultSet query(String query, ListParams listParams, RequestOptions requestOptions)
+            throws WarrantException {
+        Map<String, Object> queryParams = listParams.asMap();
+        queryParams.put("q", query);
+        return makeGetRequest("/v1/query", queryParams, QueryResultSet.class, requestOptions.asMap());
     }
 
     public boolean check(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
