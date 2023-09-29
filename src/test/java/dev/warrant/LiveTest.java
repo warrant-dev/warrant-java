@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import dev.warrant.exception.WarrantException;
+import dev.warrant.model.QueryResultSet;
 import dev.warrant.model.Warrant;
 import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.WarrantSpec;
@@ -557,5 +558,57 @@ public class LiveTest {
         client.deletePermission(permission1);
         client.deletePermission(permission2);
         client.deletePermission(permission3);
+    }
+
+    @Test
+    public void testQuery() throws WarrantException {
+        User userA = client.createUser(new User("userA"));
+        User userB = client.createUser(new User("userB"));
+        Permission permission1 = client.createPermission(
+                new Permission("perm1", "Permission 1", "This is permission 1."));
+        Permission permission2 = client.createPermission(new Permission("perm2"));
+        Permission permission3 = client.createPermission(
+                new Permission("perm3", "Permission 3", "This is permission 3."));
+        Role role1 = client.createRole(new Role("role1", "Role 1", "This is role 1."));
+        Role role2 = client.createRole(new Role("role2", "Role 2"));
+
+        client.assignPermissionToRole("perm1", "role1");
+        client.assignPermissionToRole("perm2", "role2");
+        client.assignPermissionToRole("perm3", "role2");
+        client.createWarrant(role2, "member", new WarrantSubject("role", "role1"));
+        client.assignRoleToUser("role1", "userA");
+        client.assignRoleToUser("role2", "userB");
+
+        QueryResultSet resultSet = client.query("select role where user:userA is member",
+                new ListParams().withLimit(1));
+        Assertions.assertEquals(1, resultSet.getResults().length);
+        Assertions.assertEquals("role", resultSet.getResults()[0].getObjectType());
+        Assertions.assertEquals("role1", resultSet.getResults()[0].getObjectId());
+        Assertions.assertFalse(resultSet.getResults()[0].isImplicit());
+        Assertions.assertEquals("role", resultSet.getResults()[0].getWarrant().getObjectType());
+        Assertions.assertEquals("role1", resultSet.getResults()[0].getWarrant().getObjectId());
+        Assertions.assertEquals("member", resultSet.getResults()[0].getWarrant().getRelation());
+        Assertions.assertEquals("user", resultSet.getResults()[0].getWarrant().getSubject().getObjectType());
+        Assertions.assertEquals("userA", resultSet.getResults()[0].getWarrant().getSubject().getObjectId());
+
+        resultSet = client.query("select role where user:userA is member",
+                new ListParams().withLimit(1).withAfterId(resultSet.getLastId()));
+        Assertions.assertEquals(1, resultSet.getResults().length);
+        Assertions.assertEquals("role", resultSet.getResults()[0].getObjectType());
+        Assertions.assertEquals("role2", resultSet.getResults()[0].getObjectId());
+        Assertions.assertTrue(resultSet.getResults()[0].isImplicit());
+        Assertions.assertEquals("role", resultSet.getResults()[0].getWarrant().getObjectType());
+        Assertions.assertEquals("role2", resultSet.getResults()[0].getWarrant().getObjectId());
+        Assertions.assertEquals("member", resultSet.getResults()[0].getWarrant().getRelation());
+        Assertions.assertEquals("role", resultSet.getResults()[0].getWarrant().getSubject().getObjectType());
+        Assertions.assertEquals("role1", resultSet.getResults()[0].getWarrant().getSubject().getObjectId());
+
+        client.deleteRole(role1);
+        client.deleteRole(role2);
+        client.deletePermission(permission3);
+        client.deletePermission(permission2);
+        client.deletePermission(permission1);
+        client.deleteUser(userB);
+        client.deleteUser(userA);
     }
 }

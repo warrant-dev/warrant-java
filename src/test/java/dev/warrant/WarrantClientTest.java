@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.WarrantSubject;
+import dev.warrant.model.QueryResult;
+import dev.warrant.model.QueryResultSet;
 import dev.warrant.model.Warrant;
 import dev.warrant.model.object.Tenant;
 import dev.warrant.model.object.User;
@@ -90,37 +92,56 @@ public class WarrantClientTest {
         Assertions.assertNull(newTenant.getName());
     }
 
-    // @Test
-    // public void testQueryWarrants() throws WarrantException {
-    //     Mockito.when(httpResponse.statusCode()).thenReturn(200);
-    //     Mockito.when(httpResponse.body())
-    //             .thenReturn(
-    //                     "[\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"admin\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isImplicit\": false\n  },\n  {\n    \"objectType\": \"role\",\n    \"objectId\": \"manager\",\n    \"relation\": \"member\",\n    \"subject\": {\n      \"objectType\": \"user\",\n      \"objectId\": \"6\"\n    },\n    \"isImplicit\": true\n  }\n]");
+    @Test
+    public void testQuery() throws WarrantException {
+        Mockito.when(httpResponse.statusCode()).thenReturn(200);
+        Mockito.when(httpResponse.body())
+                .thenReturn(
+                        "{\"results\":[{\"objectType\":\"role\",\"objectId\":\"admin\",\"warrant\":{\"objectType\":\"role\",\"objectId\":\"admin\",\"relation\":\"member\",\"subject\":{\"objectType\":\"user\",\"objectId\":\"6\"}},\"isImplicit\":false,\"meta\":{\"name\":\"Admin\"}},{\"objectType\":\"role\",\"objectId\":\"manager\",\"warrant\":{\"objectType\":\"role\",\"objectId\":\"manager\",\"relation\":\"member\",\"subject\":{\"objectType\":\"role\",\"objectId\":\"admin\"}},\"isImplicit\":true,\"meta\":{\"name\":\"Manager\"}}]}\n");
 
-    //     Query q = Query.selectWarrants()
-    //         .forClause("subject=user:6")
-    //         .where("subject=user:6");
-    //     WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
-    //     Warrant[] warrants = warrantClient.queryWarrants(q, 100, 1);
-    //     Warrant[] expectedWarrants = {
-    //             new Warrant("role", "admin", "member", new WarrantSubject("user", "6"), false),
-    //             new Warrant("role", "manager", "member", new WarrantSubject("user", "6"), true)
-    //     };
+        WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
+        QueryResultSet queryResultSet = warrantClient.query("select role where user:6 is member", new ListParams(),
+                new RequestOptions());
+        QueryResult[] expectedQueryResults = {
+                new QueryResult("role", "admin",
+                        new Warrant("role", "admin", "member", new WarrantSubject("user", "6")), false),
+                new QueryResult("role", "manager",
+                        new Warrant("role", "manager", "member", new WarrantSubject("role", "admin")), true)
+        };
+        QueryResultSet expectedQueryResultSet = new QueryResultSet(expectedQueryResults, "");
 
-    //     Assertions.assertEquals(expectedWarrants[0].getObjectType(), warrants[0].getObjectType());
-    //     Assertions.assertEquals(expectedWarrants[0].getObjectId(), warrants[0].getObjectId());
-    //     Assertions.assertEquals(expectedWarrants[0].getRelation(), warrants[0].getRelation());
-    //     Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectType(),
-    //             warrants[0].getSubject().getObjectType());
-    //     Assertions.assertEquals(expectedWarrants[0].getSubject().getObjectId(), warrants[0].getSubject().getObjectId());
-    //     Assertions.assertEquals(expectedWarrants[0].getIsImplicit(), warrants[0].getIsImplicit());
-
-    //     Assertions.assertEquals(expectedWarrants[1].getObjectType(), warrants[1].getObjectType());
-    //     Assertions.assertEquals(expectedWarrants[1].getObjectId(), warrants[1].getObjectId());
-    //     Assertions.assertEquals(expectedWarrants[1].getRelation(), warrants[1].getRelation());
-    //     Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectType(),
-    //             warrants[1].getSubject().getObjectType());
-    //     Assertions.assertEquals(expectedWarrants[1].getSubject().getObjectId(), warrants[1].getSubject().getObjectId());
-    //     Assertions.assertEquals(expectedWarrants[1].getIsImplicit(), warrants[1].getIsImplicit());
-    // }
+        Assertions.assertEquals(expectedQueryResultSet.getResults().length, queryResultSet.getResults().length);
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getObjectType(),
+                queryResultSet.getResults()[0].getObjectType());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getObjectId(),
+                queryResultSet.getResults()[0].getObjectId());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getWarrant().getObjectType(),
+                queryResultSet.getResults()[0].getWarrant().getObjectType());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getWarrant().getObjectId(),
+                queryResultSet.getResults()[0].getWarrant().getObjectId());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getWarrant().getRelation(),
+                queryResultSet.getResults()[0].getWarrant().getRelation());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getWarrant().getSubject().getObjectType(),
+                queryResultSet.getResults()[0].getWarrant().getSubject().getObjectType());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getWarrant().getSubject().getObjectId(),
+                queryResultSet.getResults()[0].getWarrant().getSubject().getObjectId());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[0].isImplicit(),
+                queryResultSet.getResults()[0].isImplicit());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].getObjectType(),
+                queryResultSet.getResults()[1].getObjectType());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].getObjectId(),
+                queryResultSet.getResults()[1].getObjectId());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].getWarrant().getObjectType(),
+                queryResultSet.getResults()[1].getWarrant().getObjectType());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].getWarrant().getObjectId(),
+                queryResultSet.getResults()[1].getWarrant().getObjectId());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].getWarrant().getRelation(),
+                queryResultSet.getResults()[1].getWarrant().getRelation());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].getWarrant().getSubject().getObjectType(),
+                queryResultSet.getResults()[1].getWarrant().getSubject().getObjectType());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].getWarrant().getSubject().getObjectId(),
+                queryResultSet.getResults()[1].getWarrant().getSubject().getObjectId());
+        Assertions.assertEquals(expectedQueryResultSet.getResults()[1].isImplicit(),
+                queryResultSet.getResults()[1].isImplicit());
+    }
 }
