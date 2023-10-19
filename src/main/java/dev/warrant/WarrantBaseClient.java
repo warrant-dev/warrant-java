@@ -248,7 +248,7 @@ public class WarrantBaseClient {
         try {
             String payload = mapper.writeValueAsString(toCheck);
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getCheckUrl() + "/v2/authorize"))
+                    .uri(URI.create(config.getCheckUrl() + "/v2/check"))
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .header("User-Agent", USER_AGENT);
 
@@ -278,7 +278,7 @@ public class WarrantBaseClient {
             WarrantCheckSpec toCheck = new WarrantCheckSpec(warrants, op);
             String payload = mapper.writeValueAsString(toCheck);
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create(config.getCheckUrl() + "/v2/authorize"))
+                    .uri(URI.create(config.getCheckUrl() + "/v2/check"))
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .header("User-Agent", USER_AGENT);
 
