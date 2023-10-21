@@ -187,38 +187,36 @@ public class LiveTest {
 
     @Test
     public void crudObjects() throws WarrantException {
-        // BaseWarrantObject roleGeneratedId = client.createObject("role");
-        // Assertions.assertEquals("role", roleGeneratedId.getObjectType());
-        // Assertions.assertNotNull(roleGeneratedId.getObjectId());
-        // Assertions.assertNull(roleGeneratedId.getMeta());
+        BaseWarrantObject roleGeneratedId = client.createObject("role");
+        Assertions.assertEquals("role", roleGeneratedId.getObjectType());
+        Assertions.assertNotNull(roleGeneratedId.getObjectId());
+        Assertions.assertNull(roleGeneratedId.getMeta());
 
-        // Map<String, Object> meta = new HashMap<>();
-        // meta.put("name", "admin role");
-        // BaseWarrantObject roleWithMeta = client.createObject("role", "admin", meta);
-        // Assertions.assertEquals("role", roleWithMeta.getObjectType());
-        // Assertions.assertEquals("admin", roleWithMeta.getObjectId());
-        // Assertions.assertNotNull(roleWithMeta.getMeta());
-        // Assertions.assertEquals("admin role", roleWithMeta.getMeta().get("name"));
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("name", "admin role");
+        BaseWarrantObject roleWithMeta = client.createObject("role", "admin", meta);
+        Assertions.assertEquals("role", roleWithMeta.getObjectType());
+        Assertions.assertEquals("admin", roleWithMeta.getObjectId());
+        Assertions.assertNotNull(roleWithMeta.getMeta());
+        Assertions.assertEquals("admin role", roleWithMeta.getMeta().get("name"));
 
-        // Map<String, Object> updatedMeta = new HashMap<>();
-        // updatedMeta.put("name", "admin role");
-        // updatedMeta.put("description", "role description");
-        // BaseWarrantObject updatedRole = client.updateObject(roleWithMeta.getObjectType(), roleWithMeta.getObjectId(), updatedMeta);
-        // Assertions.assertEquals(roleWithMeta.getObjectType(), updatedRole.getObjectType());
-        // Assertions.assertEquals(roleWithMeta.getObjectId(), updatedRole.getObjectId());
-        // Assertions.assertEquals(2, updatedRole.getMeta().size());
-        // Assertions.assertEquals("admin role", updatedRole.getMeta().get("name"));
-        // Assertions.assertEquals("role description", updatedRole.getMeta().get("description"));
+        Map<String, Object> updatedMeta = new HashMap<>();
+        updatedMeta.put("name", "admin role");
+        updatedMeta.put("description", "role description");
+        BaseWarrantObject updatedRole = client.updateObject(roleWithMeta.getObjectType(), roleWithMeta.getObjectId(), updatedMeta);
+        Assertions.assertEquals(roleWithMeta.getObjectType(), updatedRole.getObjectType());
+        Assertions.assertEquals(roleWithMeta.getObjectId(), updatedRole.getObjectId());
+        Assertions.assertEquals(2, updatedRole.getMeta().size());
+        Assertions.assertEquals("admin role", updatedRole.getMeta().get("name"));
+        Assertions.assertEquals("role description", updatedRole.getMeta().get("description"));
 
-        // BaseWarrantObject fetchedObj = client.getObject(roleGeneratedId.getObjectType(), roleGeneratedId.getObjectId());
-        // Assertions.assertEquals(roleGeneratedId.getObjectType(), fetchedObj.getObjectType());
-        // Assertions.assertEquals(roleGeneratedId.getObjectId(), fetchedObj.getObjectId());
-        // Assertions.assertEquals(roleGeneratedId.getMeta(), fetchedObj.getMeta());
+        BaseWarrantObject fetchedObj = client.getObject(roleGeneratedId.getObjectType(), roleGeneratedId.getObjectId());
+        Assertions.assertEquals(roleGeneratedId.getObjectType(), fetchedObj.getObjectType());
+        Assertions.assertEquals(roleGeneratedId.getObjectId(), fetchedObj.getObjectId());
+        Assertions.assertEquals(roleGeneratedId.getMeta(), fetchedObj.getMeta());
 
-        User user = client.createUser(new User("object_test_1", "email@email.com"));
-        Assertions.assertEquals("object_test_1", user.getUserId());
-        Assertions.assertEquals("email@email.com", user.getEmail());
-        client.deleteObject(user);
+        client.deleteObject(roleGeneratedId);
+        client.deleteObject(roleWithMeta);
     }
 
     @Test
