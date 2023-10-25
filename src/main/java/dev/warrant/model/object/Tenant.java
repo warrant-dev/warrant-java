@@ -1,48 +1,61 @@
 package dev.warrant.model.object;
 
-public class Tenant implements WarrantObject {
-    public static final String OBJECT_TYPE = "tenant";
+import java.util.Map;
 
-    private String tenantId;
-    private String name;
+public class Tenant extends BaseWarrantObject {
+    public static final String OBJECT_TYPE = "tenant";
+    static final String NAME_KEY = "name";
 
     public Tenant() {
         // For json serialization
+        super();
     }
 
     public Tenant(String tenantId) {
-        this.tenantId = tenantId;
+        super(OBJECT_TYPE, tenantId);
     }
 
     public Tenant(String tenantId, String name) {
-        this.tenantId = tenantId;
-        this.name = name;
+        super(OBJECT_TYPE, tenantId);
+        this.meta.put(NAME_KEY, name);
+    }
+
+    public Tenant(String tenantId, Map<String, Object> meta) {
+        super(OBJECT_TYPE, tenantId, meta);
     }
 
     public String getTenantId() {
-        return tenantId;
+        return objectId;
     }
 
     public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
+        this.objectId = tenantId;
     }
 
     public String getName() {
-        return name;
+        if (meta != null) {
+            if (meta.containsKey(NAME_KEY)) {
+                return meta.get(NAME_KEY).toString();
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     public void setName(String name) {
-        this.name = name;
+        meta.put(NAME_KEY, name);
     }
 
     @Override
     public String id() {
-        return tenantId;
+        return objectId;
     }
 
     @Override
     public String type() {
-        return "tenant";
+        return OBJECT_TYPE;
     }
 
     // @Override

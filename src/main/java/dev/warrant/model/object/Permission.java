@@ -1,58 +1,79 @@
 package dev.warrant.model.object;
 
-public class Permission implements WarrantObject {
-    public static final String OBJECT_TYPE = "permission";
+import java.util.Map;
 
-    private String permissionId;
-    private String name;
-    private String description;
+public class Permission extends BaseWarrantObject {
+    public static final String OBJECT_TYPE = "permission";
+    static final String NAME_KEY = "name";
+    static final String DESCRIPTION_KEY = "description";
 
     public Permission() {
         // For json serialization
+        super();
     }
 
     public Permission(String permissionId) {
-        this.permissionId = permissionId;
+        super(OBJECT_TYPE, permissionId);
     }
 
     public Permission(String permissionId, String name, String description) {
-        this.permissionId = permissionId;
-        this.name = name;
-        this.description = description;
+        super(OBJECT_TYPE, permissionId);
+        this.meta.put(NAME_KEY, name);
+        this.meta.put(DESCRIPTION_KEY, description);
+    }
+
+    public Permission(String permissionId, Map<String, Object> meta) {
+        super(OBJECT_TYPE, permissionId, meta);
     }
 
     public String getPermissionId() {
-        return permissionId;
+        return objectId;
     }
 
     public void setPermissionId(String permissionId) {
-        this.permissionId = permissionId;
+        this.objectId = permissionId;
     }
 
     public String getName() {
-        return name;
+        if (meta != null) {
+            if (meta.containsKey(NAME_KEY)) {
+                return meta.get(NAME_KEY).toString();
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     public void setName(String name) {
-        this.name = name;
+        meta.put(NAME_KEY, name);
     }
 
     public String getDescription() {
-        return description;
+        if (meta != null) {
+            if (meta.containsKey(DESCRIPTION_KEY)) {
+                return meta.get(DESCRIPTION_KEY).toString();
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        meta.put(DESCRIPTION_KEY, description);
     }
 
     @Override
     public String id() {
-        return permissionId;
+        return objectId;
     }
 
     @Override
     public String type() {
-        return "permission";
+        return OBJECT_TYPE;
     }
 
     // @Override

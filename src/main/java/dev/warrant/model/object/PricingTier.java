@@ -1,34 +1,39 @@
 package dev.warrant.model.object;
 
-public class PricingTier implements WarrantObject {
-    public static final String OBJECT_TYPE = "pricing-tier";
+import java.util.Map;
 
-    private String pricingTierId;
+public class PricingTier extends BaseWarrantObject {
+    public static final String OBJECT_TYPE = "pricing-tier";
 
     public PricingTier() {
         // For json serialization
+        super();
     }
 
     public PricingTier(String pricingTierId) {
-        this.pricingTierId = pricingTierId;
+        super(OBJECT_TYPE, pricingTierId);
+    }
+
+    public PricingTier(String pricingTierId, Map<String, Object> meta) {
+        super(OBJECT_TYPE, pricingTierId, meta);
     }
 
     public String getPricingTierId() {
-        return pricingTierId;
+        return objectId;
     }
 
     public void setPricingTierId(String pricingTierId) {
-        this.pricingTierId = pricingTierId;
+        this.objectId = pricingTierId;
     }
 
     @Override
     public String id() {
-        return pricingTierId;
+        return objectId;
     }
 
     @Override
     public String type() {
-        return "pricing-tier";
+        return OBJECT_TYPE;
     }
 
     // @Override

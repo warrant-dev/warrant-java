@@ -1,34 +1,39 @@
 package dev.warrant.model.object;
 
-public class Feature implements WarrantObject {
-    static final String OBJECT_TYPE = "feature";
+import java.util.Map;
 
-    private String featureId;
+public class Feature extends BaseWarrantObject {
+    public static final String OBJECT_TYPE = "feature";
 
     public Feature() {
         // For json serialization
+        super();
     }
 
     public Feature(String featureId) {
-        this.featureId = featureId;
+        super(OBJECT_TYPE, featureId);
+    }
+
+    public Feature(String featureId, Map<String, Object> meta) {
+        super(OBJECT_TYPE, featureId, meta);
     }
 
     public String getFeatureId() {
-        return featureId;
+        return objectId;
     }
 
     public void setFeatureId(String featureId) {
-        this.featureId = featureId;
+        this.objectId = featureId;
     }
 
     @Override
     public String id() {
-        return featureId;
+        return objectId;
     }
 
     @Override
     public String type() {
-        return "feature";
+        return OBJECT_TYPE;
     }
 
     // @Override
