@@ -27,7 +27,6 @@ import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.object.WarrantObject;
 import dev.warrant.model.object.BaseWarrantObject;
 import dev.warrant.model.object.BaseListResult;
-import dev.warrant.model.object.ListResult;
 import dev.warrant.model.object.WarrantListResult;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
