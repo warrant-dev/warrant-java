@@ -1,27 +1,30 @@
-package dev.warrant.model;
+package dev.warrant.model.object;
 
-public class QueryResultSet {
-
-    private QueryResult[] results;
+public class BaseListResult {
+    private BaseWarrantObject[] results;
     private String prevCursor;
     private String nextCursor;
 
-    public QueryResultSet() {
+    public BaseListResult() {
         // For json serialization
     }
 
-    public QueryResultSet(QueryResult[] results) {
+    public BaseListResult(BaseWarrantObject[] results) {
         this.results = results;
     }
 
-    public QueryResultSet(QueryResult[] results, String prevCursor, String nextCursor) {
+    public BaseListResult(BaseWarrantObject[] results, String prevCursor, String nextCursor) {
         this.results = results;
         this.prevCursor = prevCursor;
         this.nextCursor = nextCursor;
     }
 
-    public QueryResult[] getResults() {
-        return this.results;
+    public BaseWarrantObject[] getResults() {
+        return results;
+    }
+
+    public void setResults(BaseWarrantObject[] results) {
+        this.results = results;
     }
 
     public String getPrevCursor() {
