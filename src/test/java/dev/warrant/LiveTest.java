@@ -219,6 +219,11 @@ public class LiveTest {
         Assertions.assertNotNull(roleGeneratedId.getObjectId());
         Assertions.assertNull(roleGeneratedId.getMeta());
 
+        BaseWarrantObject roleObject = new BaseWarrantObject("role", "manager");
+        BaseWarrantObject createdRoleObject = client.createObject(roleObject);
+        Assertions.assertEquals("role", createdRoleObject.getObjectType());
+        Assertions.assertEquals("manager", createdRoleObject.getObjectId());
+
         Map<String, Object> meta = new HashMap<>();
         meta.put("name", "admin role");
         BaseWarrantObject roleWithMeta = client.createObject("role", "admin", meta);

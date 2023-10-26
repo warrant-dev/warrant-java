@@ -174,6 +174,38 @@ public class WarrantBaseClient {
         return checkWithOp(warrants, "allOf", WarrantCheck.class, new RequestOptions());
     }
 
+    public BaseWarrantObject createObject(BaseWarrantObject object) throws WarrantException {
+        return createObject(object, new RequestOptions());
+    }
+
+    public BaseWarrantObject createObject(BaseWarrantObject object, RequestOptions requestOptions) throws WarrantException {
+        return createObject(object.type(), object.id(), Collections.emptyMap(), requestOptions);
+    }
+
+    public BaseWarrantObject createObject(BaseWarrantObject object, Map<String, Object> meta) throws WarrantException {
+        return createObject(object, meta, new RequestOptions());
+    }
+
+    public BaseWarrantObject createObject(BaseWarrantObject object, Map<String, Object> meta, RequestOptions requestOptions) throws WarrantException {
+        return createObject(object.type(), object.id(), meta, requestOptions);
+    }
+
+    public <T extends WarrantObject> T createObject(T object, Class<T> resultType) throws WarrantException {
+        return createObject(object.type(), object.id(), Collections.emptyMap(), resultType, new RequestOptions());
+    }
+
+    public <T extends WarrantObject> T createObject(T object, Class<T> resultType, RequestOptions requestOptions) throws WarrantException {
+        return createObject(object.type(), object.id(), Collections.emptyMap(), resultType, requestOptions);
+    }
+
+    public <T extends WarrantObject> T createObject(T object, Map<String, Object> meta, Class<T> resultType) throws WarrantException {
+        return createObject(object.type(), object.id(), meta, resultType, new RequestOptions());
+    }
+
+    public <T extends WarrantObject> T createObject(T object, Map<String, Object> meta, Class<T> resultType, RequestOptions requestOptions) throws WarrantException {
+        return createObject(object.type(), object.id(), meta, resultType, requestOptions);
+    }
+
     public BaseWarrantObject createObject(String objectType) throws WarrantException {
         return createObject(objectType, null, Collections.emptyMap(), BaseWarrantObject.class, new RequestOptions());
     }

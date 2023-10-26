@@ -12,6 +12,11 @@ public class BaseWarrantObject implements WarrantObject {
         // For json serialization
     }
 
+    public BaseWarrantObject(String objectType) {
+        this.objectType = objectType;
+        this.meta = new HashMap<String, Object>();
+    }
+
     public BaseWarrantObject(String objectType, String objectId) {
         this.objectType = objectType;
         this.objectId = objectId;
