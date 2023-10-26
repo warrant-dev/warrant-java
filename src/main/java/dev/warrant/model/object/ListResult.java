@@ -1,6 +1,6 @@
 package dev.warrant.model.object;
 
-public class ListResult<T extends WarrantObject> {
+public class ListResult<T> {
     private T[] results;
     private String prevCursor;
     private String nextCursor;
