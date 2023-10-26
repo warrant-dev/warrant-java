@@ -19,7 +19,7 @@ import dev.warrant.model.WarrantSubject;
 import dev.warrant.model.object.BaseWarrantObject;
 import dev.warrant.model.object.Feature;
 import dev.warrant.model.object.ListResult;
-import dev.warrant.model.object.BaseListResult;
+import dev.warrant.model.object.BaseWarrantObjectListResult;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;
 import dev.warrant.model.object.Role;
@@ -247,7 +247,7 @@ public class LiveTest {
         Assertions.assertEquals(updatedRole.getObjectId(), fetchedObj.getObjectId());
         Assertions.assertEquals(updatedRole.getMeta(), fetchedObj.getMeta());
 
-        BaseListResult fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10).withSortBy("createdAt"), new RequestOptions().withWarrantToken("latest"));
+        BaseWarrantObjectListResult fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10).withSortBy("createdAt"), new RequestOptions().withWarrantToken("latest"));
         BaseWarrantObject[] fetchedObjects = fetchedObjectsList.getResults();
         Assertions.assertEquals(2, fetchedObjects.length);
         Assertions.assertEquals(roleGeneratedId.getObjectType(), fetchedObjects[0].getObjectType());
@@ -269,7 +269,7 @@ public class LiveTest {
         });
         Assertions.assertEquals(3, objects.length);
 
-        BaseListResult fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10), new RequestOptions().withWarrantToken("latest"));
+        BaseWarrantObjectListResult fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10), new RequestOptions().withWarrantToken("latest"));
         BaseWarrantObject[] fetchedObjects = fetchedObjectsList.getResults();
         Assertions.assertEquals(3, fetchedObjects.length);
         Assertions.assertEquals("document", fetchedObjects[0].getObjectType());

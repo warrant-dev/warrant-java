@@ -26,7 +26,7 @@ import dev.warrant.model.WarrantSpec;
 import dev.warrant.model.WarrantCheck;
 import dev.warrant.model.object.WarrantObject;
 import dev.warrant.model.object.BaseWarrantObject;
-import dev.warrant.model.object.BaseListResult;
+import dev.warrant.model.object.BaseWarrantObjectListResult;
 import dev.warrant.model.object.WarrantListResult;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
@@ -354,14 +354,14 @@ public class WarrantBaseClient {
         makeDeleteRequest("/v2/objects", baseObjects, requestOptions.asMap());
     }
 
-    public BaseListResult listObjects(ObjectFilters filters, ListParams listParams) throws WarrantException {
+    public BaseWarrantObjectListResult listObjects(ObjectFilters filters, ListParams listParams) throws WarrantException {
         return listObjects(filters, listParams, new RequestOptions());
     }
 
-    public BaseListResult listObjects(ObjectFilters filters, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public BaseWarrantObjectListResult listObjects(ObjectFilters filters, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         Map<String, Object> queryParams = filters.asMap();
         queryParams.putAll(listParams.asMap());
-        return makeGetRequest("/v2/objects", queryParams, BaseListResult.class, requestOptions.asMap());
+        return makeGetRequest("/v2/objects", queryParams, BaseWarrantObjectListResult.class, requestOptions.asMap());
     }
 
     public String createUserAuthzSession(String userId) throws WarrantException {

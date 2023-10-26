@@ -10,7 +10,7 @@ import dev.warrant.exception.WarrantException;
 import dev.warrant.model.WarrantSubject;
 import dev.warrant.model.object.BaseWarrantObject;
 import dev.warrant.model.object.Feature;
-import dev.warrant.model.object.BaseListResult;
+import dev.warrant.model.object.BaseWarrantObjectListResult;
 import dev.warrant.model.object.ListResult;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;
@@ -105,7 +105,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public ListResult<User> listUsers(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        BaseListResult userObjects = listObjects(new ObjectFilters().withObjectType(User.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        BaseWarrantObjectListResult userObjects = listObjects(new ObjectFilters().withObjectType(User.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
         User[] users = Arrays.stream(userObjects.getResults()).map(result -> new User(result.getObjectId(), result.getMeta())).toArray(User[]::new);
         return new ListResult<User>(users, userObjects.getPrevCursor(), userObjects.getNextCursor());
     }
@@ -222,7 +222,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public ListResult<Tenant> listTenants(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        BaseListResult tenantObjects = listObjects(new ObjectFilters().withObjectType(Tenant.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        BaseWarrantObjectListResult tenantObjects = listObjects(new ObjectFilters().withObjectType(Tenant.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
         Tenant[] tenants = Arrays.stream(tenantObjects.getResults()).map(result -> new Tenant(result.getObjectId(), result.getMeta())).toArray(Tenant[]::new);
         return new ListResult<Tenant>(tenants, tenantObjects.getPrevCursor(), tenantObjects.getNextCursor());
     }
@@ -323,7 +323,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public ListResult<Role> listRoles(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        BaseListResult roleObjects = listObjects(new ObjectFilters().withObjectType(Role.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        BaseWarrantObjectListResult roleObjects = listObjects(new ObjectFilters().withObjectType(Role.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
         Role[] roles = Arrays.stream(roleObjects.getResults()).map(result -> new Role(result.getObjectId(), result.getMeta())).toArray(Role[]::new);
         return new ListResult<Role>(roles, roleObjects.getPrevCursor(), roleObjects.getNextCursor());
     }
@@ -424,7 +424,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public ListResult<Permission> listPermissions(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        BaseListResult permissionObjects = listObjects(new ObjectFilters().withObjectType(Permission.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        BaseWarrantObjectListResult permissionObjects = listObjects(new ObjectFilters().withObjectType(Permission.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
         Permission[] permissions = Arrays.stream(permissionObjects.getResults()).map(result -> new Permission(result.getObjectId(), result.getMeta())).toArray(Permission[]::new);
         return new ListResult<Permission>(permissions, permissionObjects.getPrevCursor(), permissionObjects.getNextCursor());
     }
@@ -551,7 +551,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public ListResult<Feature> listFeatures(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        BaseListResult featureObjects = listObjects(new ObjectFilters().withObjectType(Feature.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        BaseWarrantObjectListResult featureObjects = listObjects(new ObjectFilters().withObjectType(Feature.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
         Feature[] features = Arrays.stream(featureObjects.getResults()).map(result -> new Feature(result.getObjectId(), result.getMeta())).toArray(Feature[]::new);
         return new ListResult<Feature>(features, featureObjects.getPrevCursor(), featureObjects.getNextCursor());
     }
@@ -712,7 +712,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public ListResult<PricingTier> listPricingTiers(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        BaseListResult pricingTierObjects = listObjects(new ObjectFilters().withObjectType(PricingTier.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        BaseWarrantObjectListResult pricingTierObjects = listObjects(new ObjectFilters().withObjectType(PricingTier.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
         PricingTier[] pricingTiers = Arrays.stream(pricingTierObjects.getResults()).map(result -> new PricingTier(result.getObjectId(), result.getMeta())).toArray(PricingTier[]::new);
         return new ListResult<PricingTier>(pricingTiers, pricingTierObjects.getPrevCursor(), pricingTierObjects.getNextCursor());
     }

@@ -1,19 +1,19 @@
 package dev.warrant.model.object;
 
-public class BaseListResult {
+public class BaseWarrantObjectListResult {
     private BaseWarrantObject[] results;
     private String prevCursor;
     private String nextCursor;
 
-    public BaseListResult() {
+    public BaseWarrantObjectListResult() {
         // For json serialization
     }
 
-    public BaseListResult(BaseWarrantObject[] results) {
+    public BaseWarrantObjectListResult(BaseWarrantObject[] results) {
         this.results = results;
     }
 
-    public BaseListResult(BaseWarrantObject[] results, String prevCursor, String nextCursor) {
+    public BaseWarrantObjectListResult(BaseWarrantObject[] results, String prevCursor, String nextCursor) {
         this.results = results;
         this.prevCursor = prevCursor;
         this.nextCursor = nextCursor;
