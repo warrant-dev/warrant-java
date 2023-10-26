@@ -75,9 +75,4 @@ public class Permission extends BaseWarrantObject {
     public String type() {
         return OBJECT_TYPE;
     }
-
-    // @Override
-    // public Map<String, Object> meta() {
-    //     return null;
-    // }
 }
