@@ -335,28 +335,40 @@ public class WarrantBaseClient {
         return makePutRequest("/v2/objects/" + objectType + "/" + objectId, obj, resultType, requestOptions.asMap());
     }
 
-    public void deleteObject(WarrantObject obj) throws WarrantException {
-        deleteObject(obj.type(), obj.id(), new RequestOptions());
+    public String deleteObject(WarrantObject obj) throws WarrantException {
+        return deleteObject(obj.type(), obj.id(), new RequestOptions());
     }
 
-    public void deleteObject(WarrantObject obj, RequestOptions requestOptions) throws WarrantException {
-        deleteObject(obj.type(), obj.id(), requestOptions);
+    public String deleteObject(WarrantObject obj, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(obj.type(), obj.id(), requestOptions);
     }
 
-    public void deleteObject(String objectType, String objectId) throws WarrantException {
-        deleteObject(objectType, objectId, new RequestOptions());
+    public String deleteObject(String objectType, String objectId) throws WarrantException {
+        return deleteObject(objectType, objectId, new RequestOptions());
     }
 
-    public void deleteObject(String objectType, String objectId, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v2/objects/" + objectType + "/" + objectId, requestOptions.asMap());
+    public String deleteObject(String objectType, String objectId, RequestOptions requestOptions) throws WarrantException {
+        HttpResponse<String> response = makeDeleteRequest("/v2/objects/" + objectType + "/" + objectId, requestOptions.asMap());
+        Optional<String> warrantToken = response.headers().firstValue("warrant-token");
+        if (warrantToken.isPresent()) {
+            return warrantToken.toString();
+        } else {
+            return "";
+        }
     }
 
-    public void deleteObjects(BaseWarrantObject[] objects) throws WarrantException {
-        deleteObjects(objects, new RequestOptions());
+    public String deleteObjects(BaseWarrantObject[] objects) throws WarrantException {
+        return deleteObjects(objects, new RequestOptions());
     }
 
-    public void deleteObjects(BaseWarrantObject[] objects, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v2/objects", objects, requestOptions.asMap());
+    public String deleteObjects(BaseWarrantObject[] objects, RequestOptions requestOptions) throws WarrantException {
+        HttpResponse<String> response = makeDeleteRequest("/v2/objects", objects, requestOptions.asMap());
+        Optional<String> warrantToken = response.headers().firstValue("warrant-token");
+        if (warrantToken.isPresent()) {
+            return warrantToken.toString();
+        } else {
+            return "";
+        }
     }
 
     public <T extends WarrantObject> void deleteObjects(T[] objects) throws WarrantException {

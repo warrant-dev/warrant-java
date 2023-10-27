@@ -64,24 +64,24 @@ public class WarrantClient extends WarrantBaseClient {
         return updateObject(User.OBJECT_TYPE, userId, toUpdate.getMeta(), User.class, requestOptions);
     }
 
-    public void deleteUser(User user) throws WarrantException {
-        deleteUser(user.getUserId(), new RequestOptions());
+    public String deleteUser(User user) throws WarrantException {
+        return deleteUser(user.getUserId(), new RequestOptions());
     }
 
-    public void deleteUser(String userId) throws WarrantException {
-        deleteUser(userId, new RequestOptions());
+    public String deleteUser(String userId) throws WarrantException {
+        return deleteUser(userId, new RequestOptions());
     }
 
-    public void deleteUser(String userId, RequestOptions requestOptions) throws WarrantException {
-        deleteObject(User.OBJECT_TYPE, userId, requestOptions);
+    public String deleteUser(String userId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(User.OBJECT_TYPE, userId, requestOptions);
     }
 
-    public void deleteUsers(User[] users) throws WarrantException {
-        deleteObjects(users);
+    public String deleteUsers(User[] users) throws WarrantException {
+        return deleteObjects(users);
     }
 
-    public void deleteUsers(User[] users, RequestOptions requestOptions) throws WarrantException {
-        deleteObjects(users, requestOptions);
+    public String deleteUsers(User[] users, RequestOptions requestOptions) throws WarrantException {
+        return deleteObjects(users, requestOptions);
     }
 
     public User getUser(String userId) throws WarrantException {
@@ -177,28 +177,28 @@ public class WarrantClient extends WarrantBaseClient {
         return updateObject(Tenant.OBJECT_TYPE, tenantId, toUpdate.getMeta(), Tenant.class, requestOptions);
     }
 
-    public void deleteTenant(Tenant tenant) throws WarrantException {
-        deleteTenant(tenant.getTenantId(), new RequestOptions());
+    public String deleteTenant(Tenant tenant) throws WarrantException {
+        return deleteTenant(tenant.getTenantId(), new RequestOptions());
     }
 
-    public void deleteTenant(Tenant tenant, RequestOptions requestOptions) throws WarrantException {
-        deleteTenant(tenant.getTenantId(), requestOptions);
+    public String deleteTenant(Tenant tenant, RequestOptions requestOptions) throws WarrantException {
+        return deleteTenant(tenant.getTenantId(), requestOptions);
     }
 
-    public void deleteTenant(String tenantId) throws WarrantException {
-        deleteTenant(tenantId, new RequestOptions());
+    public String deleteTenant(String tenantId) throws WarrantException {
+        return deleteTenant(tenantId, new RequestOptions());
     }
 
-    public void deleteTenant(String tenantId, RequestOptions requestOptions) throws WarrantException {
-        deleteObject(Tenant.OBJECT_TYPE, tenantId, requestOptions);
+    public String deleteTenant(String tenantId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Tenant.OBJECT_TYPE, tenantId, requestOptions);
     }
 
-    public void deleteTenants(Tenant[] tenants) throws WarrantException {
-        deleteObjects(tenants);
+    public String deleteTenants(Tenant[] tenants) throws WarrantException {
+        return deleteTenants(tenants, new RequestOptions());
     }
 
-    public void deleteTenants(Tenant[] tenants, RequestOptions requestOptions) throws WarrantException {
-        deleteObjects(tenants, requestOptions);
+    public String deleteTenants(Tenant[] tenants, RequestOptions requestOptions) throws WarrantException {
+        return deleteObjects(tenants, requestOptions);
     }
 
     public Tenant getTenant(String tenantId) throws WarrantException {
@@ -286,20 +286,20 @@ public class WarrantClient extends WarrantBaseClient {
         return updateObject(Role.OBJECT_TYPE, roleId, toUpdate.getMeta(), Role.class, requestOptions);
     }
 
-    public void deleteRole(Role role) throws WarrantException {
-        deleteRole(role.getRoleId(), new RequestOptions());
+    public String deleteRole(Role role) throws WarrantException {
+        return deleteRole(role.getRoleId(), new RequestOptions());
     }
 
-    public void deleteRole(Role role, RequestOptions requestOptions) throws WarrantException {
-        deleteRole(role.getRoleId(), requestOptions);
+    public String deleteRole(Role role, RequestOptions requestOptions) throws WarrantException {
+        return deleteRole(role.getRoleId(), requestOptions);
     }
 
-    public void deleteRole(String roleId) throws WarrantException {
-        deleteRole(roleId, new RequestOptions());
+    public String deleteRole(String roleId) throws WarrantException {
+        return deleteRole(roleId, new RequestOptions());
     }
 
-    public void deleteRole(String roleId, RequestOptions requestOptions) throws WarrantException {
-        deleteObject(Role.OBJECT_TYPE, roleId, requestOptions);
+    public String deleteRole(String roleId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Role.OBJECT_TYPE, roleId, requestOptions);
     }
 
     public Role getRole(String roleId) throws WarrantException {
@@ -387,20 +387,20 @@ public class WarrantClient extends WarrantBaseClient {
         return updateObject(Permission.OBJECT_TYPE, permissionId, toUpdate.getMeta(), Permission.class, requestOptions);
     }
 
-    public void deletePermission(Permission permission) throws WarrantException {
-        deletePermission(permission.getPermissionId(), new RequestOptions());
+    public String deletePermission(Permission permission) throws WarrantException {
+        return deletePermission(permission.getPermissionId(), new RequestOptions());
     }
 
-    public void deletePermission(Permission permission, RequestOptions requestOptions) throws WarrantException {
-        deletePermission(permission.getPermissionId(), requestOptions);
+    public String deletePermission(Permission permission, RequestOptions requestOptions) throws WarrantException {
+        return deletePermission(permission.getPermissionId(), requestOptions);
     }
 
-    public void deletePermission(String permissionId) throws WarrantException {
-        deletePermission(permissionId, new RequestOptions());
+    public String deletePermission(String permissionId) throws WarrantException {
+        return deletePermission(permissionId, new RequestOptions());
     }
 
-    public void deletePermission(String permissionId, RequestOptions requestOptions) throws WarrantException {
-        deleteObject(Permission.OBJECT_TYPE, permissionId, requestOptions);
+    public String deletePermission(String permissionId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Permission.OBJECT_TYPE, permissionId, requestOptions);
     }
 
     public Permission getPermission(String permissionId) throws WarrantException {
@@ -514,20 +514,20 @@ public class WarrantClient extends WarrantBaseClient {
         return createObject(Feature.OBJECT_TYPE, feature.getFeatureId(), feature.getMeta(), Feature.class, requestOptions);
     }
 
-    public void deleteFeature(Feature feature) throws WarrantException {
-        deleteFeature(feature.getFeatureId(), new RequestOptions());
+    public String deleteFeature(Feature feature) throws WarrantException {
+        return deleteFeature(feature.getFeatureId(), new RequestOptions());
     }
 
-    public void deleteFeature(Feature feature, RequestOptions requestOptions) throws WarrantException {
-        deleteFeature(feature.getFeatureId(), requestOptions);
+    public String deleteFeature(Feature feature, RequestOptions requestOptions) throws WarrantException {
+        return deleteFeature(feature.getFeatureId(), requestOptions);
     }
 
-    public void deleteFeature(String featureId) throws WarrantException {
-        deleteFeature(featureId, new RequestOptions());
+    public String deleteFeature(String featureId) throws WarrantException {
+        return deleteFeature(featureId, new RequestOptions());
     }
 
-    public void deleteFeature(String featureId, RequestOptions requestOptions) throws WarrantException {
-        deleteObject(Feature.OBJECT_TYPE, featureId, requestOptions);
+    public String deleteFeature(String featureId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Feature.OBJECT_TYPE, featureId, requestOptions);
     }
 
     public Feature getFeature(String featureId) throws WarrantException {
@@ -675,20 +675,20 @@ public class WarrantClient extends WarrantBaseClient {
         return createObject(PricingTier.OBJECT_TYPE, pricingTier.getPricingTierId(), pricingTier.getMeta(), PricingTier.class, requestOptions);
     }
 
-    public void deletePricingTier(PricingTier pricingTier) throws WarrantException {
-        deletePricingTier(pricingTier.getPricingTierId(), new RequestOptions());
+    public String deletePricingTier(PricingTier pricingTier) throws WarrantException {
+        return deletePricingTier(pricingTier.getPricingTierId(), new RequestOptions());
     }
 
-    public void deletePricingTier(PricingTier pricingTier, RequestOptions requestOptions) throws WarrantException {
-        deletePricingTier(pricingTier.getPricingTierId(), requestOptions);
+    public String deletePricingTier(PricingTier pricingTier, RequestOptions requestOptions) throws WarrantException {
+        return deletePricingTier(pricingTier.getPricingTierId(), requestOptions);
     }
 
-    public void deletePricingTier(String pricingTierId) throws WarrantException {
-        deletePricingTier(pricingTierId, new RequestOptions());
+    public String deletePricingTier(String pricingTierId) throws WarrantException {
+        return deletePricingTier(pricingTierId, new RequestOptions());
     }
 
-    public void deletePricingTier(String pricingTierId, RequestOptions requestOptions) throws WarrantException {
-        deleteObject(PricingTier.OBJECT_TYPE, pricingTierId, requestOptions);
+    public String deletePricingTier(String pricingTierId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(PricingTier.OBJECT_TYPE, pricingTierId, requestOptions);
     }
 
     public PricingTier getPricingTier(String pricingTierId) throws WarrantException {

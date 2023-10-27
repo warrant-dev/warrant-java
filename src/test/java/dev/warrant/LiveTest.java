@@ -59,8 +59,10 @@ public class LiveTest {
         ListResult<User> usersListResult = client.listUsers(listParams, requestOptions);
         Assertions.assertEquals(2, usersListResult.getResults().length);
 
-        client.deleteUser(user1);
-        client.deleteUser(user2);
+        String warrantToken = client.deleteUser(user1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken =client.deleteUser(user2);
+        Assertions.assertNotNull(warrantToken);
         usersListResult = client.listUsers(10, requestOptions);
         Assertions.assertEquals(0, usersListResult.getResults().length);
     }
@@ -85,8 +87,10 @@ public class LiveTest {
         ListResult<Tenant> tenantsListResult = client.listTenants(10, requestOptions);
         Assertions.assertEquals(2, tenantsListResult.getResults().length);
 
-        client.deleteTenant(tenant1);
-        client.deleteTenant(tenant2);
+        String warrantToken = client.deleteTenant(tenant1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteTenant(tenant2);
+        Assertions.assertNotNull(warrantToken);
         tenantsListResult = client.listTenants(10, requestOptions);
         Assertions.assertEquals(0, tenantsListResult.getResults().length);
     }
@@ -119,9 +123,12 @@ public class LiveTest {
         ListResult<Role> rolesListResult = client.listRoles(10, requestOptions);
         Assertions.assertEquals(3, rolesListResult.getResults().length);
 
-        client.deleteRole(role1);
-        client.deleteRole(adminRole);
-        client.deleteRole(viewerRole);
+        String warrantToken = client.deleteRole(role1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteRole(adminRole);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteRole(viewerRole);
+        Assertions.assertNotNull(warrantToken);
         rolesListResult = client.listRoles(10, requestOptions);
         Assertions.assertEquals(0, rolesListResult.getResults().length);
     }
@@ -156,9 +163,12 @@ public class LiveTest {
         ListResult<Permission> permissionsListResult = client.listPermissions(10, requestOptions);
         Assertions.assertEquals(3, permissionsListResult.getResults().length);
 
-        client.deletePermission(generatedPermissionId);
-        client.deletePermission(permission1);
-        client.deletePermission(permission2);
+        String warrantToken = client.deletePermission(generatedPermissionId);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission2);
+        Assertions.assertNotNull(warrantToken);
         permissionsListResult = client.listPermissions(10, requestOptions);
         Assertions.assertEquals(0, permissionsListResult.getResults().length);
     }
@@ -182,9 +192,12 @@ public class LiveTest {
         ListResult<Feature> featuresListResult = client.listFeatures(10, requestOptions);
         Assertions.assertEquals(3, featuresListResult.getResults().length);
 
-        client.deleteFeature(generatedFeatureId);
-        client.deleteFeature(feature1);
-        client.deleteFeature(feature2);
+        String warrantToken = client.deleteFeature(generatedFeatureId);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(feature1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(feature2);
+        Assertions.assertNotNull(warrantToken);
         featuresListResult = client.listFeatures(10, requestOptions);
         Assertions.assertEquals(0, featuresListResult.getResults().length);
     }
@@ -205,9 +218,12 @@ public class LiveTest {
         ListResult<PricingTier> tiersListResult = client.listPricingTiers(10, requestOptions);
         Assertions.assertEquals(3, tiersListResult.getResults().length);
 
-        client.deletePricingTier(generatedTier);
-        client.deletePricingTier(tier1);
-        client.deletePricingTier(tier2);
+        String warrantToken = client.deletePricingTier(generatedTier);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePricingTier(tier1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePricingTier(tier2);
+        Assertions.assertNotNull(warrantToken);
         tiersListResult = client.listPricingTiers(10, requestOptions);
         Assertions.assertEquals(0, tiersListResult.getResults().length);
     }
@@ -263,9 +279,12 @@ public class LiveTest {
         Assertions.assertEquals(roleObject.getObjectType(), fetchedObjects[0].getObjectType());
         Assertions.assertEquals(roleObject.getObjectId(), fetchedObjects[0].getObjectId());
 
-        client.deleteObject(roleObject);
-        client.deleteObject(roleGeneratedId);
-        client.deleteObject(roleWithMeta);
+        String warrantToken = client.deleteObject(roleObject);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteObject(roleGeneratedId);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteObject(roleWithMeta);
+        Assertions.assertNotNull(warrantToken);
 
         fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10).withSortBy("createdAt"), new RequestOptions().withWarrantToken("latest"));
         Assertions.assertEquals(0, fetchedObjectsList.getResults().length);
@@ -290,11 +309,12 @@ public class LiveTest {
         Assertions.assertEquals("folder", fetchedObjects[2].getObjectType());
         Assertions.assertEquals("resources", fetchedObjects[2].getObjectId());
 
-        client.deleteObjects(new BaseWarrantObject[]{
+        String warrantToken = client.deleteObjects(new BaseWarrantObject[]{
             new BaseWarrantObject("document", "document-a"),
             new BaseWarrantObject("document", "document-b"),
             new BaseWarrantObject("folder", "resources")
         });
+        Assertions.assertNotNull(warrantToken);
         fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10), new RequestOptions().withWarrantToken("latest"));
         fetchedObjects = fetchedObjectsList.getResults();
         Assertions.assertEquals(0, fetchedObjects.length);
@@ -314,14 +334,16 @@ public class LiveTest {
         Assertions.assertEquals("tenant-1", createdTenants[0].getTenantId());
         Assertions.assertEquals("tenant-2", createdTenants[1].getTenantId());
 
-        client.deleteUsers(new User[]{
+        String warrantToken = client.deleteUsers(new User[]{
             new User("user-1"),
             new User("user-2")
         });
-        client.deleteTenants(new Tenant[]{
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteTenants(new Tenant[]{
             new Tenant("tenant-1"),
             new Tenant("tenant-2")
         });
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -350,10 +372,14 @@ public class LiveTest {
         Assertions.assertEquals(0, client.listTenantsForUser(user1, 100, requestOptions).getResults().length);
 
         // Clean up
-        client.deleteUser(user1);
-        client.deleteUser(user2);
-        client.deleteTenant(tenant1);
-        client.deleteTenant(tenant2);
+        String warrantToken = client.deleteUser(user1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(user2);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteTenant(tenant1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteTenant(tenant2);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -405,12 +431,18 @@ public class LiveTest {
         Assertions.assertEquals(0, client.listPermissionsForUser(viewer, 100, requestOptions).getResults().length);
 
         // Clean up
-        client.deleteUser(adminUser);
-        client.deleteUser(viewer);
-        client.deleteRole(adminRole);
-        client.deleteRole(viewerRole);
-        client.deletePermission(createPermission);
-        client.deletePermission(viewPermission);
+        String warrantToken = client.deleteUser(adminUser);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(viewer);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteRole(adminRole);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteRole(viewerRole);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(createPermission);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(viewPermission);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -462,13 +494,20 @@ public class LiveTest {
         Assertions.assertEquals(0, client.listPricingTiersForUser(freeUser, 100, requestOptions).getResults().length);
 
         // Clean up
-        client.deleteUser(freeUser);
-        client.deleteUser(paidUser);
-        client.deletePricingTier(freeTier);
-        client.deletePricingTier(paidTier);
-        client.deleteFeature(customFeature);
-        client.deleteFeature(feature1);
-        client.deleteFeature(feature2);
+        String warrantToken = client.deleteUser(freeUser);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(paidUser);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePricingTier(freeTier);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePricingTier(paidTier);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(customFeature);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(feature1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(feature2);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -520,13 +559,20 @@ public class LiveTest {
         Assertions.assertEquals(0, client.listPricingTiersForTenant(freeTenant, 100, requestOptions).getResults().length);
 
         // Clean up
-        client.deleteTenant(freeTenant);
-        client.deleteTenant(paidTenant);
-        client.deletePricingTier(freeTier);
-        client.deletePricingTier(paidTier);
-        client.deleteFeature(customFeature);
-        client.deleteFeature(feature1);
-        client.deleteFeature(feature2);
+        String warrantToken = client.deleteTenant(freeTenant);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteTenant(paidTenant);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePricingTier(freeTier);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePricingTier(paidTier);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(customFeature);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(feature1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteFeature(feature2);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -540,8 +586,10 @@ public class LiveTest {
                 .assertNotNull(client.createUserSelfServiceDashboardUrl(user.getUserId(), tenant.getTenantId(), "rbac",
                         "http://localhost:8080"));
 
-        client.deleteUser(user);
-        client.deleteTenant(tenant);
+        String warrantToken = client.deleteUser(user);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteTenant(tenant);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -576,10 +624,14 @@ public class LiveTest {
         Assertions.assertNotNull(warrantToken);
         warrantToken = client.deleteWarrant(role1, "member", subject);
         Assertions.assertNotNull(warrantToken);
-        client.deletePermission(permission1);
-        client.deletePermission(permission2);
-        client.deleteRole(role1);
-        client.deleteUser(user);
+        warrantToken = client.deletePermission(permission1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission2);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteRole(role1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(user);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -593,15 +645,17 @@ public class LiveTest {
         Assertions.assertTrue(client.check(new BaseWarrantObject("permission", "perm1"), "member", new WarrantSubject("user", "user1")));
         Assertions.assertTrue(client.check(new BaseWarrantObject("permission", "perm2"), "member", new WarrantSubject("user", "user1")));
 
-        client.deleteWarrants(new Warrant[]{
+        String warrantToken = client.deleteWarrants(new Warrant[]{
             new Warrant("permission", "perm1", "member", new WarrantSubject("user", "user1")),
             new Warrant("permission", "perm2", "member", new WarrantSubject("user", "user1"))
         });
-        client.deleteObjects(new BaseWarrantObject[]{
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteObjects(new BaseWarrantObject[]{
             new BaseWarrantObject("permission", "perm1"),
             new BaseWarrantObject("permission", "perm2"),
             new BaseWarrantObject("user", "user1")
         });
+        Assertions.assertNotNull(warrantToken);
 
         Assertions.assertEquals(0, client.listWarrants(new WarrantFilters(), new ListParams(), new RequestOptions().withWarrantToken("latest")).getResults().length);
     }
@@ -627,10 +681,13 @@ public class LiveTest {
         Assertions.assertFalse(client.check(testPermission, "member",
                 new WarrantSubject(testUser.type(), testUser.id()), warrantContext, requestOptions));
 
-        client.deleteWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()),
+        String warrantToken = client.deleteWarrant(testPermission, "member", new WarrantSubject(testUser.type(), testUser.id()),
                 "geo == 'us' && isActivated == true");
-        client.deleteUser(testUser);
-        client.deletePermission(testPermission);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(testUser);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(testPermission);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -665,12 +722,18 @@ public class LiveTest {
         result = client.checkAllOf(checks);
         Assertions.assertFalse(result.isAuthorized());
 
-        client.deleteWarrant(permission1, "member", userSubject);
-        client.deleteWarrant(permission2, "member", userSubject);
-        client.deleteUser(user);
-        client.deletePermission(permission1);
-        client.deletePermission(permission2);
-        client.deletePermission(permission3);
+        String warrantToken = client.deleteWarrant(permission1, "member", userSubject);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteWarrant(permission2, "member", userSubject);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(user);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission2);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission3);
+        Assertions.assertNotNull(warrantToken);
     }
 
     @Test
@@ -716,12 +779,19 @@ public class LiveTest {
         Assertions.assertEquals("role", resultSet.getResults()[0].getWarrant().getSubject().getObjectType());
         Assertions.assertEquals("role1", resultSet.getResults()[0].getWarrant().getSubject().getObjectId());
 
-        client.deleteRole(role1);
-        client.deleteRole(role2);
-        client.deletePermission(permission3);
-        client.deletePermission(permission2);
-        client.deletePermission(permission1);
-        client.deleteUser(userB);
-        client.deleteUser(userA);
+        String warrantToken = client.deleteRole(role1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteRole(role2);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission3);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission2);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deletePermission(permission1);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(userB);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteUser(userA);
+        Assertions.assertNotNull(warrantToken);
     }
 }
