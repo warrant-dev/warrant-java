@@ -2,9 +2,13 @@ package dev.warrant;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
+import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +32,11 @@ public class WarrantClientTest {
     public void init() throws IOException, InterruptedException {
         httpClient = Mockito.mock(HttpClient.class);
         httpResponse = Mockito.mock(HttpResponse.class);
+        BiPredicate<String, String> filter = (a, b) -> {
+                return true;
+        };
+        HttpHeaders mockHeaders = HttpHeaders.of(new HashMap<String,List<String>>(), filter);
+        Mockito.when(httpResponse.headers()).thenReturn(mockHeaders);
         Mockito.when(httpClient.send(Mockito.any(HttpRequest.class), Mockito.any(BodyHandler.class)))
                 .thenReturn(httpResponse);
     }

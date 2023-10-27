@@ -552,9 +552,12 @@ public class LiveTest {
         Role role1 = client.createRole(new Role("role1"));
 
         WarrantSubject subject = new WarrantSubject(user.type(), user.id());
-        client.createWarrant(permission1, "member", subject);
-        client.createWarrant(permission2, "member", subject);
-        client.createWarrant(role1, "member", subject);
+        Warrant perm1Warrant = client.createWarrant(permission1, "member", subject);
+        Warrant perm2Warrant = client.createWarrant(permission2, "member", subject);
+        Warrant role1Warrant = client.createWarrant(role1, "member", subject);
+        Assertions.assertNotNull(perm1Warrant.getWarrantToken());
+        Assertions.assertNotNull(perm2Warrant.getWarrantToken());
+        Assertions.assertNotNull(role1Warrant.getWarrantToken());
 
         RequestOptions requestOptions = new RequestOptions().withWarrantToken("latest");
         WarrantFilters filters = new WarrantFilters().withObjectType("permission");
@@ -567,9 +570,12 @@ public class LiveTest {
                 requestOptions);
         Assertions.assertEquals(1, warrantsListResult.getResults().length);
 
-        client.deleteWarrant(permission1, "member", subject);
-        client.deleteWarrant(permission2, "member", subject);
-        client.deleteWarrant(role1, "member", subject);
+        String warrantToken = client.deleteWarrant(permission1, "member", subject);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteWarrant(permission2, "member", subject);
+        Assertions.assertNotNull(warrantToken);
+        warrantToken = client.deleteWarrant(role1, "member", subject);
+        Assertions.assertNotNull(warrantToken);
         client.deletePermission(permission1);
         client.deletePermission(permission2);
         client.deleteRole(role1);

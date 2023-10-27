@@ -7,6 +7,7 @@ public class Warrant {
     private String relation;
     private WarrantSubject subject;
     private String policy;
+    private String warrantToken;
 
     public Warrant() {
         // For json serialization
@@ -65,5 +66,9 @@ public class Warrant {
 
     public void setPolicy(String policy) {
         this.policy = policy;
+    }
+
+    public String getWarrantToken() {
+        return warrantToken;
     }
 }

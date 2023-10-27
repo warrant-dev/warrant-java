@@ -11,7 +11,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -80,29 +82,41 @@ public class WarrantBaseClient {
         return makePostRequest("/v2/warrants", warrants, Warrant[].class, requestOptions.asMap());
     }
 
-    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
-        deleteWarrant(object, relation, subject, "", new RequestOptions());
+    public String deleteWarrant(WarrantObject object, String relation, WarrantSubject subject) throws WarrantException {
+        return deleteWarrant(object, relation, subject, "", new RequestOptions());
     }
 
-    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions) throws WarrantException {
-        deleteWarrant(object, relation, subject, "", requestOptions);
+    public String deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, RequestOptions requestOptions) throws WarrantException {
+        return deleteWarrant(object, relation, subject, "", requestOptions);
     }
 
-    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy) throws WarrantException {
-        deleteWarrant(object, relation, subject, policy, new RequestOptions());
+    public String deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy) throws WarrantException {
+        return deleteWarrant(object, relation, subject, policy, new RequestOptions());
     }
 
-    public void deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, RequestOptions requestOptions) throws WarrantException {
+    public String deleteWarrant(WarrantObject object, String relation, WarrantSubject subject, String policy, RequestOptions requestOptions) throws WarrantException {
         Warrant toDelete = new Warrant(object.type(), object.id(), relation, subject, policy);
-        makeDeleteRequest("/v2/warrants", toDelete, requestOptions.asMap());
+        HttpResponse<String> response = makeDeleteRequest("/v2/warrants", toDelete, requestOptions.asMap());
+        Optional<String> warrantToken = response.headers().firstValue("warrant-token");
+        if (warrantToken.isPresent()) {
+            return warrantToken.toString();
+        } else {
+            return "";
+        }
     }
 
-    public void deleteWarrants(Warrant[] warrants) throws WarrantException {
-        deleteWarrants(warrants, new RequestOptions());
+    public String deleteWarrants(Warrant[] warrants) throws WarrantException {
+        return deleteWarrants(warrants, new RequestOptions());
     }
 
-    public void deleteWarrants(Warrant[] warrants, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v2/warrants", warrants, requestOptions.asMap());
+    public String deleteWarrants(Warrant[] warrants, RequestOptions requestOptions) throws WarrantException {
+        HttpResponse<String> response = makeDeleteRequest("/v2/warrants", warrants, requestOptions.asMap());
+        Optional<String> warrantToken = response.headers().firstValue("warrant-token");
+        if (warrantToken.isPresent()) {
+            return warrantToken.toString();
+        } else {
+            return "";
+        }
     }
 
     public WarrantListResult listWarrants(WarrantFilters filters, ListParams listParams) throws WarrantException {
@@ -453,7 +467,11 @@ public class WarrantBaseClient {
     <T> T makePostRequest(String uri, Object reqPayload, Class<T> type) throws WarrantException {
         try {
             HttpResponse<String> resp = makePostRequest(uri, reqPayload);
-            return mapper.readValue(resp.body(), type);
+            Map<String, Object> responseBody = mapper.readValue(resp.body(), new TypeReference<Map<String,Object>>(){});
+            Optional<String> warrantToken = resp.headers().firstValue("warrant-token");
+            warrantToken.ifPresent(token -> responseBody.put("warrantToken", token));
+            responseBody.put("warrantToken", resp.headers().firstValue("warrant-token"));
+            return mapper.readValue(mapper.writeValueAsString(responseBody), type);
         } catch (IOException e) {
             throw new WarrantException(e);
         }
@@ -462,7 +480,10 @@ public class WarrantBaseClient {
     <T> T makePostRequest(String uri, Object reqPayload, Class<T> type, Map<String, Object> requestOptions) throws WarrantException {
         try {
             HttpResponse<String> resp = makePostRequest(uri, reqPayload, requestOptions);
-            return mapper.readValue(resp.body(), type);
+            Map<String, Object> responseBody = mapper.readValue(resp.body(), new TypeReference<Map<String,Object>>(){});
+            Optional<String> warrantToken = resp.headers().firstValue("warrant-token");
+            warrantToken.ifPresent(token -> responseBody.put("warrantToken", token));
+            return mapper.readValue(mapper.writeValueAsString(responseBody), type);
         } catch (IOException e) {
             throw new WarrantException(e);
         }
