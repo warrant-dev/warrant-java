@@ -249,15 +249,26 @@ public class LiveTest {
 
         BaseWarrantObjectListResult fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10).withSortBy("createdAt"), new RequestOptions().withWarrantToken("latest"));
         BaseWarrantObject[] fetchedObjects = fetchedObjectsList.getResults();
-        Assertions.assertEquals(2, fetchedObjects.length);
+        Assertions.assertEquals(3, fetchedObjects.length);
         Assertions.assertEquals(roleGeneratedId.getObjectType(), fetchedObjects[0].getObjectType());
         Assertions.assertEquals(roleGeneratedId.getObjectId(), fetchedObjects[0].getObjectId());
-        Assertions.assertEquals(updatedRole.getObjectType(), fetchedObjects[1].getObjectType());
-        Assertions.assertEquals(updatedRole.getObjectId(), fetchedObjects[1].getObjectId());
-        Assertions.assertEquals(updatedRole.getMeta(), fetchedObjects[1].getMeta());
+        Assertions.assertEquals(roleObject.getObjectType(), fetchedObjects[1].getObjectType());
+        Assertions.assertEquals(roleObject.getObjectId(), fetchedObjects[1].getObjectId());
+        Assertions.assertEquals(updatedRole.getObjectType(), fetchedObjects[2].getObjectType());
+        Assertions.assertEquals(updatedRole.getObjectId(), fetchedObjects[2].getObjectId());
+        Assertions.assertEquals(updatedRole.getMeta(), fetchedObjects[2].getMeta());
 
+        fetchedObjectsList = client.listObjects(new ObjectFilters().withQuery("manager"), new ListParams().withLimit(10).withSortBy("createdAt"), new RequestOptions().withWarrantToken("latest"));
+        Assertions.assertEquals(1, fetchedObjectsList.getResults().length);
+        Assertions.assertEquals(roleObject.getObjectType(), fetchedObjects[0].getObjectType());
+        Assertions.assertEquals(roleObject.getObjectId(), fetchedObjects[0].getObjectId());
+
+        client.deleteObject(roleObject);
         client.deleteObject(roleGeneratedId);
         client.deleteObject(roleWithMeta);
+
+        fetchedObjectsList = client.listObjects(new ObjectFilters(), new ListParams().withLimit(10).withSortBy("createdAt"), new RequestOptions().withWarrantToken("latest"));
+        Assertions.assertEquals(0, fetchedObjectsList.getResults().length);
     }
 
     @Test

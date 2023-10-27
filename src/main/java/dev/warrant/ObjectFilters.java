@@ -6,7 +6,7 @@ import java.util.Map;
 public class ObjectFilters {
 
     private String objectType = "";
-    private String objectId = "";
+    private String query = "";
 
     public ObjectFilters() {
     }
@@ -16,8 +16,8 @@ public class ObjectFilters {
         return this;
     }
 
-    public ObjectFilters withObjectId(String objectId) {
-        this.objectId = objectId;
+    public ObjectFilters withQuery(String query) {
+        this.query = query;
         return this;
     }
 
@@ -26,8 +26,8 @@ public class ObjectFilters {
         if (!this.objectType.isEmpty()) {
             params.put("objectType", objectType);
         }
-        if (!this.objectId.isEmpty()) {
-            params.put("objectId", objectId);
+        if (!this.query.isEmpty()) {
+            params.put("q", query);
         }
         return params;
     }
