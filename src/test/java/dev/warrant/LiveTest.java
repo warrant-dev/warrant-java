@@ -275,6 +275,7 @@ public class LiveTest {
         Assertions.assertEquals(updatedRole.getMeta(), fetchedObjects[2].getMeta());
 
         fetchedObjectsList = client.listObjects(new ObjectFilters().withQuery("manager"), new ListParams().withLimit(10).withSortBy("createdAt"), new RequestOptions().withWarrantToken("latest"));
+        fetchedObjects = fetchedObjectsList.getResults();
         Assertions.assertEquals(1, fetchedObjectsList.getResults().length);
         Assertions.assertEquals(roleObject.getObjectType(), fetchedObjects[0].getObjectType());
         Assertions.assertEquals(roleObject.getObjectId(), fetchedObjects[0].getObjectId());
