@@ -3,6 +3,9 @@ package dev.warrant.model.object;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class BaseWarrantObject implements WarrantObject {
     protected String objectType;
     protected String objectId;
