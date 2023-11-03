@@ -34,7 +34,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 
 public class WarrantBaseClient {
-    public static final String SDK_VERSION = "3.6.0";
+    public static final String SDK_VERSION = "4.0.0";
     public static final String USER_AGENT = "warrant-java/" + SDK_VERSION;
 
     final HttpClient client;
