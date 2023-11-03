@@ -19,7 +19,7 @@ implementation group: 'dev.warrant', name: 'warrant-java', version: '3.6.0'
 <dependency>
   <groupId>dev.warrant</groupId>
   <artifactId>warrant-java</artifactId>
-  <version>3.6.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
