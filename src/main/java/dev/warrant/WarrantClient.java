@@ -1,16 +1,24 @@
 package dev.warrant;
 
 import java.net.http.HttpClient;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import dev.warrant.exception.WarrantException;
 import dev.warrant.model.WarrantSubject;
+import dev.warrant.model.object.BaseWarrantObject;
 import dev.warrant.model.object.Feature;
+import dev.warrant.model.object.BaseWarrantObjectListResult;
+import dev.warrant.model.object.ListResult;
 import dev.warrant.model.object.Permission;
 import dev.warrant.model.object.PricingTier;
 import dev.warrant.model.object.Role;
 import dev.warrant.model.object.Tenant;
 import dev.warrant.model.object.User;
+import dev.warrant.model.QueryResult;
+import dev.warrant.model.QueryResultSet;
 import dev.warrant.model.Warrant;
 
 public class WarrantClient extends WarrantBaseClient {
@@ -29,7 +37,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public User createUser(RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/users", Collections.EMPTY_MAP, User.class, requestOptions.asMap());
+        return createObject(User.OBJECT_TYPE, User.class, requestOptions);
     }
 
     public User createUser(User user) throws WarrantException {
@@ -37,7 +45,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public User createUser(User user, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/users", user, User.class, requestOptions.asMap());
+        return createObject(User.OBJECT_TYPE, user.getUserId(), user.getMeta(), User.class, requestOptions);
     }
 
     public User[] createUsers(User[] users) throws WarrantException {
@@ -45,7 +53,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public User[] createUsers(User[] users, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/users", users, User[].class, requestOptions.asMap());
+        return createObjects(users, User[].class, requestOptions);
     }
 
     public User updateUser(String userId, User toUpdate) throws WarrantException {
@@ -53,19 +61,27 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public User updateUser(String userId, User toUpdate, RequestOptions requestOptions) throws WarrantException {
-        return makePutRequest("/v1/users/" + userId, toUpdate, User.class, requestOptions.asMap());
+        return updateObject(User.OBJECT_TYPE, userId, toUpdate.getMeta(), User.class, requestOptions);
     }
 
-    public void deleteUser(User user) throws WarrantException {
-        deleteUser(user.getUserId(), new RequestOptions());
+    public String deleteUser(User user) throws WarrantException {
+        return deleteUser(user.getUserId(), new RequestOptions());
     }
 
-    public void deleteUser(String userId) throws WarrantException {
-        deleteUser(userId, new RequestOptions());
+    public String deleteUser(String userId) throws WarrantException {
+        return deleteUser(userId, new RequestOptions());
     }
 
-    public void deleteUser(String userId, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v1/users/" + userId, requestOptions.asMap());
+    public String deleteUser(String userId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(User.OBJECT_TYPE, userId, requestOptions);
+    }
+
+    public String deleteUsers(User[] users) throws WarrantException {
+        return deleteObjects(users);
+    }
+
+    public String deleteUsers(User[] users, RequestOptions requestOptions) throws WarrantException {
+        return deleteObjects(users, requestOptions);
     }
 
     public User getUser(String userId) throws WarrantException {
@@ -73,55 +89,59 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public User getUser(String userId, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/users/" + userId, User.class, requestOptions.asMap());
+        return getObject(User.OBJECT_TYPE, userId, User.class, requestOptions);
     }
 
-    public User[] listUsers(int limit, int page) throws WarrantException {
-        return listUsers(new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<User> listUsers(int limit) throws WarrantException {
+        return listUsers(new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public User[] listUsers(int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listUsers(new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<User> listUsers(int limit, RequestOptions requestOptions) throws WarrantException {
+        return listUsers(new ListParams().withLimit(limit), requestOptions);
     }
 
-    public User[] listUsers(ListParams listParams) throws WarrantException {
+    public ListResult<User> listUsers(ListParams listParams) throws WarrantException {
         return listUsers(listParams, new RequestOptions());
     }
 
-    public User[] listUsers(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/users", listParams.asMap(), User[].class, requestOptions.asMap());
+    public ListResult<User> listUsers(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        BaseWarrantObjectListResult userObjects = listObjects(new ObjectFilters().withObjectType(User.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        User[] users = Arrays.stream(userObjects.getResults()).map(result -> new User(result.getObjectId(), result.getMeta())).toArray(User[]::new);
+        return new ListResult<User>(users, userObjects.getPrevCursor(), userObjects.getNextCursor());
     }
 
-    public User[] listUsersForTenant(Tenant tenant, int limit, int page) throws WarrantException {
-        return listUsersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<User> listUsersForTenant(Tenant tenant, int limit) throws WarrantException {
+        return listUsersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public User[] listUsersForTenant(Tenant tenant, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listUsersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<User> listUsersForTenant(Tenant tenant, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listUsersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public User[] listUsersForTenant(Tenant tenant, ListParams listParams) throws WarrantException {
+    public ListResult<User> listUsersForTenant(Tenant tenant, ListParams listParams) throws WarrantException {
         return listUsersForTenant(tenant.getTenantId(), listParams, new RequestOptions());
     }
 
-    public User[] listUsersForTenant(Tenant tenant, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<User> listUsersForTenant(Tenant tenant, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listUsersForTenant(tenant.getTenantId(), listParams, requestOptions);
     }
 
-    public User[] listUsersForTenant(String tenantId, int limit, int page) throws WarrantException {
-        return listUsersForTenant(tenantId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<User> listUsersForTenant(String tenantId, int limit) throws WarrantException {
+        return listUsersForTenant(tenantId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public User[] listUsersForTenant(String tenantId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listUsersForTenant(tenantId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<User> listUsersForTenant(String tenantId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listUsersForTenant(tenantId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public User[] listUsersForTenant(String tenantId, ListParams listParams) throws WarrantException {
+    public ListResult<User> listUsersForTenant(String tenantId, ListParams listParams) throws WarrantException {
         return listUsersForTenant(tenantId, listParams, new RequestOptions());
     }
 
-    public User[] listUsersForTenant(String tenantId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/tenants/" + tenantId + "/users", listParams.asMap(), User[].class, requestOptions.asMap());
+    public ListResult<User> listUsersForTenant(String tenantId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select * of type user for tenant:" + tenantId, listParams, requestOptions);
+        User[] users = Arrays.stream(queryResultSet.getResults()).map(result -> new User(result.getObjectId(), result.getMeta())).toArray(User[]::new);
+        return new ListResult<User>(users, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
     // Tenants
@@ -138,7 +158,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Tenant createTenant(Tenant tenant, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/tenants", tenant, Tenant.class, requestOptions.asMap());
+        return createObject(Tenant.OBJECT_TYPE, tenant.getTenantId(), tenant.getMeta(), Tenant.class, requestOptions);
     }
 
     public Tenant[] createTenants(Tenant[] tenants) throws WarrantException {
@@ -146,7 +166,7 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Tenant[] createTenants(Tenant[] tenants, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/tenants", tenants, Tenant[].class, requestOptions.asMap());
+        return createObjects(tenants, Tenant[].class, requestOptions);
     }
 
     public Tenant updateTenant(String tenantId, Tenant toUpdate) throws WarrantException {
@@ -154,23 +174,31 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Tenant updateTenant(String tenantId, Tenant toUpdate, RequestOptions requestOptions) throws WarrantException {
-        return makePutRequest("/v1/tenants/" + tenantId, toUpdate, Tenant.class, requestOptions.asMap());
+        return updateObject(Tenant.OBJECT_TYPE, tenantId, toUpdate.getMeta(), Tenant.class, requestOptions);
     }
 
-    public void deleteTenant(Tenant tenant) throws WarrantException {
-        deleteTenant(tenant.getTenantId(), new RequestOptions());
+    public String deleteTenant(Tenant tenant) throws WarrantException {
+        return deleteTenant(tenant.getTenantId(), new RequestOptions());
     }
 
-    public void deleteTenant(Tenant tenant, RequestOptions requestOptions) throws WarrantException {
-        deleteTenant(tenant.getTenantId(), requestOptions);
+    public String deleteTenant(Tenant tenant, RequestOptions requestOptions) throws WarrantException {
+        return deleteTenant(tenant.getTenantId(), requestOptions);
     }
 
-    public void deleteTenant(String tenantId) throws WarrantException {
-        deleteTenant(tenantId, new RequestOptions());
+    public String deleteTenant(String tenantId) throws WarrantException {
+        return deleteTenant(tenantId, new RequestOptions());
     }
 
-    public void deleteTenant(String tenantId, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v1/tenants/" + tenantId, requestOptions.asMap());
+    public String deleteTenant(String tenantId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Tenant.OBJECT_TYPE, tenantId, requestOptions);
+    }
+
+    public String deleteTenants(Tenant[] tenants) throws WarrantException {
+        return deleteTenants(tenants, new RequestOptions());
+    }
+
+    public String deleteTenants(Tenant[] tenants, RequestOptions requestOptions) throws WarrantException {
+        return deleteObjects(tenants, requestOptions);
     }
 
     public Tenant getTenant(String tenantId) throws WarrantException {
@@ -178,64 +206,76 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Tenant getTenant(String tenantId, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/tenants/" + tenantId, Tenant.class, requestOptions.asMap());
+        return getObject(Tenant.OBJECT_TYPE, tenantId, Tenant.class, requestOptions);
     }
 
-    public Tenant[] listTenants(int limit, int page) throws WarrantException {
-        return listTenants(new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Tenant> listTenants(int limit) throws WarrantException {
+        return listTenants(new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Tenant[] listTenants(int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listTenants(new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Tenant> listTenants(int limit, RequestOptions requestOptions) throws WarrantException {
+        return listTenants(new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Tenant[] listTenants(ListParams listParams) throws WarrantException {
+    public ListResult<Tenant> listTenants(ListParams listParams) throws WarrantException {
         return listTenants(listParams, new RequestOptions());
     }
 
-    public Tenant[] listTenants(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/tenants", listParams.asMap(), Tenant[].class, requestOptions.asMap());
+    public ListResult<Tenant> listTenants(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        BaseWarrantObjectListResult tenantObjects = listObjects(new ObjectFilters().withObjectType(Tenant.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        Tenant[] tenants = Arrays.stream(tenantObjects.getResults()).map(result -> new Tenant(result.getObjectId(), result.getMeta())).toArray(Tenant[]::new);
+        return new ListResult<Tenant>(tenants, tenantObjects.getPrevCursor(), tenantObjects.getNextCursor());
     }
 
-    public Tenant[] listTenantsForUser(User user, int limit, int page) throws WarrantException {
-        return listTenantsForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Tenant> listTenantsForUser(User user, int limit) throws WarrantException {
+        return listTenantsForUser(user.getUserId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Tenant[] listTenantsForUser(User user, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listTenantsForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Tenant> listTenantsForUser(User user, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listTenantsForUser(user.getUserId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Tenant[] listTenantsForUser(User user, ListParams listParams) throws WarrantException {
+    public ListResult<Tenant> listTenantsForUser(User user, ListParams listParams) throws WarrantException {
         return listTenantsForUser(user.getUserId(), listParams, new RequestOptions());
     }
 
-    public Tenant[] listTenantsForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<Tenant> listTenantsForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listTenantsForUser(user.getUserId(), listParams, requestOptions);
     }
 
-    public Tenant[] listTenantsForUser(String userId, int limit, int page) throws WarrantException {
-        return listTenantsForUser(userId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Tenant> listTenantsForUser(String userId, int limit) throws WarrantException {
+        return listTenantsForUser(userId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Tenant[] listTenantsForUser(String userId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listTenantsForUser(userId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Tenant> listTenantsForUser(String userId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listTenantsForUser(userId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Tenant[] listTenantsForUser(String userId, ListParams listParams) throws WarrantException {
+    public ListResult<Tenant> listTenantsForUser(String userId, ListParams listParams) throws WarrantException {
         return listTenantsForUser(userId, listParams, new RequestOptions());
     }
 
-    public Tenant[] listTenantsForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/users/" + userId + "/tenants", listParams.asMap(), Tenant[].class, requestOptions.asMap());
+    public ListResult<Tenant> listTenantsForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select tenant where user:" + userId + " is *", listParams, requestOptions);
+        Tenant[] tenants = Arrays.stream(queryResultSet.getResults()).map(result -> new Tenant(result.getObjectId(), result.getMeta())).toArray(Tenant[]::new);
+        return new ListResult<Tenant>(tenants, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
     // Roles
+    public Role createRole() throws WarrantException {
+        return createRole(new RequestOptions());
+    }
+
+    public Role createRole(RequestOptions requestOptions) throws WarrantException {
+        return createObject(Role.OBJECT_TYPE, Role.class, requestOptions);
+    }
+
     public Role createRole(Role role) throws WarrantException {
         return createRole(role, new RequestOptions());
     }
 
     public Role createRole(Role role, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/roles", role, Role.class, requestOptions.asMap());
+        return createObject(Role.OBJECT_TYPE, role.getRoleId(), role.getMeta(), Role.class, requestOptions);
     }
 
     public Role updateRole(String roleId, Role toUpdate) throws WarrantException {
@@ -243,23 +283,23 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Role updateRole(String roleId, Role toUpdate, RequestOptions requestOptions) throws WarrantException {
-        return makePutRequest("/v1/roles/" + roleId, toUpdate, Role.class, requestOptions.asMap());
+        return updateObject(Role.OBJECT_TYPE, roleId, toUpdate.getMeta(), Role.class, requestOptions);
     }
 
-    public void deleteRole(Role role) throws WarrantException {
-        deleteRole(role.getRoleId(), new RequestOptions());
+    public String deleteRole(Role role) throws WarrantException {
+        return deleteRole(role.getRoleId(), new RequestOptions());
     }
 
-    public void deleteRole(Role role, RequestOptions requestOptions) throws WarrantException {
-        deleteRole(role.getRoleId(), requestOptions);
+    public String deleteRole(Role role, RequestOptions requestOptions) throws WarrantException {
+        return deleteRole(role.getRoleId(), requestOptions);
     }
 
-    public void deleteRole(String roleId) throws WarrantException {
-        deleteRole(roleId, new RequestOptions());
+    public String deleteRole(String roleId) throws WarrantException {
+        return deleteRole(roleId, new RequestOptions());
     }
 
-    public void deleteRole(String roleId, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v1/roles/" + roleId, requestOptions.asMap());
+    public String deleteRole(String roleId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Role.OBJECT_TYPE, roleId, requestOptions);
     }
 
     public Role getRole(String roleId) throws WarrantException {
@@ -267,64 +307,76 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Role getRole(String roleId, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/roles/" + roleId, Role.class, requestOptions.asMap());
+        return getObject(Role.OBJECT_TYPE, roleId, Role.class, requestOptions);
     }
 
-    public Role[] listRoles(int limit, int page) throws WarrantException {
-        return listRoles(new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Role> listRoles(int limit) throws WarrantException {
+        return listRoles(new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Role[] listRoles(int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listRoles(new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Role> listRoles(int limit, RequestOptions requestOptions) throws WarrantException {
+        return listRoles(new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Role[] listRoles(ListParams listParams) throws WarrantException {
+    public ListResult<Role> listRoles(ListParams listParams) throws WarrantException {
         return listRoles(listParams, new RequestOptions());
     }
 
-    public Role[] listRoles(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/roles", listParams.asMap(), Role[].class, requestOptions.asMap());
+    public ListResult<Role> listRoles(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        BaseWarrantObjectListResult roleObjects = listObjects(new ObjectFilters().withObjectType(Role.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        Role[] roles = Arrays.stream(roleObjects.getResults()).map(result -> new Role(result.getObjectId(), result.getMeta())).toArray(Role[]::new);
+        return new ListResult<Role>(roles, roleObjects.getPrevCursor(), roleObjects.getNextCursor());
     }
 
-    public Role[] listRolesForUser(User user, int limit, int page) throws WarrantException {
-        return listRolesForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Role> listRolesForUser(User user, int limit) throws WarrantException {
+        return listRolesForUser(user.getUserId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Role[] listRolesForUser(User user, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listRolesForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Role> listRolesForUser(User user, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listRolesForUser(user.getUserId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Role[] listRolesForUser(User user, ListParams listParams) throws WarrantException {
+    public ListResult<Role> listRolesForUser(User user, ListParams listParams) throws WarrantException {
         return listRolesForUser(user.getUserId(), listParams, new RequestOptions());
     }
 
-    public Role[] listRolesForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<Role> listRolesForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listRolesForUser(user.getUserId(), listParams, requestOptions);
     }
 
-    public Role[] listRolesForUser(String userId, int limit, int page) throws WarrantException {
-        return listRolesForUser(userId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Role> listRolesForUser(String userId, int limit) throws WarrantException {
+        return listRolesForUser(userId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Role[] listRolesForUser(String userId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listRolesForUser(userId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Role> listRolesForUser(String userId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listRolesForUser(userId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Role[] listRolesForUser(String userId, ListParams listParams) throws WarrantException {
+    public ListResult<Role> listRolesForUser(String userId, ListParams listParams) throws WarrantException {
         return listRolesForUser(userId, listParams, new RequestOptions());
     }
 
-    public Role[] listRolesForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/users/" + userId + "/roles", listParams.asMap(), Role[].class, requestOptions.asMap());
+    public ListResult<Role> listRolesForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select role where user:" + userId + " is *", listParams, requestOptions);
+        Role[] roles = Arrays.stream(queryResultSet.getResults()).map(result -> new Role(result.getObjectId(), result.getMeta())).toArray(Role[]::new);
+        return new ListResult<Role>(roles, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
     // Permissions
+    public Permission createPermission() throws WarrantException {
+        return createPermission(new RequestOptions());
+    }
+
+    public Permission createPermission(RequestOptions requestOptions) throws WarrantException {
+        return createObject(Permission.OBJECT_TYPE, Permission.class, requestOptions);
+    }
+
     public Permission createPermission(Permission permission) throws WarrantException {
         return createPermission(permission, new RequestOptions());
     }
 
     public Permission createPermission(Permission permission, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/permissions", permission, Permission.class, requestOptions.asMap());
+        return createObject(Permission.OBJECT_TYPE, permission.getPermissionId(), permission.getMeta(), Permission.class, requestOptions);
     }
 
     public Permission updatePermission(String permissionId, Permission toUpdate) throws WarrantException {
@@ -332,23 +384,23 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Permission updatePermission(String permissionId, Permission toUpdate, RequestOptions requestOptions) throws WarrantException {
-        return makePutRequest("/v1/permissions/" + permissionId, toUpdate, Permission.class, requestOptions.asMap());
+        return updateObject(Permission.OBJECT_TYPE, permissionId, toUpdate.getMeta(), Permission.class, requestOptions);
     }
 
-    public void deletePermission(Permission permission) throws WarrantException {
-        deletePermission(permission.getPermissionId(), new RequestOptions());
+    public String deletePermission(Permission permission) throws WarrantException {
+        return deletePermission(permission.getPermissionId(), new RequestOptions());
     }
 
-    public void deletePermission(Permission permission, RequestOptions requestOptions) throws WarrantException {
-        deletePermission(permission.getPermissionId(), requestOptions);
+    public String deletePermission(Permission permission, RequestOptions requestOptions) throws WarrantException {
+        return deletePermission(permission.getPermissionId(), requestOptions);
     }
 
-    public void deletePermission(String permissionId) throws WarrantException {
-        deletePermission(permissionId, new RequestOptions());
+    public String deletePermission(String permissionId) throws WarrantException {
+        return deletePermission(permissionId, new RequestOptions());
     }
 
-    public void deletePermission(String permissionId, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v1/permissions/" + permissionId, requestOptions.asMap());
+    public String deletePermission(String permissionId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Permission.OBJECT_TYPE, permissionId, requestOptions);
     }
 
     public Permission getPermission(String permissionId) throws WarrantException {
@@ -356,112 +408,126 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Permission getPermission(String permissionId, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/permissions/" + permissionId, Permission.class, requestOptions.asMap());
+        return getObject(Permission.OBJECT_TYPE, permissionId, Permission.class, requestOptions);
     }
 
-    public Permission[] listPermissions(int limit, int page) throws WarrantException {
-        return listPermissions(new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Permission> listPermissions(int limit) throws WarrantException {
+        return listPermissions(new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Permission[] listPermissions(int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPermissions(new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Permission> listPermissions(int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPermissions(new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Permission[] listPermissions(ListParams listParams) throws WarrantException {
+    public ListResult<Permission> listPermissions(ListParams listParams) throws WarrantException {
         return listPermissions(listParams, new RequestOptions());
     }
 
-    public Permission[] listPermissions(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/permissions", listParams.asMap(), Permission[].class, requestOptions.asMap());
+    public ListResult<Permission> listPermissions(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        BaseWarrantObjectListResult permissionObjects = listObjects(new ObjectFilters().withObjectType(Permission.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        Permission[] permissions = Arrays.stream(permissionObjects.getResults()).map(result -> new Permission(result.getObjectId(), result.getMeta())).toArray(Permission[]::new);
+        return new ListResult<Permission>(permissions, permissionObjects.getPrevCursor(), permissionObjects.getNextCursor());
     }
 
-    public Permission[] listPermissionsForUser(User user, int limit, int page) throws WarrantException {
-        return listPermissionsForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Permission> listPermissionsForUser(User user, int limit) throws WarrantException {
+        return listPermissionsForUser(user.getUserId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Permission[] listPermissionsForUser(User user, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPermissionsForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Permission> listPermissionsForUser(User user, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPermissionsForUser(user.getUserId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Permission[] listPermissionsForUser(User user, ListParams listParams) throws WarrantException {
+    public ListResult<Permission> listPermissionsForUser(User user, ListParams listParams) throws WarrantException {
         return listPermissionsForUser(user.getUserId(), listParams, new RequestOptions());
     }
 
-    public Permission[] listPermissionsForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<Permission> listPermissionsForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listPermissionsForUser(user.getUserId(), listParams, requestOptions);
     }
 
-    public Permission[] listPermissionsForUser(String userId, int limit, int page) throws WarrantException {
-        return listPermissionsForUser(userId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Permission> listPermissionsForUser(String userId, int limit) throws WarrantException {
+        return listPermissionsForUser(userId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Permission[] listPermissionsForUser(String userId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPermissionsForUser(userId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Permission> listPermissionsForUser(String userId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPermissionsForUser(userId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Permission[] listPermissionsForUser(String userId, ListParams listParams) throws WarrantException {
+    public ListResult<Permission> listPermissionsForUser(String userId, ListParams listParams) throws WarrantException {
         return listPermissionsForUser(userId, listParams, new RequestOptions());
     }
 
-    public Permission[] listPermissionsForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/users/" + userId + "/permissions", listParams.asMap(), Permission[].class, requestOptions.asMap());
+    public ListResult<Permission> listPermissionsForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select permission where user:" + userId + " is *", listParams, requestOptions);
+        Permission[] permissions = Arrays.stream(queryResultSet.getResults()).map(result -> new Permission(result.getObjectId(), result.getMeta())).toArray(Permission[]::new);
+        return new ListResult<Permission>(permissions, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
-    public Permission[] listPermissionsForRole(Role role, int limit, int page) throws WarrantException {
-        return listPermissionsForRole(role.getRoleId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Permission> listPermissionsForRole(Role role, int limit) throws WarrantException {
+        return listPermissionsForRole(role.getRoleId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Permission[] listPermissionsForRole(Role role, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPermissionsForRole(role.getRoleId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Permission> listPermissionsForRole(Role role, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPermissionsForRole(role.getRoleId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Permission[] listPermissionsForRole(Role role, ListParams listParams) throws WarrantException {
+    public ListResult<Permission> listPermissionsForRole(Role role, ListParams listParams) throws WarrantException {
         return listPermissionsForRole(role.getRoleId(), listParams, new RequestOptions());
     }
 
-    public Permission[] listPermissionsForRole(Role role, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<Permission> listPermissionsForRole(Role role, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listPermissionsForRole(role.getRoleId(), listParams, requestOptions);
     }
 
-    public Permission[] listPermissionsForRole(String roleId, int limit, int page) throws WarrantException {
-        return listPermissionsForRole(roleId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Permission> listPermissionsForRole(String roleId, int limit) throws WarrantException {
+        return listPermissionsForRole(roleId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Permission[] listPermissionsForRole(String roleId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPermissionsForRole(roleId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Permission> listPermissionsForRole(String roleId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPermissionsForRole(roleId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Permission[] listPermissionsForRole(String roleId, ListParams listParams) throws WarrantException {
+    public ListResult<Permission> listPermissionsForRole(String roleId, ListParams listParams) throws WarrantException {
         return listPermissionsForRole(roleId, listParams, new RequestOptions());
     }
 
-    public Permission[] listPermissionsForRole(String roleId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/roles/" + roleId + "/permissions", listParams.asMap(), Permission[].class, requestOptions.asMap());
+    public ListResult<Permission> listPermissionsForRole(String roleId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select permission where role:" + roleId + " is *", listParams, requestOptions);
+        Permission[] permissions = Arrays.stream(queryResultSet.getResults()).map(result -> new Permission(result.getObjectId(), result.getMeta())).toArray(Permission[]::new);
+        return new ListResult<Permission>(permissions, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
     // Features
+    public Feature createFeature() throws WarrantException {
+        return createFeature(new RequestOptions());
+    }
+
+    public Feature createFeature(RequestOptions requestOptions) throws WarrantException {
+        return createObject(Feature.OBJECT_TYPE, Feature.class, requestOptions);
+    }
+
     public Feature createFeature(Feature feature) throws WarrantException {
         return createFeature(feature, new RequestOptions());
     }
 
     public Feature createFeature(Feature feature, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/features", feature, Feature.class, requestOptions.asMap());
+        return createObject(Feature.OBJECT_TYPE, feature.getFeatureId(), feature.getMeta(), Feature.class, requestOptions);
     }
 
-    public void deleteFeature(Feature feature) throws WarrantException {
-        deleteFeature(feature.getFeatureId(), new RequestOptions());
+    public String deleteFeature(Feature feature) throws WarrantException {
+        return deleteFeature(feature.getFeatureId(), new RequestOptions());
     }
 
-    public void deleteFeature(Feature feature, RequestOptions requestOptions) throws WarrantException {
-        deleteFeature(feature.getFeatureId(), requestOptions);
+    public String deleteFeature(Feature feature, RequestOptions requestOptions) throws WarrantException {
+        return deleteFeature(feature.getFeatureId(), requestOptions);
     }
 
-    public void deleteFeature(String featureId) throws WarrantException {
-        deleteFeature(featureId, new RequestOptions());
+    public String deleteFeature(String featureId) throws WarrantException {
+        return deleteFeature(featureId, new RequestOptions());
     }
 
-    public void deleteFeature(String featureId, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v1/features/" + featureId, requestOptions.asMap());
+    public String deleteFeature(String featureId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(Feature.OBJECT_TYPE, featureId, requestOptions);
     }
 
     public Feature getFeature(String featureId) throws WarrantException {
@@ -469,144 +535,160 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public Feature getFeature(String featureId, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/features/" + featureId, Feature.class, requestOptions.asMap());
+        return getObject(Feature.OBJECT_TYPE, featureId, Feature.class, requestOptions);
     }
 
-    public Feature[] listFeatures(int limit, int page) throws WarrantException {
-        return listFeatures(new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Feature> listFeatures(int limit) throws WarrantException {
+        return listFeatures(new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Feature[] listFeatures(int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listFeatures(new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Feature> listFeatures(int limit, RequestOptions requestOptions) throws WarrantException {
+        return listFeatures(new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Feature[] listFeatures(ListParams listParams) throws WarrantException {
+    public ListResult<Feature> listFeatures(ListParams listParams) throws WarrantException {
         return listFeatures(listParams, new RequestOptions());
     }
 
-    public Feature[] listFeatures(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/features", listParams.asMap(), Feature[].class, requestOptions.asMap());
+    public ListResult<Feature> listFeatures(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        BaseWarrantObjectListResult featureObjects = listObjects(new ObjectFilters().withObjectType(Feature.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        Feature[] features = Arrays.stream(featureObjects.getResults()).map(result -> new Feature(result.getObjectId(), result.getMeta())).toArray(Feature[]::new);
+        return new ListResult<Feature>(features, featureObjects.getPrevCursor(), featureObjects.getNextCursor());
     }
 
-    public Feature[] listFeaturesForUser(User user, int limit, int page) throws WarrantException {
-        return listFeaturesForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Feature> listFeaturesForUser(User user, int limit) throws WarrantException {
+        return listFeaturesForUser(user.getUserId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Feature[] listFeaturesForUser(User user, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listFeaturesForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Feature> listFeaturesForUser(User user, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listFeaturesForUser(user.getUserId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Feature[] listFeaturesForUser(User user, ListParams listParams) throws WarrantException {
+    public ListResult<Feature> listFeaturesForUser(User user, ListParams listParams) throws WarrantException {
         return listFeaturesForUser(user.getUserId(), listParams, new RequestOptions());
     }
 
-    public Feature[] listFeaturesForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<Feature> listFeaturesForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listFeaturesForUser(user.getUserId(), listParams, requestOptions);
     }
 
-    public Feature[] listFeaturesForUser(String userId, int limit, int page) throws WarrantException {
-        return listFeaturesForUser(userId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Feature> listFeaturesForUser(String userId, int limit) throws WarrantException {
+        return listFeaturesForUser(userId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Feature[] listFeaturesForUser(String userId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listFeaturesForUser(userId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Feature> listFeaturesForUser(String userId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listFeaturesForUser(userId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Feature[] listFeaturesForUser(String userId, ListParams listParams) throws WarrantException {
+    public ListResult<Feature> listFeaturesForUser(String userId, ListParams listParams) throws WarrantException {
         return listFeaturesForUser(userId, listParams, new RequestOptions());
     }
 
-    public Feature[] listFeaturesForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/users/" + userId + "/features", listParams.asMap(), Feature[].class, requestOptions.asMap());
+    public ListResult<Feature> listFeaturesForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select feature where user:" + userId + " is *", listParams, requestOptions);
+        Feature[] features = Arrays.stream(queryResultSet.getResults()).map(result -> new Feature(result.getObjectId(), result.getMeta())).toArray(Feature[]::new);
+        return new ListResult<Feature>(features, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
-    public Feature[] listFeaturesForTenant(Tenant tenant, int limit, int page) throws WarrantException {
-        return listFeaturesForTenant(tenant.getTenantId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Feature> listFeaturesForTenant(Tenant tenant, int limit) throws WarrantException {
+        return listFeaturesForTenant(tenant.getTenantId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Feature[] listFeaturesForTenant(Tenant tenant, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listFeaturesForTenant(tenant.getTenantId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Feature> listFeaturesForTenant(Tenant tenant, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listFeaturesForTenant(tenant.getTenantId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Feature[] listFeaturesForTenant(Tenant tenant, ListParams listParams) throws WarrantException {
+    public ListResult<Feature> listFeaturesForTenant(Tenant tenant, ListParams listParams) throws WarrantException {
         return listFeaturesForTenant(tenant.getTenantId(), listParams, new RequestOptions());
     }
 
-    public Feature[] listFeaturesForTenant(Tenant tenant, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<Feature> listFeaturesForTenant(Tenant tenant, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listFeaturesForTenant(tenant.getTenantId(), listParams, requestOptions);
     }
 
-    public Feature[] listFeaturesForTenant(String tenantId, int limit, int page) throws WarrantException {
-        return listFeaturesForTenant(tenantId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Feature> listFeaturesForTenant(String tenantId, int limit) throws WarrantException {
+        return listFeaturesForTenant(tenantId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Feature[] listFeaturesForTenant(String tenantId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listFeaturesForTenant(tenantId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Feature> listFeaturesForTenant(String tenantId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listFeaturesForTenant(tenantId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Feature[] listFeaturesForTenant(String tenantId, ListParams listParams) throws WarrantException {
+    public ListResult<Feature> listFeaturesForTenant(String tenantId, ListParams listParams) throws WarrantException {
         return listFeaturesForTenant(tenantId, listParams, new RequestOptions());
     }
 
-    public Feature[] listFeaturesForTenant(String tenantId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/tenants/" + tenantId + "/features", listParams.asMap(), Feature[].class, requestOptions.asMap());
+    public ListResult<Feature> listFeaturesForTenant(String tenantId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select feature where tenant:" + tenantId + " is *", listParams, requestOptions);
+        Feature[] features = Arrays.stream(queryResultSet.getResults()).map(result -> new Feature(result.getObjectId(), result.getMeta())).toArray(Feature[]::new);
+        return new ListResult<Feature>(features, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
-    public Feature[] listFeaturesForPricingTier(PricingTier pricingTier, int limit, int page) throws WarrantException {
-        return listFeaturesForPricingTier(pricingTier.getPricingTierId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Feature> listFeaturesForPricingTier(PricingTier pricingTier, int limit) throws WarrantException {
+        return listFeaturesForPricingTier(pricingTier.getPricingTierId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Feature[] listFeaturesForPricingTier(PricingTier pricingTier, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listFeaturesForPricingTier(pricingTier.getPricingTierId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Feature> listFeaturesForPricingTier(PricingTier pricingTier, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listFeaturesForPricingTier(pricingTier.getPricingTierId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Feature[] listFeaturesForPricingTier(PricingTier pricingTier, ListParams listParams) throws WarrantException {
+    public ListResult<Feature> listFeaturesForPricingTier(PricingTier pricingTier, ListParams listParams) throws WarrantException {
         return listFeaturesForPricingTier(pricingTier.getPricingTierId(), listParams, new RequestOptions());
     }
 
-    public Feature[] listFeaturesForPricingTier(PricingTier pricingTier, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<Feature> listFeaturesForPricingTier(PricingTier pricingTier, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listFeaturesForPricingTier(pricingTier.getPricingTierId(), listParams, requestOptions);
     }
 
-    public Feature[] listFeaturesForPricingTier(String pricingTierId, int limit, int page) throws WarrantException {
-        return listFeaturesForPricingTier(pricingTierId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<Feature> listFeaturesForPricingTier(String pricingTierId, int limit) throws WarrantException {
+        return listFeaturesForPricingTier(pricingTierId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public Feature[] listFeaturesForPricingTier(String pricingTierId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listFeaturesForPricingTier(pricingTierId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<Feature> listFeaturesForPricingTier(String pricingTierId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listFeaturesForPricingTier(pricingTierId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public Feature[] listFeaturesForPricingTier(String pricingTierId, ListParams listParams) throws WarrantException {
+    public ListResult<Feature> listFeaturesForPricingTier(String pricingTierId, ListParams listParams) throws WarrantException {
         return listFeaturesForPricingTier(pricingTierId, listParams, new RequestOptions());
     }
 
-    public Feature[] listFeaturesForPricingTier(String pricingTierId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/pricing-tiers/" + pricingTierId + "/features", listParams.asMap(), Feature[].class, requestOptions.asMap());
+    public ListResult<Feature> listFeaturesForPricingTier(String pricingTierId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select feature where pricing-tier:" + pricingTierId + " is *", listParams, requestOptions);
+        Feature[] features = Arrays.stream(queryResultSet.getResults()).map(result -> new Feature(result.getObjectId(), result.getMeta())).toArray(Feature[]::new);
+        return new ListResult<Feature>(features, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
     // Pricing Tiers
+    public PricingTier createPricingTier() throws WarrantException {
+        return createPricingTier(new RequestOptions());
+    }
+
+    public PricingTier createPricingTier(RequestOptions requestOptions) throws WarrantException {
+        return createObject(PricingTier.OBJECT_TYPE, PricingTier.class, requestOptions);
+    }
+
     public PricingTier createPricingTier(PricingTier pricingTier) throws WarrantException {
         return createPricingTier(pricingTier, new RequestOptions());
     }
 
     public PricingTier createPricingTier(PricingTier pricingTier, RequestOptions requestOptions) throws WarrantException {
-        return makePostRequest("/v1/pricing-tiers", pricingTier, PricingTier.class, requestOptions.asMap());
+        return createObject(PricingTier.OBJECT_TYPE, pricingTier.getPricingTierId(), pricingTier.getMeta(), PricingTier.class, requestOptions);
     }
 
-    public void deletePricingTier(PricingTier pricingTier) throws WarrantException {
-        deletePricingTier(pricingTier.getPricingTierId(), new RequestOptions());
+    public String deletePricingTier(PricingTier pricingTier) throws WarrantException {
+        return deletePricingTier(pricingTier.getPricingTierId(), new RequestOptions());
     }
 
-    public void deletePricingTier(PricingTier pricingTier, RequestOptions requestOptions) throws WarrantException {
-        deletePricingTier(pricingTier.getPricingTierId(), requestOptions);
+    public String deletePricingTier(PricingTier pricingTier, RequestOptions requestOptions) throws WarrantException {
+        return deletePricingTier(pricingTier.getPricingTierId(), requestOptions);
     }
 
-    public void deletePricingTier(String pricingTierId) throws WarrantException {
-        deletePricingTier(pricingTierId, new RequestOptions());
+    public String deletePricingTier(String pricingTierId) throws WarrantException {
+        return deletePricingTier(pricingTierId, new RequestOptions());
     }
 
-    public void deletePricingTier(String pricingTierId, RequestOptions requestOptions) throws WarrantException {
-        makeDeleteRequest("/v1/pricing-tiers/" + pricingTierId, requestOptions.asMap());
+    public String deletePricingTier(String pricingTierId, RequestOptions requestOptions) throws WarrantException {
+        return deleteObject(PricingTier.OBJECT_TYPE, pricingTierId, requestOptions);
     }
 
     public PricingTier getPricingTier(String pricingTierId) throws WarrantException {
@@ -614,87 +696,93 @@ public class WarrantClient extends WarrantBaseClient {
     }
 
     public PricingTier getPricingTier(String pricingTierId, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/pricing-tiers/" + pricingTierId, PricingTier.class, requestOptions.asMap());
+        return getObject(PricingTier.OBJECT_TYPE, pricingTierId, PricingTier.class, requestOptions);
     }
 
-    public PricingTier[] listPricingTiers(int limit, int page) throws WarrantException {
-        return listPricingTiers(new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<PricingTier> listPricingTiers(int limit) throws WarrantException {
+        return listPricingTiers(new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiers(int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPricingTiers(new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<PricingTier> listPricingTiers(int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPricingTiers(new ListParams().withLimit(limit), requestOptions);
     }
 
-    public PricingTier[] listPricingTiers(ListParams listParams) throws WarrantException {
+    public ListResult<PricingTier> listPricingTiers(ListParams listParams) throws WarrantException {
         return listPricingTiers(listParams, new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiers(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/pricing-tiers", listParams.asMap(), PricingTier[].class, requestOptions.asMap());
+    public ListResult<PricingTier> listPricingTiers(ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        BaseWarrantObjectListResult pricingTierObjects = listObjects(new ObjectFilters().withObjectType(PricingTier.OBJECT_TYPE), new ListParams().withLimit(10), requestOptions);
+        PricingTier[] pricingTiers = Arrays.stream(pricingTierObjects.getResults()).map(result -> new PricingTier(result.getObjectId(), result.getMeta())).toArray(PricingTier[]::new);
+        return new ListResult<PricingTier>(pricingTiers, pricingTierObjects.getPrevCursor(), pricingTierObjects.getNextCursor());
     }
 
-    public PricingTier[] listPricingTiersForTenant(Tenant tenant, int limit, int page) throws WarrantException {
-        return listPricingTiersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<PricingTier> listPricingTiersForTenant(Tenant tenant, int limit) throws WarrantException {
+        return listPricingTiersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForTenant(Tenant tenant, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPricingTiersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<PricingTier> listPricingTiersForTenant(Tenant tenant, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPricingTiersForTenant(tenant.getTenantId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public PricingTier[] listPricingTiersForTenant(Tenant tenant, ListParams listParams) throws WarrantException {
+    public ListResult<PricingTier> listPricingTiersForTenant(Tenant tenant, ListParams listParams) throws WarrantException {
         return listPricingTiersForTenant(tenant.getTenantId(), listParams, new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForTenant(Tenant tenant, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<PricingTier> listPricingTiersForTenant(Tenant tenant, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listPricingTiersForTenant(tenant.getTenantId(), listParams, requestOptions);
     }
 
-    public PricingTier[] listPricingTiersForTenant(String tenantId, int limit, int page) throws WarrantException {
-        return listPricingTiersForTenant(tenantId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<PricingTier> listPricingTiersForTenant(String tenantId, int limit) throws WarrantException {
+        return listPricingTiersForTenant(tenantId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForTenant(String tenantId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPricingTiersForTenant(tenantId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<PricingTier> listPricingTiersForTenant(String tenantId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPricingTiersForTenant(tenantId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public PricingTier[] listPricingTiersForTenant(String tenantId, ListParams listParams) throws WarrantException {
+    public ListResult<PricingTier> listPricingTiersForTenant(String tenantId, ListParams listParams) throws WarrantException {
         return listPricingTiersForTenant(tenantId, listParams, new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForTenant(String tenantId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/tenants/" + tenantId + "/pricing-tiers", listParams.asMap(), PricingTier[].class, requestOptions.asMap());
+    public ListResult<PricingTier> listPricingTiersForTenant(String tenantId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select pricing-tier where tenant:" + tenantId + " is *", listParams, requestOptions);
+        PricingTier[] pricingTiers = Arrays.stream(queryResultSet.getResults()).map(result -> new PricingTier(result.getObjectId(), result.getMeta())).toArray(PricingTier[]::new);
+        return new ListResult<PricingTier>(pricingTiers, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
-    public PricingTier[] listPricingTiersForUser(User user, int limit, int page) throws WarrantException {
-        return listPricingTiersForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<PricingTier> listPricingTiersForUser(User user, int limit) throws WarrantException {
+        return listPricingTiersForUser(user.getUserId(), new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForUser(User user, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPricingTiersForUser(user.getUserId(), new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<PricingTier> listPricingTiersForUser(User user, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPricingTiersForUser(user.getUserId(), new ListParams().withLimit(limit), requestOptions);
     }
 
-    public PricingTier[] listPricingTiersForUser(User user, ListParams listParams) throws WarrantException {
+    public ListResult<PricingTier> listPricingTiersForUser(User user, ListParams listParams) throws WarrantException {
         return listPricingTiersForUser(user.getUserId(), listParams, new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+    public ListResult<PricingTier> listPricingTiersForUser(User user, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
         return listPricingTiersForUser(user.getUserId(), listParams, requestOptions);
     }
 
-    public PricingTier[] listPricingTiersForUser(String userId, int limit, int page) throws WarrantException {
-        return listPricingTiersForUser(userId, new ListParams().withLimit(limit).withPage(page), new RequestOptions());
+    public ListResult<PricingTier> listPricingTiersForUser(String userId, int limit) throws WarrantException {
+        return listPricingTiersForUser(userId, new ListParams().withLimit(limit), new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForUser(String userId, int limit, int page, RequestOptions requestOptions) throws WarrantException {
-        return listPricingTiersForUser(userId, new ListParams().withLimit(limit).withPage(page), requestOptions);
+    public ListResult<PricingTier> listPricingTiersForUser(String userId, int limit, RequestOptions requestOptions) throws WarrantException {
+        return listPricingTiersForUser(userId, new ListParams().withLimit(limit), requestOptions);
     }
 
-    public PricingTier[] listPricingTiersForUser(String userId, ListParams listParams) throws WarrantException {
+    public ListResult<PricingTier> listPricingTiersForUser(String userId, ListParams listParams) throws WarrantException {
         return listPricingTiersForUser(userId, listParams, new RequestOptions());
     }
 
-    public PricingTier[] listPricingTiersForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
-        return makeGetRequest("/v1/users/" + userId + "/pricing-tiers", listParams.asMap(), PricingTier[].class, requestOptions.asMap());
+    public ListResult<PricingTier> listPricingTiersForUser(String userId, ListParams listParams, RequestOptions requestOptions) throws WarrantException {
+        QueryResultSet queryResultSet = query("select pricing-tier where user:" + userId + " is *", listParams, requestOptions);
+        PricingTier[] pricingTiers = Arrays.stream(queryResultSet.getResults()).map(result -> new PricingTier(result.getObjectId(), result.getMeta())).toArray(PricingTier[]::new);
+        return new ListResult<PricingTier>(pricingTiers, queryResultSet.getPrevCursor(), queryResultSet.getNextCursor());
     }
 
     // Assign

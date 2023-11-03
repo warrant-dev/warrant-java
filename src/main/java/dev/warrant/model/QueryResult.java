@@ -1,11 +1,15 @@
 package dev.warrant.model;
 
+import java.util.Map;
+import java.util.HashMap;
+
 public class QueryResult {
 
     private String objectType;
     private String objectId;
     private Warrant warrant;
     private Boolean isImplicit;
+    private Map<String, Object> meta;
 
     public QueryResult() {
         // For json serialization
@@ -16,6 +20,15 @@ public class QueryResult {
         this.objectId = objectId;
         this.warrant = warrant;
         this.isImplicit = isImplicit;
+        this.meta = new HashMap<String, Object>();
+    }
+
+    public QueryResult(String objectType, String objectId, Warrant warrant, Boolean isImplicit, Map<String, Object> meta) {
+        this.objectType = objectType;
+        this.objectId = objectId;
+        this.warrant = warrant;
+        this.isImplicit = isImplicit;
+        this.meta = meta;
     }
 
     public String getObjectType() {
@@ -48,5 +61,13 @@ public class QueryResult {
 
     public void setIsImplicit(Boolean isImplicit) {
         this.isImplicit = isImplicit;
+    }
+
+    public Map<String, Object> getMeta() {
+        return this.meta;
+    }
+
+    public void setMeta(Map<String, Object> meta) {
+        this.meta = meta;
     }
 }

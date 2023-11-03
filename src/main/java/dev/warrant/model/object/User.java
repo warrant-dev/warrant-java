@@ -1,52 +1,60 @@
 package dev.warrant.model.object;
 
-public class User implements WarrantObject {
-    public static final String OBJECT_TYPE = "user";
+import java.util.Map;
 
-    private String userId;
-    private String email;
+public class User extends BaseWarrantObject {
+    public static final String OBJECT_TYPE = "user";
+    static final String EMAIL_KEY = "email";
 
     public User() {
         // For json serialization
+        super();
     }
 
     public User(String userId) {
-        this.userId = userId;
+        super(OBJECT_TYPE, userId);
     }
 
     public User(String userId, String email) {
-        this.userId = userId;
-        this.email = email;
+        super(OBJECT_TYPE, userId);
+        this.meta.put(EMAIL_KEY, email);
+    }
+
+    public User(String userId, Map<String, Object> meta) {
+        super(OBJECT_TYPE, userId, meta);
     }
 
     public String getUserId() {
-        return userId;
+        return objectId;
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
+        this.objectId = userId;
     }
 
     public String getEmail() {
-        return email;
+        if (meta != null) {
+            if (meta.containsKey(EMAIL_KEY)) {
+                return meta.get(EMAIL_KEY).toString();
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        meta.put(EMAIL_KEY, email);
     }
 
     @Override
     public String id() {
-        return userId;
+        return objectId;
     }
 
     @Override
     public String type() {
-        return "user";
+        return OBJECT_TYPE;
     }
-
-    // @Override
-    // public Map<String, Object> meta() {
-    //     return null;
-    // }
 }

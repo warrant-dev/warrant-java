@@ -1,67 +1,83 @@
 package dev.warrant.model.object;
 
-public class Role implements WarrantObject {
-    public static final String OBJECT_TYPE = "role";
+import java.util.Map;
 
-    private String roleId;
-    private String name;
-    private String description;
+public class Role extends BaseWarrantObject {
+    public static final String OBJECT_TYPE = "role";
+    static final String NAME_KEY = "name";
+    static final String DESCRIPTION_KEY = "description";
 
     public Role() {
         // For json serialization
+        super();
     }
 
     public Role(String roleId) {
-        this.roleId = roleId;
+        super(OBJECT_TYPE, roleId);
     }
 
     public Role(String roleId, String name) {
-        this.roleId = roleId;
-        this.name = name;
+        super(OBJECT_TYPE, roleId);
+        this.meta.put(NAME_KEY, name);
     }
 
     public Role(String roleId, String name, String description) {
-        this.roleId = roleId;
-        this.name = name;
-        this.description = description;
+        super(OBJECT_TYPE, roleId);
+        this.meta.put(NAME_KEY, name);
+        this.meta.put(DESCRIPTION_KEY, description);
+    }
+
+    public Role(String roleId, Map<String, Object> meta) {
+        super(OBJECT_TYPE, roleId, meta);
     }
 
     public String getRoleId() {
-        return roleId;
+        return objectId;
     }
 
     public void setRoleId(String roleId) {
-        this.roleId = roleId;
+        this.objectId = roleId;
     }
 
     public String getName() {
-        return name;
+        if (meta != null) {
+            if (meta.containsKey(NAME_KEY)) {
+                return meta.get(NAME_KEY).toString();
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     public void setName(String name) {
-        this.name = name;
+        meta.put(NAME_KEY, name);
     }
 
     public String getDescription() {
-        return description;
+        if (meta != null) {
+            if (meta.containsKey(DESCRIPTION_KEY)) {
+                return meta.get(DESCRIPTION_KEY).toString();
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        meta.put(DESCRIPTION_KEY, description);
     }
 
     @Override
     public String id() {
-        return roleId;
+        return objectId;
     }
 
     @Override
     public String type() {
-        return "role";
+        return OBJECT_TYPE;
     }
-
-    // @Override
-    // public Map<String, Object> meta() {
-    //     return null;
-    // }
 }

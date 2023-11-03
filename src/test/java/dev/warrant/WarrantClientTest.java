@@ -2,9 +2,13 @@ package dev.warrant;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
+import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +32,11 @@ public class WarrantClientTest {
     public void init() throws IOException, InterruptedException {
         httpClient = Mockito.mock(HttpClient.class);
         httpResponse = Mockito.mock(HttpResponse.class);
+        BiPredicate<String, String> filter = (a, b) -> {
+                return true;
+        };
+        HttpHeaders mockHeaders = HttpHeaders.of(new HashMap<String,List<String>>(), filter);
+        Mockito.when(httpResponse.headers()).thenReturn(mockHeaders);
         Mockito.when(httpClient.send(Mockito.any(HttpRequest.class), Mockito.any(BodyHandler.class)))
                 .thenReturn(httpResponse);
     }
@@ -36,31 +45,31 @@ public class WarrantClientTest {
     public void testCreateUser() throws WarrantException {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body())
-                .thenReturn("{\"userId\":\"sdf872934sdf\", \"createdAt\": \"2022-05-14T02:40:25Z\"}");
+                .thenReturn("{\"objectType\":\"user\", \"objectId\":\"sdf872934sdf\", \"createdAt\": \"2022-05-14T02:40:25Z\"}");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
         User newUser = warrantClient.createUser();
         Assertions.assertEquals("sdf872934sdf", newUser.getUserId());
-        Assertions.assertNull(newUser.getEmail());
+        Assertions.assertEquals("", newUser.getEmail());
     }
 
     @Test
     public void testCreateUserWithId() throws WarrantException {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body())
-                .thenReturn("{\"userId\":\"sdf872935sdf\", \"createdAt\": \"2022-05-14T02:40:25Z\"}");
+                .thenReturn("{\"objectType\":\"user\", \"objectId\":\"sdf872935sdf\", \"createdAt\": \"2022-05-14T02:40:25Z\"}");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
         User newUser = warrantClient.createUser(new User("sdf872935sdf"));
         Assertions.assertEquals("sdf872935sdf", newUser.getUserId());
-        Assertions.assertNull(newUser.getEmail());
+        Assertions.assertEquals("", newUser.getEmail());
     }
 
     @Test
     public void testCreateUserWithIdAndEmail() throws WarrantException {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body()).thenReturn(
-                "{\"userId\":\"sdf872934sdf\", \"email\": \"test@test.com\", \"createdAt\": \"2022-05-14T02:40:25Z\"}");
+                "{\"objectType\":\"user\", \"objectId\":\"sdf872934sdf\", \"meta\": {\"email\": \"test@test.com\"}, \"createdAt\": \"2022-05-14T02:40:25Z\"}");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
         User newUser = warrantClient.createUser(new User("sdf882934sdf", "test@test.com"));
@@ -72,24 +81,24 @@ public class WarrantClientTest {
     public void testCreateTenant() throws WarrantException {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body()).thenReturn(
-                "{\"tenantId\": \"913241cf-740\", \"name\": null, \"createdAt\": \"2022-05-16T04:33:39Z\" }");
+                "{\"objectType\":\"tenant\", \"objectId\": \"913241cf-740\", \"createdAt\": \"2022-05-16T04:33:39Z\" }");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
         Tenant newTenant = warrantClient.createTenant();
         Assertions.assertEquals("913241cf-740", newTenant.getTenantId());
-        Assertions.assertNull(newTenant.getName());
+        Assertions.assertEquals("", newTenant.getName());
     }
 
     @Test
     public void testCreateTenantWithId() throws WarrantException {
         Mockito.when(httpResponse.statusCode()).thenReturn(200);
         Mockito.when(httpResponse.body())
-                .thenReturn("{\"tenantId\": \"913241cf\", \"name\": null, \"createdAt\": \"2022-05-16T04:33:39Z\" }");
+                .thenReturn("{\"objectType\":\"tenant\", \"objectId\": \"913241cf\", \"createdAt\": \"2022-05-16T04:33:39Z\" }");
 
         WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
         Tenant newTenant = warrantClient.createTenant(new Tenant("913241cf"));
         Assertions.assertEquals("913241cf", newTenant.getTenantId());
-        Assertions.assertNull(newTenant.getName());
+        Assertions.assertEquals("", newTenant.getName());
     }
 
     @Test
@@ -108,7 +117,7 @@ public class WarrantClientTest {
                 new QueryResult("role", "manager",
                         new Warrant("role", "manager", "member", new WarrantSubject("role", "admin")), true)
         };
-        QueryResultSet expectedQueryResultSet = new QueryResultSet(expectedQueryResults, "");
+        QueryResultSet expectedQueryResultSet = new QueryResultSet(expectedQueryResults, "", "");
 
         Assertions.assertEquals(expectedQueryResultSet.getResults().length, queryResultSet.getResults().length);
         Assertions.assertEquals(expectedQueryResultSet.getResults()[0].getObjectType(),
