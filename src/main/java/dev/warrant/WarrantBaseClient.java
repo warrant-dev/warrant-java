@@ -427,8 +427,6 @@ public class WarrantBaseClient {
             }
         } catch (IOException e) {
             throw new WarrantException(e);
-        } catch (WarrantException e) {
-            throw e;
         }
     }
 
@@ -459,8 +457,6 @@ public class WarrantBaseClient {
             }
         } catch (IOException e) {
             throw new WarrantException(e);
-        } catch (WarrantException e) {
-            throw e;
         }
     }
 
@@ -525,8 +521,6 @@ public class WarrantBaseClient {
             }
         } catch (IOException e) {
             throw new WarrantException(e);
-        } catch (WarrantException e) {
-            throw e;
         }
     }
 
@@ -555,8 +549,6 @@ public class WarrantBaseClient {
             }
         } catch (IOException e) {
             throw new WarrantException(e);
-        } catch (WarrantException e) {
-            throw e;
         }
     }
 
@@ -629,8 +621,6 @@ public class WarrantBaseClient {
             }
         } catch (IOException e) {
             throw new WarrantException(e);
-        } catch (WarrantException e) {
-            throw e;
         }
     }
 
@@ -681,8 +671,6 @@ public class WarrantBaseClient {
             }
         } catch (IOException e) {
             throw new WarrantException(e);
-        } catch (WarrantException e) {
-            throw e;
         }
     }
 
@@ -727,35 +715,31 @@ public class WarrantBaseClient {
     }
 
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> queryParams, Map<String, Object> requestOptions) throws WarrantException {
-        try {
-            UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
-            for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
-                builder.queryParam(entry.getKey(), entry.getValue());
-            }
+        UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
+        for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
+            builder.queryParam(entry.getKey(), entry.getValue());
+        }
 
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(builder.build())
-                    .version(HttpClient.Version.HTTP_2)
-                    .GET()
-                    .header("User-Agent", USER_AGENT);
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(builder.build())
+                .version(HttpClient.Version.HTTP_2)
+                .GET()
+                .header("User-Agent", USER_AGENT);
 
-            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
-                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
-            }
+        for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
+            requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+        }
 
-            if (!config.getApiKey().isEmpty()) {
-                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
-            }
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (WarrantException e) {
-            throw e;
+        if (!config.getApiKey().isEmpty()) {
+            requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+        }
+        HttpRequest req = requestBuilder.build();
+        HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
+        int statusCode = resp.statusCode();
+        if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
+            return resp;
+        } else {
+            throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
         }
     }
 
