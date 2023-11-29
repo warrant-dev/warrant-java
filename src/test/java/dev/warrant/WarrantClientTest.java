@@ -20,8 +20,10 @@ import dev.warrant.model.WarrantSubject;
 import dev.warrant.model.QueryResult;
 import dev.warrant.model.QueryResultSet;
 import dev.warrant.model.Warrant;
+import dev.warrant.model.object.BaseWarrantObject;
 import dev.warrant.model.object.Tenant;
 import dev.warrant.model.object.User;
+import dev.warrant.model.object.WarrantObject;
 
 public class WarrantClientTest {
 
@@ -152,5 +154,17 @@ public class WarrantClientTest {
                 queryResultSet.getResults()[1].getWarrant().getSubject().getObjectId());
         Assertions.assertEquals(expectedQueryResultSet.getResults()[1].isImplicit(),
                 queryResultSet.getResults()[1].isImplicit());
+    }
+
+    @Test
+    public void testGetObjectRetry() throws WarrantException {
+        Mockito.when(httpResponse.statusCode()).thenReturn(502).thenReturn(200);
+        Mockito.when(httpResponse.body()).thenReturn(
+                "{\"objectType\":\"tenant\", \"objectId\": \"913241cf-740\", \"createdAt\": \"2022-05-16T04:33:39Z\" }");
+
+        WarrantClient warrantClient = new WarrantClient(WarrantConfig.withApiKey("sample_key"), httpClient);
+        BaseWarrantObject myTenant = warrantClient.getObject("tenant", "913241cf-740");
+        Assertions.assertEquals("tenant", myTenant.getObjectType());
+        Assertions.assertEquals("913241cf-740", myTenant.getObjectId());
     }
 }

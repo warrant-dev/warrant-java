@@ -1,17 +1,22 @@
 package dev.warrant;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -36,6 +41,9 @@ import jakarta.ws.rs.core.UriBuilder;
 public class WarrantBaseClient {
     public static final String SDK_VERSION = "4.0.0";
     public static final String USER_AGENT = "warrant-java/" + SDK_VERSION;
+    public static final Integer MAX_RETRIES = 2;
+    public static final Duration MINIMUM_SLEEP_TIME = Duration.ofMillis(500);
+    public static final Double BACKOFF_MULTIPLIER = 1.5;
 
     final HttpClient client;
     final WarrantConfig config;
@@ -410,14 +418,14 @@ public class WarrantBaseClient {
             }
 
             HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return mapper.readValue(resp.body(), WarrantCheck.class);
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
@@ -440,14 +448,14 @@ public class WarrantBaseClient {
             }
 
             HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return mapper.readValue(resp.body(), type);
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
@@ -504,14 +512,14 @@ public class WarrantBaseClient {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
@@ -532,14 +540,14 @@ public class WarrantBaseClient {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
@@ -604,14 +612,14 @@ public class WarrantBaseClient {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 return resp;
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
@@ -649,7 +657,7 @@ public class WarrantBaseClient {
                 requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
             }
             HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
+            HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
             int statusCode = resp.statusCode();
             if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
                 Optional<String> warrantToken = resp.headers().firstValue("warrant-token");
@@ -661,7 +669,7 @@ public class WarrantBaseClient {
             } else {
                 throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new WarrantException(e);
         }
     }
@@ -707,34 +715,31 @@ public class WarrantBaseClient {
     }
 
     private HttpResponse<String> makeGetRequest(String uri, Map<String, Object> queryParams, Map<String, Object> requestOptions) throws WarrantException {
-        try {
-            UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
-            for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
-                builder.queryParam(entry.getKey(), entry.getValue());
-            }
+        UriBuilder builder = UriBuilder.fromPath(config.getBaseUrl() + uri);
+        for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
+            builder.queryParam(entry.getKey(), entry.getValue());
+        }
 
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(builder.build())
-                    .GET()
-                    .header("User-Agent", USER_AGENT);
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(builder.build())
+                .version(HttpClient.Version.HTTP_2)
+                .GET()
+                .header("User-Agent", USER_AGENT);
 
-            for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
-                requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
-            }
+        for (Map.Entry<String, Object> requestOption : requestOptions.entrySet()) {
+            requestBuilder.header(requestOption.getKey(), requestOption.getValue().toString());
+        }
 
-            if (!config.getApiKey().isEmpty()) {
-                requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
-            }
-            HttpRequest req = requestBuilder.build();
-            HttpResponse<String> resp = client.send(req, BodyHandlers.ofString());
-            int statusCode = resp.statusCode();
-            if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
-                return resp;
-            } else {
-                throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new WarrantException(e);
+        if (!config.getApiKey().isEmpty()) {
+            requestBuilder.header("Authorization", "ApiKey " + config.getApiKey());
+        }
+        HttpRequest req = requestBuilder.build();
+        HttpResponse<String> resp = makeRequestWithRetry(req, BodyHandlers.ofString());
+        int statusCode = resp.statusCode();
+        if (statusCode >= Response.Status.OK.getStatusCode() && statusCode < 300) {
+            return resp;
+        } else {
+            throw new WarrantException("Warrant request failed: HTTP " + statusCode + " " + resp.body());
         }
     }
 
@@ -743,5 +748,69 @@ public class WarrantBaseClient {
         params.put("limit", limit);
         params.put("page", page);
         return params;
+    }
+
+    private HttpResponse<String> makeRequestWithRetry(HttpRequest request, BodyHandler<String> respBodyHandler) throws WarrantException {
+        WarrantException requestException = null;
+        HttpResponse<String> response = null;
+        int retryAttempts = 0;
+
+        while (true) {
+            requestException = null;
+
+            try {
+                response = client.send(request, respBodyHandler);
+            } catch (IOException | InterruptedException e) {
+                requestException = new WarrantException(e);
+            }
+
+            if (!shouldRetryRequest(response, retryAttempts, requestException)) {
+                break;
+            }
+
+            retryAttempts += 1;
+
+            try {
+                Thread.sleep(getSleepTime(retryAttempts).toMillis());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        if (requestException != null) {
+            throw requestException;
+        }
+
+        return response;
+    }
+
+    private boolean shouldRetryRequest(HttpResponse<String> response, int retryAttempts, WarrantException requestException) {
+        if (retryAttempts > MAX_RETRIES) {
+            return false;
+        }
+
+        if ((requestException != null) && (requestException.getCause() != null)
+            && (requestException.getCause() instanceof ConnectException || requestException.getCause() instanceof SocketTimeoutException)) {
+            return true;
+        }
+
+        if ((requestException != null) && (requestException.getCause() != null) && (requestException.getCause() instanceof IOException) && (requestException.getMessage().contains("GOAWAY"))) {
+            return true;
+        }
+
+        if (response != null && response.statusCode() == 502) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private Duration getSleepTime(int retryAttempt) {
+        Duration sleepTime = Duration.ofNanos((long) (MINIMUM_SLEEP_TIME.toNanos() * Math.pow(BACKOFF_MULTIPLIER, retryAttempt + 1)));
+
+        double jitter = ThreadLocalRandom.current().nextDouble(0.5, 1.5);
+        sleepTime = Duration.ofNanos((long) (sleepTime.toNanos() * jitter));
+
+        return sleepTime;
     }
 }
