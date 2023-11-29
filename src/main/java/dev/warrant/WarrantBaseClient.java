@@ -722,7 +722,6 @@ public class WarrantBaseClient {
 
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                 .uri(builder.build())
-                .version(HttpClient.Version.HTTP_2)
                 .GET()
                 .header("User-Agent", USER_AGENT);
 
