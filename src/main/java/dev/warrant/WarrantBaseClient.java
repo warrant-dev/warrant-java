@@ -793,7 +793,7 @@ public class WarrantBaseClient {
             return true;
         }
 
-        if ((requestException != null) && (requestException.getCause() != null) && (requestException.getCause() instanceof IOException) && (requestException.getMessage().contains("GOAWAY"))) {
+        if ((requestException != null) && (requestException.getCause() != null) && (requestException.getCause() instanceof IOException)) {
             return true;
         }
 
