@@ -44,6 +44,7 @@ public class WarrantBaseClient {
     public static final Integer MAX_RETRIES = 2;
     public static final Duration MINIMUM_SLEEP_TIME = Duration.ofMillis(500);
     public static final Double BACKOFF_MULTIPLIER = 1.5;
+    public static final List<Integer> RETRY_STATUS_CODES = Arrays.asList(500, 502, 504);
 
     final HttpClient client;
     final WarrantConfig config;
@@ -797,7 +798,7 @@ public class WarrantBaseClient {
             return true;
         }
 
-        if (response != null && response.statusCode() == 502) {
+        if (response != null && RETRY_STATUS_CODES.contains(response.statusCode())) {
             return true;
         }
 

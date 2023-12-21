@@ -159,7 +159,7 @@ public class WarrantClientTest {
 
     @Test
     public void testGetObjectRetry() throws WarrantException {
-        Mockito.when(httpResponse.statusCode()).thenReturn(502).thenReturn(200);
+        Mockito.when(httpResponse.statusCode()).thenReturn(500).thenReturn(502).thenReturn(504).thenReturn(200);
         Mockito.when(httpResponse.body()).thenReturn(
                 "{\"objectType\":\"tenant\", \"objectId\": \"913241cf-740\", \"createdAt\": \"2022-05-16T04:33:39Z\" }");
 
