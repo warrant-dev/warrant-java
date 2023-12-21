@@ -39,7 +39,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 
 public class WarrantBaseClient {
-    public static final String SDK_VERSION = "4.1.1";
+    public static final String SDK_VERSION = "4.2.0";
     public static final String USER_AGENT = "warrant-java/" + SDK_VERSION;
     public static final Integer MAX_RETRIES = 2;
     public static final Duration MINIMUM_SLEEP_TIME = Duration.ofMillis(500);
