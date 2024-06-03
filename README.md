@@ -3,7 +3,6 @@
 Use [Warrant](https://warrant.dev/) in server-side Java projects.
 
 [![Maven Central](https://img.shields.io/maven-central/v/dev.warrant/warrant-java)](https://mvnrepository.com/artifact/dev.warrant/warrant-java)
-[![Slack](https://img.shields.io/badge/slack-join-brightgreen)](https://join.slack.com/t/warrantcommunity/shared_invite/zt-12g84updv-5l1pktJf2bI5WIKN4_~f4w)
 
 ## Installation
 
